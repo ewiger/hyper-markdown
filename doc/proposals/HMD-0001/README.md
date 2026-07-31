@@ -1,0 +1,821 @@
+# HMD-0001: MVP — grammar, resolver, and `hmd lint`
+
+**Status**: drafted
+**Created**: 2026-07-31
+**Source**: [Hypermarkdown — Requirements (Draft v0.1)](../../models/requirements/initial_sketch.md)
+
+## Abstract
+
+This proposal defines the hyper-markdown MVP: a normative grammar for the six
+constructs the format owns (wikilinks, aliased links, heading links, block
+anchors, block references, and the three embed forms), a deterministic
+three-phase namespace resolver rooted at `doc/wiki` — an explicit import table,
+then a non-recursive spine walk toward the root, then a single whole-tree
+sweep — configured by a reserved frontmatter block carrying `tags`, per-card
+`use` feature toggles, and Python-style `from … import … as …` bindings, with
+the search strategy itself set once in `.hmd/config.toml`; plus a `hmd` Typer
+CLI whose primary command is `hmd lint`. Everything the MkDocs and Python-Markdown
+stack already provides — callouts, footnotes, math, D2, GFM baseline — is
+consumed as a dependency and never reimplemented. A thin MkDocs plugin collects
+`.hmd` files and rewrites resolved links so the format renders in book mode.
+Queries, templates, inline properties, tags, the plugin API, wiki mode, and the
+VS Code extension are all out of scope.
+
+## Motivation
+
+The source sketch holds ~110 requirements and is explicitly flagged as a
+multi-year scope for a solo project (§18). Sequencing therefore matters more
+than completeness, and §19 already names the smallest slice that demonstrates
+the thesis. This proposal turns that slice into a specification concrete enough
+to implement against:
+
+- **Fix the grammar before anything consumes it.** Every downstream consumer —
+  renderer, MkDocs plugin, future LSP — derives from one parse. Leaving the
+  grammar informal guarantees drift the moment a second consumer appears.
+- **Pin resolution semantics exactly.** Namespace-scoped resolution is the
+  project's stated primary differentiator (§7). Its value is entirely in being
+  predictable, so ambiguity handling and scope ordering must be normative, not
+  emergent from an implementation.
+- **Ship one useful command.** `hmd lint` is useful before rendering, queries,
+  or templates exist, which lets the format be adopted one file at a time.
+- **Buy, don't build, the free syntax.** Items 11–17 of the sketch are all
+  provided by Python-Markdown and `pymdown-extensions`. Treating MkDocs as a
+  source of free code rather than a build target keeps the MVP's own surface
+  small.
+
+**Risk called out by the source that this proposal must not defer:** determinism
+(P1) is not recoverable once lost. The resolver and embed expander defined here
+perform no network access, consult no clock, and impose an explicit ordering on
+every step that could otherwise depend on filesystem iteration order.
+
+## Goals
+
+- A grammar for the build-time constructs, precise enough to write a
+  conformance corpus against.
+- A resolution algorithm that is deterministic, reports ambiguity as an error,
+  and never escapes the namespace root.
+- `hmd lint` with stable rule IDs, machine-readable output, and CI-usable exit
+  codes.
+- Dogfooding: `hmd lint doc/wiki` runs clean against this repository.
+
+## Non-goals
+
+- **Inline properties** (sketch 10), **named excerpts** (18), **redirects**
+  (19), **parameterized transclusion** (20), **labels** (21), **tags** (56–61),
+  **queries** (34–41), **templates** (79–86), and the **plugin API** (71–78).
+- **Wiki mode** and generated content (24–33, 98–109). Book mode only.
+- **The VS Code extension** (87–97) and **`hmd lsp`** (68). The architecture in
+  §15 of the source stays the target; this proposal only avoids foreclosing it
+  by keeping all semantics in library code rather than in the CLI layer.
+- **Config file design.** The root marker and config schema (sketch 46, 70)
+  are deferred to a later proposal; this proposal pins a default root and a
+  CLI override so that work is not blocked.
+- **The rest of the config schema.** `.hmd/config.toml` is read for exactly two
+  settings (§5.3); everything else in sketch 70 is deferred.
+- **Plugin toggles.** `use` is specified as the toggle mechanism, but the only
+  feature it can name in the MVP is `autodiscovery`. Plugins themselves
+  (sketch 71–78) are out of scope.
+- **A general CommonMark parser.** See §1 and Open Questions.
+
+## Specification
+
+### 1. Parsing model
+
+Hyper-markdown source is scanned, not fully parsed as CommonMark. The scanner
+extracts only the constructs the format owns and leaves everything else to the
+renderer.
+
+- The scanner MUST mask the following regions before extracting any construct,
+  so that their contents never yield links, embeds, or anchors: fenced code
+  blocks (` ``` ` and `~~~`), indented code blocks, inline code spans, and HTML
+  comments (`<!-- ... -->`).
+- Masking MUST preserve byte offsets, so that every extracted construct carries
+  an exact source span. Diagnostics are useless without precise positions, and
+  a future LSP consumes the same spans.
+- Every construct MUST record a `Span` of `(start_offset, end_offset, line,
+  column)`, 1-indexed for line and column.
+- The scanner MUST NOT depend on filesystem iteration order or on any state
+  outside the file's own bytes. Cross-file concerns belong to the resolver.
+
+The resulting `Document` model carries: `path`, `frontmatter`, `headings`,
+`blocks`, `anchors`, `links`, and `embeds`.
+
+**Known limitation.** A line-oriented masking scanner will diverge from
+CommonMark on pathological input — for example a `[[link]]` inside an HTML
+block, or a fence opened inside a blockquote. This is accepted for the MVP
+because the construct set is small and the divergences are diagnosable; see
+Open Questions.
+
+### 2. Grammar
+
+The constructs below are build-time: they are the format's own, and no existing
+extension provides them.
+
+```text
+embed        := "!" wikilink
+wikilink     := "[[" target [ "|" display ] "]]"
+target       := page_ref [ fragment ]
+page_ref     := absolute | relative | bare
+absolute     := "/" segment { "/" segment }
+relative     := ( "./" | "../" ) { segment | ".." } { "/" ( segment | ".." ) }
+bare         := segment { "/" segment }
+fragment     := "#" heading_text
+              | "#^" block_id
+segment      := 1*( any character except reserved )
+display      := 1*( any character except "[" / "]" / newline )
+block_id     := ALPHA / DIGIT *63( ALPHA / DIGIT / "_" / "-" )
+```
+
+- The **reserved character set** (sketch 112) inside `target` is exactly:
+  `[`, `]`, `|`, `#`, `^`, and newline. These MUST NOT appear literally in a
+  `segment`. No escape mechanism exists in the MVP; a target needing one of
+  these characters is a malformed link (HMD010).
+- A `page_ref` MAY carry a trailing `.hmd`; the resolver MUST strip it before
+  matching. Writing the extension is redundant but harmless.
+- `display` MAY be empty of meaning but MUST NOT be empty of characters — the
+  form `[[Page|]]` is malformed (HMD010).
+- **Block anchors** are a trailing `^block_id` at the end of a block's last
+  line, preceded by at least one space and followed only by the line ending.
+  The anchor and its leading whitespace are not part of the block's content.
+- A `.hmd` file MAY carry **YAML frontmatter**: a `---` fence that MUST begin at
+  byte 0 and MUST close with a `---` line. It MUST parse as YAML and MUST be a
+  mapping at the top level (HMD009). Exactly three top-level keys are reserved
+  for the toolchain — `tags`, `use`, and `import`, specified in §5.3; every
+  other key stays user-owned and unexamined — the spec ships mechanisms, not
+  vocabulary (P3) — but the whole mapping is exposed in the model and in
+  `hmd graph` output.
+
+**Explicitly excluded from the MVP grammar:** inline properties (`key:: value`),
+highlights (`==text==`), and Mermaid. The first is deferred; the latter two are
+rejected by the source.
+
+### 3. Heading anchors
+
+Heading fragments must agree with what the renderer emits, so anchor assignment
+is delegated rather than invented.
+
+- Heading slugs MUST be produced by Python-Markdown's `toc` slugify with `-` as
+  the separator: `markdown.extensions.toc.slugify(text, "-")`.
+- Collisions within one page MUST be deduplicated exactly as the `toc` extension
+  does, by appending `_1`, `_2`, … in document order. `[[Page#Section]]`
+  therefore addresses the first such heading and `[[Page#Section_1]]` the
+  second. Reusing the renderer's rule is what keeps a link and its rendered
+  destination from disagreeing.
+- A `fragment` of the heading-text form MUST be matched by slugifying it and
+  comparing to the page's assigned slugs. Both `[[Page#My Section]]` and
+  `[[Page#my-section]]` therefore resolve to the same heading.
+
+### 4. Namespace root
+
+The namespace tree is a single rooted subtree; nothing outside it is
+addressable.
+
+- The project root is the nearest ancestor directory containing a `.hmd/`
+  directory, falling back to the nearest containing `.git`. The namespace root
+  is the `wiki` setting of `.hmd/config.toml` (§5.3), defaulting to `doc/wiki`.
+  The existing wiki cards already treat the graph as closed to `doc/wiki`, so
+  the default codifies current practice.
+- `--root PATH` MUST override both on every command, naming the namespace root
+  directly. The remainder of the config schema (sketch 70) stays deferred.
+- Only files with the `.hmd` extension are members of the namespace tree. `.md`
+  files under the root MUST be ignored: they are neither link targets nor lint
+  inputs. This resolves source question Q5 for the MVP and lets
+  `doc/wiki/README.md` remain a plain document.
+- A resolved target MUST lie inside the root (HMD003). Path normalization MUST
+  happen before the containment check, and symlinks MUST NOT be followed out of
+  the root.
+
+### 5. Link resolution
+
+Resolution runs in two phases: a **spine walk** that is pure path arithmetic
+from the source file outward to the root, and — only if that finds nothing — a
+single **root sweep** that searches the whole tree once. The split exists
+because the two phases answer different questions. The spine answers "what does
+this name mean *here*," which must be predictable enough to hold in your head.
+The sweep answers "does this name exist anywhere," which is a convenience and
+is allowed to fail loudly.
+
+#### 5.1 Binding a name in one directory
+
+Both phases bind a name the same way, so folder notes work identically
+everywhere.
+
+```text
+bind(dir, parts) -> Resolved(path) | NotFound
+
+  file   := dir / join(parts) + ".hmd"
+  folder := dir / join(parts)
+
+  if file exists:                          return Resolved(file)
+  if folder is a directory
+     and folder/index.hmd exists:          return Resolved(folder/index.hmd)
+  return NotFound
+```
+
+- A target naming a directory MUST resolve to that directory's `index.hmd`
+  (sketch 52). `[[specs/auth]]` and `[[specs/auth/index]]` therefore address the
+  same page, which is what makes a folder note the namespace's landing page
+  rather than a file you have to name explicitly.
+- If both `foo.hmd` and `foo/index.hmd` exist as siblings, the `.hmd` file wins
+  and the pair is reported as HMD012. Resolution stays deterministic so later
+  stages have something to work with, but the collision is a content bug: two
+  files claim one name.
+
+#### 5.2 The algorithm
+
+```text
+resolve(target, source, root) -> Resolved(path) | Unresolved | Ambiguous(paths) | Escapes
+
+  stem  := target.page_ref with any ".hmd" suffix removed
+  parts := stem split on "/"
+  bindings := named_imports(source)                      # §5.3, name -> page
+  paths    := wildcard_imports(source)                   # §5.3, ordered dirs
+  mode     := discovery_mode(source)                     # §5.3
+
+  1. ABSOLUTE — stem starts with "/"
+       return bind(root, parts) or Unresolved
+
+  2. RELATIVE — stem starts with "./" or "../"
+       base := normalize(dirname(source) / stem)
+       if base is outside root: return Escapes
+       return bind(dirname(base), [basename(base)]) or Unresolved
+
+  3. BARE — anything else
+
+       # Phase 0 — named imports. The most explicit thing wins.
+       if size(parts) == 1 and parts[0] in bindings:
+           return Resolved(bindings[parts[0]])
+
+       # Phase 1 — spine walk. Non-recursive, nearest first.
+       spine := [dirname(source), parent(dirname(source)), ..., root]
+       for dir in spine:
+           r := bind(dir, parts)
+           if r is Resolved: return r
+
+       # Phase 2 — imported search paths, in declaration order.
+       for dir in paths:
+           r := bind(dir, parts)
+           if r is Resolved: return r
+
+       if mode == "spine": return Unresolved      # autodiscovery off
+
+       # Phase 3 — autodiscovery. Runs at most once.
+       if mode == "recursive":
+           candidates := descendants(dirname(source), "*.hmd")
+       else:                                      # mode == "both"
+           candidates := descendants(root, "*.hmd")
+       matches := { p in candidates
+                    : relpath(p, root).without_suffix().parts ends with parts }
+       if size(matches) == 1: return Resolved(the match)
+       if size(matches) >  1: return Ambiguous(sorted(matches))
+       return Unresolved
+```
+
+Phases 1 and 2 are the same probe over different origins: the spine supplies
+origins the filesystem already implies, and `import` supplies origins the author
+names. A card with imports is therefore not doing something exotic — it is
+running the same nearest-first lookup against a longer list of directories.
+
+- **Precedence follows explicitness**: a named import beats the spine, and the
+  spine beats an imported search path. The ordering is not arbitrary. A named
+  binding is the author pointing at one page, so it MUST be able to shadow a
+  local card — that is what it is for. A wildcard import is bulk convenience, so
+  it MUST NOT, and the resulting property is worth stating plainly: **adding a
+  `import *` can only resolve links that were previously red; it can never
+  change what an already-working link means.**
+- The spine MUST be ordered from the source file's own directory outward to the
+  root, inclusive of both ends, and each entry MUST be probed
+  **non-recursively**. A bare name therefore means exactly *"an import, or here,
+  or a folder above me"* — it can never reach sideways into a sibling namespace.
+  This is the property that makes `[[logging]]` in `specs/billing/` mean the
+  general card rather than whatever `specs/auth/` happens to contain.
+- Imported search paths MUST be probed in declaration order, non-recursively.
+  Where two imported paths both hold the name, the earlier declaration wins —
+  this is ordering the author wrote, not a guess, but because it is easy to
+  write by accident the shadowed candidate MUST be reported as HMD016.
+- Phase 3 MUST run only when phases 1 and 2 found nothing, and MUST run only
+  once. Every phase-3 match is off-spine and off-path by construction, so the
+  phases can never disagree.
+- In phase 3 **all matches rank equally**. A shallower match MUST NOT beat a
+  deeper one, and more than one match is an error (HMD002), never a guess. This
+  is the strictness principle (P2) made operational: the fix is to qualify the
+  link, not to memorize a tie-break.
+- `Ambiguous` results MUST list candidates sorted by their root-relative POSIX
+  path, so diagnostics are byte-identical across platforms and runs (P1).
+- An unresolved link is a **red link**, not a failure. It marks a page worth
+  writing later, which is why HMD001 is a warning rather than an error.
+
+#### 5.3 The frontmatter block
+
+Configuration is two-level, and the levels answer different questions. A card
+says **whether** a feature applies to it; the project config says **how** that
+feature behaves. Splitting them this way keeps the algorithm uniform across a
+tree — a reader never has to ask which search strategy a given card used — while
+still letting any single card opt out.
+
+```yaml
+---
+tags: [area/auth, status/accepted]
+
+use: [autodiscovery]                    # per-card feature toggles
+
+import:
+  - from /shared import tokens as shared-tokens
+  - from ../billing import invoices
+  - from /glossary import *
+---
+```
+
+Exactly three top-level keys are **reserved**: `tags`, `use`, and `import`. The
+set is closed and enumerated here, so an author knows precisely which names are
+taken; every other key stays user-owned and unexamined (P3).
+
+##### `use` — per-card feature toggles
+
+- `use` accepts a string or a list of strings. Each entry names a feature;
+  prefixing `no_` disables it, in the manner of `vim`'s `set` / `set no…`.
+  A feature not mentioned takes its project default.
+- The only feature the MVP defines is **`autodiscovery`**: resolving a bare name
+  by searching beyond the spine and the imported origins, i.e. phase 3 of §5.2.
+  `use: no_autodiscovery` restricts a card to its imports and its spine, so
+  every dependency it has is visible in the header or the link text.
+- `use` is the extension point for the plugin toggles of sketch 71–78. Naming
+  it now, with one core feature to prove the shape, is what keeps plugins from
+  each inventing their own opt-in key later.
+- **`use` inherits.** A `use` list in a folder's `index.hmd` applies to that
+  folder's whole subtree; the nearest declaration wins, and a card overrides its
+  folder. This is what makes a namespace a module rather than a naming
+  convention.
+- An unrecognized feature name MUST be rejected as HMD013 rather than ignored.
+  Silently dropping a misspelled `no_autodiscovry` would hand the author the
+  default while they believe they configured something else.
+
+##### `import` — explicit name binding
+
+`import` is a list of one-line statements in a pinned grammar, not nested YAML.
+The statement form is readable at a glance and the grammar is trivial; nesting
+the same information under `from:`/`names:` keys would cost more to read than
+the mini-parser costs to write.
+
+```text
+import_stmt := "from" WS ref WS "import" WS import_list
+import_list := "*" | binding *( "," WS binding )
+binding     := name [ WS "as" WS alias ]
+ref         := absolute | relative          ; §2 page_ref, never bare
+name        := segment
+alias       := segment
+```
+
+The two forms do different jobs, and the difference is the heart of the feature:
+
+- **`from X import y as z`** binds one name. The local name `z` — or `y`, absent
+  `as` — resolves to the page `X/y.hmd` and to nothing else.
+- **`from X import *`** adds a search origin. `X` joins the list of directories
+  a bare name is probed against, after the spine. It does **not** eagerly bind
+  the directory's contents, so a card added to `X` later becomes reachable
+  without editing the importing card.
+
+The wildcard form is what the phrase "many spine runs" describes: instead of one
+walk from here to the root, resolution probes a series of author-declared
+origins with the same non-recursive `bind`.
+
+- `ref` MUST be absolute or relative, never bare. A bare `ref` would need
+  resolving by the very algorithm the import feeds, and that circularity has no
+  good answer.
+- An imported origin MUST be probed **non-recursively**, matching both the spine
+  and Python's non-recursive `*`, so the reachable set stays legible from a
+  directory listing.
+- Named bindings apply only to **single-segment** bare targets. A binding names
+  a page, not a namespace, so `[[z/child]]` is meaningless and falls through.
+  Search origins have no such restriction: `[[auth/tokens]]` is probed against
+  each origin as `origin/auth/tokens.hmd`.
+- Two named bindings of the same local name MUST be rejected as HMD015.
+  Last-wins, Python's answer, is exactly the guessing P2 forbids — and unlike
+  the ordered-origin case there is no declaration order to appeal to, since both
+  bindings claim the identical name outright.
+- An import whose `ref` does not exist MUST be reported as HMD015 at the
+  declaration, not deferred to the first use. A wrong import is a defect in the
+  card's header regardless of whether the body happens to exercise it.
+- A malformed statement MUST be reported as HMD014.
+- **`import` does NOT inherit.** Unlike `use`, an import in `index.hmd` binds
+  names for that file alone. Inherited bindings would make a bare name in a leaf
+  card resolvable only by reading a file the author may never have opened —
+  precisely the action-at-a-distance that imports exist to eliminate.
+
+##### `tags` — the other axis
+
+- `tags` is a list of strings; `/` separates hierarchy levels, so `area/backend`
+  is a descendant of `area`. The MVP validates the shape and exposes the list in
+  `hmd graph` output. A malformed value is HMD013.
+- Tag **semantics** — generated tag pages, hierarchy queries, merging with
+  inline `#tags` (sketch 56–61) — are deferred. Only the slot is pinned here, so
+  that authors can start tagging against a stable shape.
+- Tags never participate in link resolution. `[[...]]` answers *where a page
+  lives*; a tag answers *what it is about*. `[[#area/auth]]` is malformed
+  (HMD010), because `#` is reserved for fragments.
+
+##### `.hmd/config.toml` — project policy
+
+The `.hmd/` directory at the repository root doubles as the root marker (sketch
+46). The MVP reads exactly two settings and ignores the rest of the file, so the
+full schema stays deferred without blocking this work.
+
+```toml
+wiki = "doc/wiki"        # namespace root, relative to the repo root
+
+[discovery]
+mode = "both"            # both (default) | spine | recursive
+```
+
+- `mode` selects how a bare name is searched when autodiscovery is enabled:
+  - **`both`** — the default. Spine walk, then a single sweep of the whole tree.
+  - **`spine`** — spine walk only. Equivalent to `no_autodiscovery` everywhere,
+    but stated once at the project level.
+  - **`recursive`** — spine walk, then a sweep of the source's own subtree
+    rather than the whole tree. Offered for trees that want discovery confined
+    to a branch; it is not the default because a bare name that reaches
+    downward but not upward surprises most authors.
+- Mode is deliberately **not** settable per card. A tree where different cards
+  resolve names by different algorithms cannot be read with confidence, and the
+  per-card knob that does exist — `use` — is a toggle, which is safe precisely
+  because it only ever *removes* reach.
+- Absent `.hmd/config.toml`, the root is `doc/wiki` and the mode is `both`.
+
+#### 5.4 Worked example
+
+Given this tree:
+
+```text
+doc/wiki/                      ← namespace root
+  index.hmd
+  logging.hmd                  ← the general logging card
+  specs/
+    index.hmd
+    auth/
+      index.hmd
+      login.hmd
+      logging.hmd              ← auth-specific logging concerns
+      tokens.hmd
+    billing/
+      index.hmd
+      invoices.hmd
+  shared/
+    tokens.hmd
+    retry-policy.hmd
+```
+
+| Written in | Link | Resolves to | Why |
+| --- | --- | --- | --- |
+| `specs/auth/login.hmd` | `[[logging]]` | `specs/auth/logging.hmd` | spine, own folder |
+| `specs/billing/invoices.hmd` | `[[logging]]` | `logging.hmd` | spine walks past `specs/` to the root; never reaches into `auth/` |
+| `specs/auth/login.hmd` | `[[/logging]]` | `logging.hmd` | absolute, always the general card |
+| `specs/billing/invoices.hmd` | `[[retry-policy]]` | `shared/retry-policy.hmd` | nothing on the spine; sweep finds one match |
+| `index.hmd` | `[[tokens]]` | **HMD002** | sweep matches `specs/auth/tokens.hmd` and `shared/tokens.hmd`; qualify it |
+| `index.hmd` | `[[shared/tokens]]` | `shared/tokens.hmd` | spine, multi-segment |
+| `specs/auth/login.hmd` | `[[../billing/invoices]]` | `specs/billing/invoices.hmd` | relative |
+| `login.hmd` anywhere | `[[specs/auth]]` | `specs/auth/index.hmd` | folder note |
+| `specs/auth/login.hmd` | `[[/shared/tokens#Rotation\|how tokens rotate]]` | heading in `shared/tokens.hmd` | absolute + fragment + alias |
+| under `use: no_autodiscovery` | `[[retry-policy]]` | red link (HMD001) | phase 3 disabled; import it or write `[[/shared/retry-policy]]` |
+
+With an import in the header, the same card resolves names the tree cannot
+supply on its own:
+
+```yaml
+---
+tags: [area/billing]
+import:
+  - from /shared import tokens as shared-tokens
+  - from /specs/auth import tokens as auth-tokens
+---
+```
+
+| Written in | Link | Resolves to | Why |
+| --- | --- | --- | --- |
+| `specs/billing/invoices.hmd` | `[[shared-tokens]]` | `shared/tokens.hmd` | phase 0, aliased binding |
+| `specs/billing/invoices.hmd` | `[[auth-tokens]]` | `specs/auth/tokens.hmd` | phase 0; both `tokens` cards now reachable, unambiguously |
+| `specs/billing/invoices.hmd` | `[[tokens]]` | **HMD002** | unchanged — importing under aliases binds neither card to the bare name |
+| `specs/auth/login.hmd` + `from / import logging` | `[[logging]]` | `logging.hmd` | phase 0 beats the spine's own-folder `specs/auth/logging.hmd` |
+
+That last row is the named-binding rule doing its job: the card explicitly asked
+for the general logging page and got it, in a folder where the bare name means
+something else.
+
+The wildcard form instead lengthens the list of places a name is looked for:
+
+```yaml
+---
+import:
+  - from /shared import *
+---
+```
+
+| Written in | Link | Resolves to | Why |
+| --- | --- | --- | --- |
+| `specs/billing/invoices.hmd` | `[[retry-policy]]` | `shared/retry-policy.hmd` | phase 2, imported origin — no sweep needed |
+| `specs/billing/invoices.hmd` | `[[tokens]]` | `shared/tokens.hmd` | phase 2 resolves it, so phase 3 never runs and HMD002 never fires |
+| `specs/auth/login.hmd` | `[[tokens]]` | `specs/auth/tokens.hmd` | spine wins; the import cannot redirect a working local link |
+
+The second and third rows together are the monotonicity property: `import *`
+turned an ambiguous name into a resolved one for the billing card without
+touching what that same name means next door in `auth`.
+
+The two dimensions stay orthogonal throughout. `[[...]]` navigates
+**structure** — where a page lives, one answer, derived from disk. Tags
+(sketch 56–61, deferred) navigate **topic** — what a page is about, many
+answers, declared in content, cutting across folders. A tag MUST NOT be a
+wikilink target: `[[#area/auth]]` is malformed (HMD010), because `#` is
+reserved for fragments. Keeping tags out of the link grammar now is what leaves
+room for them later.
+
+### 6. Embed expansion
+
+Embeds are expanded by the same resolver, with an explicit bound on recursion.
+
+- `![[Page]]` MUST expand to the target's full body with its frontmatter fence
+  removed.
+- `![[Page#Section]]` MUST expand to the matched heading and every subsequent
+  line up to, but excluding, the next heading of the same or higher level.
+- `![[Page#^id]]` MUST expand to the anchored block with the trailing ` ^id`
+  marker stripped.
+- Expansion MUST be recursive: embeds inside expanded content are themselves
+  expanded.
+- The expander MUST maintain a stack of `(resolved_path, fragment)` pairs.
+  Re-entering a pair already on the stack is a cycle (HMD007).
+- Maximum expansion depth is **16**. Exceeding it is HMD008. The limit is deep
+  enough for legitimate composition and shallow enough to bound work on
+  adversarial input; per sketch 85 it is a single shared constant, to be reused
+  by the template engine when that arrives rather than reimplemented beside it.
+- The MVP MUST NOT shift heading levels in embedded content. Level shifting
+  changes document outlines and deserves its own decision; leaving it out keeps
+  expansion textual and reversible.
+
+### 7. `hmd` CLI
+
+A Typer application exposing the library. All semantics live in the library;
+the CLI is argument parsing and formatting only, so a future `hmd lsp` shares
+one implementation (P5).
+
+- **`hmd lint [PATH]...`** — parse, resolve, report. This is the MVP's
+  acceptance gate. With no paths, it MUST lint the entire namespace tree.
+- **`hmd graph [--format json]`** — dump the resolved graph: nodes with
+  frontmatter and headings, edges with kind (`link` or `embed`) and source span.
+- **`hmd render PATH [--to markdown|html]`** — expand embeds and rewrite
+  resolved links. `markdown` emits flat markdown; `html` runs the
+  Python-Markdown pipeline of §8.
+
+Deferred to later proposals: `hmd query`, `hmd serve`, `hmd lsp`.
+
+Every command MUST accept `--root PATH` and `--format text|json`, and JSON
+output MUST be identical in content to the text output so CI and a future editor
+client consume the same data (sketch 69).
+
+**Exit codes** are pinned:
+
+- `0` — completed with no errors; warnings MAY be present
+- `1` — at least one error; under `--strict`, at least one warning
+- `2` — usage error, unreadable root, or internal failure
+
+### 8. Lint rules
+
+Rule IDs are stable and MUST NOT be renumbered once released; suppression
+comments and CI configuration will reference them.
+
+| ID | Severity | Rule |
+| --- | --- | --- |
+| HMD001 | warning | Link target does not resolve (red link) |
+| HMD002 | error | Bare link matches more than one page in the root sweep |
+| HMD003 | error | Link resolves outside the namespace root |
+| HMD004 | error | Heading fragment not present in the resolved page |
+| HMD005 | error | Block id not present in the resolved page |
+| HMD006 | error | Duplicate block anchor id within one page |
+| HMD007 | error | Embed cycle |
+| HMD008 | error | Embed depth limit (16) exceeded |
+| HMD009 | error | Frontmatter is not valid YAML, or not a top-level mapping |
+| HMD010 | error | Malformed wikilink or embed syntax |
+| HMD011 | warning | Two headings in one page share a slug |
+| HMD012 | error | A page and a folder note claim the same name (`foo.hmd` beside `foo/index.hmd`) |
+| HMD013 | error | Unrecognized feature in `use`, or malformed `tags` value |
+| HMD014 | error | Malformed `import` statement |
+| HMD015 | error | Import `ref` does not resolve, or two named imports bind the same local name |
+| HMD016 | warning | A bare name matched two imported search paths; the earlier declaration won |
+
+- `--strict` MUST promote every warning to an error. It MUST NOT change which
+  diagnostics are produced, only how they are counted — a strict run and a
+  normal run over the same tree differ in exit code alone.
+- Each diagnostic MUST carry `rule`, `severity`, `path` (root-relative, POSIX
+  separators), `line`, `column`, `message`, and for HMD002 the sorted candidate
+  list.
+- Diagnostics MUST be emitted sorted by `(path, line, column, rule)`.
+
+### 9. MkDocs integration
+
+MkDocs is consumed for the code it already provides. The plugin's whole job is
+to make `.hmd` visible to a build and to rewrite what the resolver has already
+decided.
+
+- The plugin MUST register `.hmd` files through an `on_files` hook, because
+  MkDocs matches a fixed extension set that does not include `.hmd`.
+- A Python-Markdown extension MUST rewrite resolved wikilinks to relative
+  anchors and expand embeds, reusing §5 and §6 rather than re-resolving.
+- Unresolved links MUST render as red links — an `<a>` carrying a
+  `class="hmd-redlink"` — rather than being dropped or raising. This keeps a
+  build green while the lint output tracks the work item.
+- **Book mode only.** Nav-ordered linear output. Wiki mode, backlinks, category
+  pages, and special pages are out of scope.
+
+These extensions are enabled by the plugin and are the "free" half of the
+format's syntax (sketch 11–17): `admonition`, `pymdownx.details`, `footnotes`,
+`pymdownx.arithmatex`, `toc`, `tables`, `pymdownx.superfences`,
+`pymdownx.tasklist`, `pymdownx.tilde`. `mkdocs-d2-plugin` is an optional extra
+rather than a hard dependency, since it shells out to the `d2` binary.
+
+## Backwards Compatibility
+
+Nothing is released, so there is no API to break. Two content-level notes:
+
+- [`doc/wiki/hyper-markdown.hmd`](../../wiki/hyper-markdown.hmd) describes
+  resolution as "by filename alone, anywhere under `doc/wiki/`". The root sweep
+  of §5.2 preserves that exactly for every uniquely-named card, so no existing
+  link changes meaning. What §5 adds is a spine that gets first say — so a
+  nearer card now wins over a distant one — and HMD002 in place of an arbitrary
+  pick when two cards share a name. That card should be updated to describe both
+  phases once this proposal is accepted.
+- `doc/wiki/README.md` stays a plain markdown file and is invisible to the
+  resolver per §4.
+
+## Security Considerations
+
+The MVP reads local files and writes to stdout, but it is a parser and parsers
+receive untrusted input.
+
+- Path traversal is the primary surface. Every resolved path MUST be normalized
+  and containment-checked against the root (§4), and symlinks MUST NOT be
+  followed out of the root. `[[../../../../etc/passwd]]` is HMD003.
+- An `import` statement's `ref` is a second traversal surface and MUST take the
+  same containment check before the directory is read;
+  `from ../../../../etc import passwd` is HMD003, not HMD015. A wildcard import
+  reads a directory listing, so an unchecked `ref` would disclose filenames
+  outside the tree even when no page resolves.
+- Resource exhaustion is bounded by the depth limit of 16 and by cycle
+  detection (§6). A tree of mutually embedding pages MUST terminate with HMD007
+  rather than exhausting memory.
+- YAML MUST be loaded with `yaml.safe_load`. `yaml.load` on untrusted
+  frontmatter is arbitrary object construction.
+- No command in the MVP performs network access (P1). `mkdocs-d2-plugin` shells
+  out to `d2`, which is why it is an optional extra and not a dependency of the
+  core.
+
+## Deployment / Activation
+
+Green-field implementation, ordered so that each milestone is independently
+testable:
+
+1. **M1 — model and scanner.** `Span`, `Document`, masking scanner, frontmatter,
+   headings, anchors, link and embed extraction. Corpus fixtures for §2 and §3.
+2. **M2 — resolver.** Namespace root discovery, the §5.2 two-phase algorithm,
+   folder-note binding, the frontmatter block (`tags`/`use`/`import`), `use`
+   inheritance, `.hmd/config.toml` reading, containment checks.
+3. **M3 — `hmd lint`.** All sixteen rules, text and JSON reporters, exit codes,
+   `--strict`. Gate: `hmd lint doc/wiki` exits 0 on this repository.
+4. **M4 — expansion and secondary commands.** Embed expander with cycle and
+   depth handling, `hmd render`, `hmd graph`.
+5. **M5 — MkDocs plugin.** `on_files` collection, the link/embed
+   Python-Markdown extension, book-mode build of `doc/wiki`.
+
+Only M1–M3 are required to call the MVP done; M4 and M5 are included because
+they reuse M1–M2 wholesale and validate the model against a second consumer.
+
+## Reference Implementation
+
+```text
+src/hyper_markdown/
+  model.py            Span, Document, Heading, Block, Anchor, Link, Embed
+  scan.py             masking + construct extraction
+  parse.py            source bytes -> Document
+  resolve.py          spine walk, root sweep, folder-note binding (§5.1–5.2)
+  frontmatter.py      tags / use / import parsing, use inheritance (§5.3)
+  imports.py          the from-import mini-grammar and name table (§5.3)
+  config.py           .hmd/config.toml, root discovery (§4, §5.3)
+  embed.py            expansion, cycle detection, depth limit
+  graph.py            Graph assembly and JSON serialization
+  lint/rules.py       HMD001..HMD016
+  lint/report.py      text and JSON reporters
+  render/markdown_ext.py   Python-Markdown extension
+  render/flat.py           flat-markdown emitter
+  mkdocs_plugin.py    on_files collection, book mode
+  cli.py              Typer app
+```
+
+Packaging changes to `pyproject.toml`:
+
+- dependencies: `typer>=0.12`, `pyyaml>=6`, `markdown>=3.6`,
+  `pymdown-extensions>=10`
+- extras: `mkdocs` → `mkdocs>=1.6`, `mkdocs-material>=9`, `mkdocs-d2-plugin`
+- `[project.scripts]`: `hmd = "hyper_markdown.cli:app"`
+- `[project.entry-points."mkdocs.plugins"]`:
+  `hyper-markdown = "hyper_markdown.mkdocs_plugin:HyperMarkdownPlugin"`
+
+## Test Plan
+
+Unit tests MUST include:
+
+- Masking: `[[x]]` inside a fence, an indented block, a code span, and an HTML
+  comment yields no link, and offsets after the masked region stay exact.
+- Grammar: each production in §2 at its boundaries — empty display, reserved
+  characters in a target, a 64-character block id, a 65-character one.
+- Slugs: heading collisions produce `_1`/`_2` in document order, and both
+  `#My Section` and `#my-section` reach the same heading.
+- Resolution: absolute, relative, and bare forms; a nearer spine entry wins over
+  a farther one; a bare name never reaches sideways into a sibling namespace
+  (the `specs/billing` → `logging` case of §5.4); the sweep resolves a unique
+  off-spine match and raises HMD002 with a sorted candidate list on two;
+  `../` escaping the root raises HMD003.
+- Folder notes: `[[specs/auth]]` and `[[specs/auth/index]]` resolve to the same
+  page; `foo.hmd` beside `foo/index.hmd` raises HMD012 and resolves to the file.
+- Discovery: `use: no_autodiscovery` suppresses phase 3; a `use` list in a
+  folder's `index.hmd` governs its whole subtree and a card overrides its
+  folder; `mode = "spine"` and `mode = "recursive"` each change phase 3 as
+  specified; an unrecognized feature name raises HMD013.
+- Named imports: `as` aliasing binds the alias and not the original name; a
+  named import beats a same-named card on the spine; a bare `ref`, two bindings
+  of one local name, and a non-existent `ref` raise HMD014/HMD015/HMD015
+  respectively; an import in `index.hmd` does not bind names for sibling cards.
+- Wildcard imports: an origin is probed after the whole spine and never
+  recurses; a card added to an imported directory becomes reachable with no
+  edit to the importing card; two origins holding one name resolve to the
+  earlier declaration and raise HMD016; and the monotonicity property holds —
+  adding `import *` to a card MUST NOT change any link that already resolved.
+- Frontmatter: `tags` shape validation, and a user-owned key with an unusual
+  name passes through to `hmd graph` untouched.
+- Expansion: section embed stops at the next same-or-higher heading; a two-page
+  embed cycle raises HMD007; a 17-deep chain raises HMD008.
+- Every lint rule fires on a minimal positive case and stays silent on a
+  minimal negative one.
+
+Integration tests MUST include:
+
+- A **conformance corpus** (sketch 111) at `tests/corpus/<case>/`, each case
+  holding an input tree and an `expected.json` of diagnostics and resolutions.
+  Corpus cases are the executable spec; a grammar change that does not update a
+  fixture is a bug.
+- Determinism: linting the same tree twice, and linting it with the files
+  created in a different order, MUST produce byte-identical JSON.
+- A MkDocs build of `doc/wiki` succeeding with `.hmd` pages present in the
+  output and red links carrying `class="hmd-redlink"`.
+
+```bash
+python -m pytest
+hmd lint doc/wiki --format json
+mkdocs build --strict
+```
+
+## Open Questions
+
+These MUST be resolved before this record moves from drafted to accepted.
+
+- Should the scanner move to a CommonMark block parser (for example
+  `markdown-it-py`, which carries source maps) once the corpus exposes real
+  divergences, and does that second markdown engine conflict with P5?
+- Does `use` apply to a page's *own* links only, or also to links inside content
+  that page embeds from elsewhere? §6 expansion is textual, so today the
+  embedded page's own toggles and imports govern — is that the right default?
+- Should an imported search path be probed *before* the spine rather than after?
+  §5.2 pins "after" to buy monotonicity — an `import *` can never redirect a
+  working link — but an author who imports a namespace precisely to override
+  local names has only the named form available.
+- Should `hmd graph` record each card's resolved search path (spine entries plus
+  imported origins), so a consumer can see what a card can reach without
+  replaying the algorithm?
+- Should `use` support project-wide defaults in `.hmd/config.toml` — a
+  `[features]` table — or does that reintroduce the "which strategy did this
+  card use" ambiguity that keeping `mode` project-only was meant to avoid?
+- Should the root sweep be bounded (page count, or a depth cap) so that a large
+  tree cannot make an unresolvable bare link expensive to diagnose?
+- Should the MVP ship a suppression mechanism (`<!-- hmd-disable HMD001 -->`),
+  or does adding one before real usage risk designing it wrong?
+- Is `.hmd` → `page/index.html` or `.hmd` → `page.html` the right MkDocs URL
+  shape, and does that choice constrain the relative anchors §9 emits?
+- Does `hmd render --to markdown` guarantee a round trip, or is flat markdown a
+  one-way build product?
+
+Deliberately left to later proposals rather than resolved here: the config
+schema and root marker (sketch 46, 70), stable IDs versus redirects (Q2), named
+excerpts versus block anchors (Q3), and the query grammar (Q6).
+
+## Changelog
+
+- 2026-07-31: drafted
+- 2026-07-31: §5 reworked from recursive-per-scope to the two-phase spine walk
+  plus single root sweep; folder-note binding added (HMD012); worked example
+  added as §5.4
+- 2026-07-31: frontmatter block specified (§5.3) — reserved `tags`, `use`, and
+  `import` top-level keys replacing the earlier nested `hmd:` profile; `use`
+  introduced as an inheriting per-card feature toggle with `autodiscovery` as
+  its first feature; `from … import … as …` promoted from deferred to
+  specified, becoming resolution phase 0; search strategy moved to
+  `.hmd/config.toml` `[discovery] mode`, whose directory now doubles as the
+  root marker; HMD013–HMD015 added
+- 2026-07-31: `import *` respecified as a search origin rather than an eager
+  name binding — resolution now probes the spine and then each imported origin
+  with the same non-recursive step; precedence pinned as named import > spine >
+  imported origin, giving the monotonicity property; HMD016 added

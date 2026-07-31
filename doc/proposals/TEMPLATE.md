@@ -1,11 +1,11 @@
-# HYPERMARKDOWN-NNNN: <Title>
+# HMD-NNNN: <Title>
 
 **Status**: drafted | accepted | rejected | withdrawn
 **Created**: YYYY-MM-DD
 **Source**: [document this record was derived from](<path>)
 
 <!--
-ADR-style proposal skeleton. Copy to doc/proposals/HYPERMARKDOWN-NNNN/README.md and
+ADR-style proposal skeleton. Copy to doc/proposals/HMD-NNNN/README.md and
 reserve the ID in doc/proposals/README.md. Fill each section; delete the guidance
 comments and any section that genuinely does not apply. House rules:
   - Normative statements use RFC 2119 keywords in CAPS: MUST, MUST NOT, SHOULD, MAY.
