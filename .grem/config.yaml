@@ -1,0 +1,65 @@
+kind: layout
+schema: 1
+template: python
+template_version: 0.14.0
+grem_version: 0.1.0
+variables:
+  project_name: hyper-markdown
+  package_name: hyper_markdown
+  proposal_prefix: HYPERMARKDOWN
+generated:
+  directories:
+    - .claude
+    - .claude/skills
+    - .claude/skills/grem
+    - .grem
+    - .grem/harness
+    - .grem/issues
+    - .grem/issues/archive
+    - .grem/styles
+    - .grem/styles/doc
+    - .grem/styles/doc/adr
+    - .grem/styles/doc/hmd
+    - .grem/styles/doc/lenses
+    - .grem/styles/doc/slides
+    - doc
+    - doc/issues
+    - doc/memory
+    - doc/models
+    - doc/models/behavior
+    - doc/models/data
+    - doc/models/domain
+    - doc/models/requirements
+    - doc/proposals
+    - doc/wiki
+    - src
+    - src/hyper_markdown
+    - tests
+  files:
+    - .claude/skills/grem/SKILL.md
+    - .grem/config.yaml
+    - .grem/harness/README.md
+    - .grem/harness/diff.md
+    - .grem/harness/instructions.md
+    - .grem/harness/sync.md
+    - .grem/harness/upgrade.md
+    - .grem/styles/doc/adr/prompt.md
+    - .grem/styles/doc/hmd/prompt.md
+    - .grem/styles/doc/lenses/prompt.md
+    - .grem/styles/doc/slides/prompt.md
+    - .gremignore
+    - AGENTS.md
+    - CLAUDE.md
+    - README.md
+    - doc/issues/kanban.yaml
+    - doc/proposals/README.md
+    - doc/proposals/TEMPLATE.md
+    - doc/wiki/README.md
+    - doc/wiki/hyper-markdown.hmd
+    - doc/wiki/kanban.hmd
+    - pyproject.toml
+agent_instructions:
+  central: .grem/harness/README.md
+  targets:
+    - AGENTS.md
+    - CLAUDE.md
