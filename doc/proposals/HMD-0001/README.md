@@ -4,6 +4,14 @@
 **Created**: 2026-07-31
 **Source**: [Hypermarkdown — Requirements (Draft v0.1)](../../models/requirements/initial_sketch.md)
 
+## Companion notes
+
+- [`examples.md`](examples.md) — worked resolution tables and a syntax-coverage
+  map for the fixture below.
+- [`examples/small/`](../../../examples/small/) — a self-contained example wiki
+  that exercises the spine walk, both import forms, `use` inheritance, folder
+  notes, and most of the syntax of §2. It MUST lint with zero errors.
+
 ## Abstract
 
 This proposal defines the hyper-markdown MVP: a normative grammar for the six
@@ -56,7 +64,8 @@ every step that could otherwise depend on filesystem iteration order.
   and never escapes the namespace root.
 - `hmd lint` with stable rule IDs, machine-readable output, and CI-usable exit
   codes.
-- Dogfooding: `hmd lint doc/wiki` runs clean against this repository.
+- Dogfooding: `hmd lint doc/wiki` runs clean against this repository, and so
+  does the example fixture at `examples/small/`.
 
 ## Non-goals
 
@@ -67,11 +76,9 @@ every step that could otherwise depend on filesystem iteration order.
 - **The VS Code extension** (87–97) and **`hmd lsp`** (68). The architecture in
   §15 of the source stays the target; this proposal only avoids foreclosing it
   by keeping all semantics in library code rather than in the CLI layer.
-- **Config file design.** The root marker and config schema (sketch 46, 70)
-  are deferred to a later proposal; this proposal pins a default root and a
-  CLI override so that work is not blocked.
-- **The rest of the config schema.** `.hmd/config.toml` is read for exactly two
-  settings (§5.3); everything else in sketch 70 is deferred.
+- **Most of the config schema.** `.hmd/config.toml` is pinned as the root marker
+  and read for exactly three settings — `wiki`, `[discovery] autodiscovery`, and
+  `[discovery] mode` (§5.3). The rest of sketch 70 is deferred.
 - **Plugin toggles.** `use` is specified as the toggle mechanism, but the only
   feature it can name in the MVP is `autodiscovery`. Plugins themselves
   (sketch 71–78) are out of scope.
@@ -87,8 +94,14 @@ renderer.
 
 - The scanner MUST mask the following regions before extracting any construct,
   so that their contents never yield links, embeds, or anchors: fenced code
-  blocks (` ``` ` and `~~~`), indented code blocks, inline code spans, and HTML
-  comments (`<!-- ... -->`).
+  blocks (` ``` ` and `~~~`), inline code spans, and HTML comments
+  (`<!-- ... -->`).
+- Indented code blocks MUST NOT be masked. This tree ships `admonition` and
+  `footnotes`, under which a four-space indent marks a callout body or a
+  footnote continuation rather than code. Masking it would silently drop real
+  links from ordinary prose — the example fixture contains both constructs —
+  and a construct the format cannot see is worse than one it over-reads. An
+  author who needs indented code has fences.
 - Masking MUST preserve byte offsets, so that every extracted construct carries
   an exact source span. Diagnostics are useless without precise positions, and
   a future LSP consumes the same spans.
@@ -105,6 +118,9 @@ CommonMark on pathological input — for example a `[[link]]` inside an HTML
 block, or a fence opened inside a blockquote. This is accepted for the MVP
 because the construct set is small and the divergences are diagnosable; see
 Open Questions.
+
+**Status.** Implemented in `src/hyper_markdown/scan.py`, with the masking rules
+covered by `tests/test_scan.py`.
 
 ### 2. Grammar
 
@@ -265,7 +281,10 @@ resolve(target, source, root) -> Resolved(path) | Unresolved | Ambiguous(paths) 
        else:                                      # mode == "both"
            candidates := descendants(root, "*.hmd")
        matches := { p in candidates
-                    : relpath(p, root).without_suffix().parts ends with parts }
+                    : addressable_parts(p) ends with parts }
+       # addressable_parts(p) is p's root-relative parts without the suffix,
+       # plus — when p is a folder note — the parts of its directory, so a
+       # name means the same thing in phase 1 and phase 3.
        if size(matches) == 1: return Resolved(the match)
        if size(matches) >  1: return Ambiguous(sorted(matches))
        return Unresolved
@@ -296,6 +315,10 @@ running the same nearest-first lookup against a longer list of directories.
 - Phase 3 MUST run only when phases 1 and 2 found nothing, and MUST run only
   once. Every phase-3 match is off-spine and off-path by construction, so the
   phases can never disagree.
+- Phase 3 MUST address folder notes by their directory name, exactly as
+  `bind` does. Without this, `[[auth]]` would reach `specs/auth/index.hmd` from
+  the spine but not from the sweep, and one name would mean two different things
+  depending on where it was written.
 - In phase 3 **all matches rank equally**. A shallower match MUST NOT beat a
   deeper one, and more than one match is an error (HMD002), never a guess. This
   is the strictness principle (P2) made operational: the fix is to qualify the
@@ -424,100 +447,49 @@ full schema stays deferred without blocking this work.
 wiki = "doc/wiki"        # namespace root, relative to the repo root
 
 [discovery]
-mode = "both"            # both (default) | spine | recursive
+autodiscovery = true     # default — whether phase 3 runs at all
+mode = "both"            # both (default) | recursive — how phase 3 searches
 ```
 
-- `mode` selects how a bare name is searched when autodiscovery is enabled:
-  - **`both`** — the default. Spine walk, then a single sweep of the whole tree.
-  - **`spine`** — spine walk only. Equivalent to `no_autodiscovery` everywhere,
-    but stated once at the project level.
-  - **`recursive`** — spine walk, then a sweep of the source's own subtree
-    rather than the whole tree. Offered for trees that want discovery confined
-    to a branch; it is not the default because a bare name that reaches
-    downward but not upward surprises most authors.
-- Mode is deliberately **not** settable per card. A tree where different cards
-  resolve names by different algorithms cannot be read with confidence, and the
-  per-card knob that does exist — `use` — is a toggle, which is safe precisely
-  because it only ever *removes* reach.
-- Absent `.hmd/config.toml`, the root is `doc/wiki` and the mode is `both`.
+The two settings answer different questions, and only the first is overridable
+per card.
+
+- **`autodiscovery`** — *whether* phase 3 runs. This is the project default for
+  the `use` feature of the same name, and a card overrides it freely in either
+  direction.
+- **`mode`** — *how* phase 3 searches once it runs:
+  - **`both`** — the default. A single sweep of the whole tree.
+  - **`recursive`** — a sweep of the source's own subtree rather than the whole
+    tree, for trees that want discovery confined to a branch. Not the default,
+    because a bare name that reaches downward but not upward surprises most
+    authors.
+- `mode` is deliberately **not** settable per card. A tree where different cards
+  resolve names by different *algorithms* cannot be read with confidence,
+  whereas a card that has merely turned discovery off is stating something a
+  reader can check locally.
+
+**Precedence**, most specific first. Frontmatter always beats configuration,
+because the card is the most local place an author can say what they mean:
+
+```text
+1. the card's own `use`
+2. `use` in the nearest ancestor index.hmd
+3. [discovery] autodiscovery in .hmd/config.toml
+4. the built-in default — autodiscovery is ON
+```
+
+Absent `.hmd/config.toml` entirely, the namespace root is `doc/wiki`,
+autodiscovery is on, and the mode is `both`. A tree with no configuration at all
+therefore behaves the way a new author would expect: bare names find pages.
 
 #### 5.4 Worked example
 
-Given this tree:
-
-```text
-doc/wiki/                      ← namespace root
-  index.hmd
-  logging.hmd                  ← the general logging card
-  specs/
-    index.hmd
-    auth/
-      index.hmd
-      login.hmd
-      logging.hmd              ← auth-specific logging concerns
-      tokens.hmd
-    billing/
-      index.hmd
-      invoices.hmd
-  shared/
-    tokens.hmd
-    retry-policy.hmd
-```
-
-| Written in | Link | Resolves to | Why |
-| --- | --- | --- | --- |
-| `specs/auth/login.hmd` | `[[logging]]` | `specs/auth/logging.hmd` | spine, own folder |
-| `specs/billing/invoices.hmd` | `[[logging]]` | `logging.hmd` | spine walks past `specs/` to the root; never reaches into `auth/` |
-| `specs/auth/login.hmd` | `[[/logging]]` | `logging.hmd` | absolute, always the general card |
-| `specs/billing/invoices.hmd` | `[[retry-policy]]` | `shared/retry-policy.hmd` | nothing on the spine; sweep finds one match |
-| `index.hmd` | `[[tokens]]` | **HMD002** | sweep matches `specs/auth/tokens.hmd` and `shared/tokens.hmd`; qualify it |
-| `index.hmd` | `[[shared/tokens]]` | `shared/tokens.hmd` | spine, multi-segment |
-| `specs/auth/login.hmd` | `[[../billing/invoices]]` | `specs/billing/invoices.hmd` | relative |
-| `login.hmd` anywhere | `[[specs/auth]]` | `specs/auth/index.hmd` | folder note |
-| `specs/auth/login.hmd` | `[[/shared/tokens#Rotation\|how tokens rotate]]` | heading in `shared/tokens.hmd` | absolute + fragment + alias |
-| under `use: no_autodiscovery` | `[[retry-policy]]` | red link (HMD001) | phase 3 disabled; import it or write `[[/shared/retry-policy]]` |
-
-With an import in the header, the same card resolves names the tree cannot
-supply on its own:
-
-```yaml
----
-tags: [area/billing]
-import:
-  - from /shared import tokens as shared-tokens
-  - from /specs/auth import tokens as auth-tokens
----
-```
-
-| Written in | Link | Resolves to | Why |
-| --- | --- | --- | --- |
-| `specs/billing/invoices.hmd` | `[[shared-tokens]]` | `shared/tokens.hmd` | phase 0, aliased binding |
-| `specs/billing/invoices.hmd` | `[[auth-tokens]]` | `specs/auth/tokens.hmd` | phase 0; both `tokens` cards now reachable, unambiguously |
-| `specs/billing/invoices.hmd` | `[[tokens]]` | **HMD002** | unchanged — importing under aliases binds neither card to the bare name |
-| `specs/auth/login.hmd` + `from / import logging` | `[[logging]]` | `logging.hmd` | phase 0 beats the spine's own-folder `specs/auth/logging.hmd` |
-
-That last row is the named-binding rule doing its job: the card explicitly asked
-for the general logging page and got it, in a folder where the bare name means
-something else.
-
-The wildcard form instead lengthens the list of places a name is looked for:
-
-```yaml
----
-import:
-  - from /shared import *
----
-```
-
-| Written in | Link | Resolves to | Why |
-| --- | --- | --- | --- |
-| `specs/billing/invoices.hmd` | `[[retry-policy]]` | `shared/retry-policy.hmd` | phase 2, imported origin — no sweep needed |
-| `specs/billing/invoices.hmd` | `[[tokens]]` | `shared/tokens.hmd` | phase 2 resolves it, so phase 3 never runs and HMD002 never fires |
-| `specs/auth/login.hmd` | `[[tokens]]` | `specs/auth/tokens.hmd` | spine wins; the import cannot redirect a working local link |
-
-The second and third rows together are the monotonicity property: `import *`
-turned an ambiguous name into a resolved one for the billing card without
-touching what that same name means next door in `auth`.
+The examples are maintained as a runnable fixture rather than inline prose. See
+[`examples.md`](examples.md) for the resolution tables, and
+[`examples/small/`](../../../examples/small/) for the tree they describe — a
+self-contained wiki that exercises the spine walk, both import forms, `use`
+inheritance, folder notes, and most of the syntax of §2. It MUST lint with zero
+errors, so it doubles as an acceptance fixture for M2 and M3.
 
 The two dimensions stay orthogonal throughout. `[[...]]` navigates
 **structure** — where a page lives, one answer, derived from disk. Tags
@@ -676,7 +648,8 @@ testable:
    folder-note binding, the frontmatter block (`tags`/`use`/`import`), `use`
    inheritance, `.hmd/config.toml` reading, containment checks.
 3. **M3 — `hmd lint`.** All sixteen rules, text and JSON reporters, exit codes,
-   `--strict`. Gate: `hmd lint doc/wiki` exits 0 on this repository.
+   `--strict`. Gate: `hmd lint doc/wiki` and `hmd lint --root examples/small`
+   both exit 0, the latter with exactly one warning.
 4. **M4 — expansion and secondary commands.** Embed expander with cycle and
    depth handling, `hmd render`, `hmd graph`.
 5. **M5 — MkDocs plugin.** `on_files` collection, the link/embed
@@ -734,8 +707,9 @@ Unit tests MUST include:
   page; `foo.hmd` beside `foo/index.hmd` raises HMD012 and resolves to the file.
 - Discovery: `use: no_autodiscovery` suppresses phase 3; a `use` list in a
   folder's `index.hmd` governs its whole subtree and a card overrides its
-  folder; `mode = "spine"` and `mode = "recursive"` each change phase 3 as
-  specified; an unrecognized feature name raises HMD013.
+  folder; a card's `use` overrides `[discovery] autodiscovery = false` in
+  either direction; `mode = "recursive"` confines phase 3 to the source's own
+  subtree; an unrecognized feature name raises HMD013.
 - Named imports: `as` aliasing binds the alias and not the original name; a
   named import beats a same-named card on the spine; a bare `ref`, two bindings
   of one local name, and a non-existent `ref` raise HMD014/HMD015/HMD015
@@ -763,9 +737,16 @@ Integration tests MUST include:
 - A MkDocs build of `doc/wiki` succeeding with `.hmd` pages present in the
   output and red links carrying `class="hmd-redlink"`.
 
+- The **example fixture** at `examples/small/` MUST lint with zero errors and
+  exactly one warning — the deliberate red link in `glossary/index.hmd`. Every
+  resolution asserted in [`examples.md`](examples.md) MUST be reproduced by a
+  test, so that documentation drifting from behavior fails the suite rather than
+  misleading a reader.
+
 ```bash
 python -m pytest
 hmd lint doc/wiki --format json
+hmd lint --root examples/small --format json
 mkdocs build --strict
 ```
 
@@ -786,9 +767,9 @@ These MUST be resolved before this record moves from drafted to accepted.
 - Should `hmd graph` record each card's resolved search path (spine entries plus
   imported origins), so a consumer can see what a card can reach without
   replaying the algorithm?
-- Should `use` support project-wide defaults in `.hmd/config.toml` — a
-  `[features]` table — or does that reintroduce the "which strategy did this
-  card use" ambiguity that keeping `mode` project-only was meant to avoid?
+- When plugins arrive, does `[discovery] autodiscovery` generalize into a
+  `[features]` table carrying a project default for every toggle, and does that
+  scale past a handful of features?
 - Should the root sweep be bounded (page count, or a depth cap) so that a large
   tree cannot make an unresolvable bare link expensive to diagnose?
 - Should the MVP ship a suppression mechanism (`<!-- hmd-disable HMD001 -->`),
@@ -819,3 +800,15 @@ excerpts versus block anchors (Q3), and the query grammar (Q6).
   name binding — resolution now probes the spine and then each imported origin
   with the same non-recursive step; precedence pinned as named import > spine >
   imported origin, giving the monotonicity property; HMD016 added
+- 2026-07-31: M1–M3 implemented under `src/hyper_markdown/` with 141 tests.
+  Two corrections forced by the implementation: indented code blocks are no
+  longer masked (§1), because `admonition` and `footnotes` overload the
+  four-space indent and masking it dropped real links from the fixture; and
+  phase 3 now addresses folder notes by directory name (§5.2), which it did not,
+  leaving `[[auth]]` reachable from the spine but not the sweep
+- 2026-07-31: `[discovery]` split into `autodiscovery` (*whether* phase 3 runs,
+  overridable per card) and `mode` (*how* it searches, project-only), resolving
+  the conflict between `mode = "spine"` and a card's `use: [autodiscovery]`;
+  precedence chain pinned with frontmatter above config and the built-in default
+  ON; §5.4 moved to `examples.md` and backed by the runnable `examples/small/`
+  fixture, now an M3 gate

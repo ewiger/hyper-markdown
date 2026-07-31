@@ -1,0 +1,14 @@
+---
+tags: [area/auth]
+---
+
+# Token
+
+A bearer credential presented on every request, scoped to one subject and one
+audience, and valid only until it expires. ^definition
+
+The block above carries the anchor `^definition`, so other cards can embed the
+one sentence rather than the whole page.
+
+For the wire format and lifetime rules see [[/shared/tokens]]; for what
+authentication does with them see [[/specs/auth/tokens]].

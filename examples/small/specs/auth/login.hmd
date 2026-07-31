@@ -1,0 +1,69 @@
+---
+tags: [area/auth, status/accepted]
+use: [autodiscovery]
+import:
+  - from /shared import tokens as shared-tokens
+  - from /glossary import *
+---
+
+# Login
+
+The card that exercises most of the format at once.
+
+## Names in play
+
+Three different mechanisms bring three different pages into scope here:
+
+- `[[tokens]]` → `specs/auth/tokens.hmd`, found on the spine's first entry
+- `[[shared-tokens]]` → `shared/tokens.hmd`, a **named import** under an alias
+- `[[token]]` → `glossary/token.hmd`, found through the **imported search path**
+  `/glossary`, which is probed after the whole spine
+
+The two `tokens` cards would collide as a bare name, which is exactly why one of
+them is imported under an alias instead.
+
+## Flow
+
+1. The client posts credentials.
+2. On success the service issues a token — see
+   [[shared-tokens#Rotation|the shared rotation window]].
+3. On failure it applies [[retry-policy#Backoff]]. That name is on no spine
+   entry and in no import — `/shared` contributed a single named binding, not a
+   search path — so it is found by **autodiscovery**, the phase this card leaves
+   enabled. Compare [[/specs/billing/invoices]], which turns that phase off and
+   must import the same card explicitly.
+
+The glossary definition, embedded by block anchor rather than restated:
+
+![[token#^definition]]
+
+## Rate limiting
+
+Failed attempts are throttled per subject, not per source address, so a
+distributed attempt against one account is still caught.
+
+Attempt $n$ is delayed by the shared backoff formula with $b = 2$ seconds:
+
+$$
+t_n = U\bigl(0,\; \min(t_{max},\; b \cdot 2^n)\bigr)
+$$
+
+!!! note "Why per subject"
+
+    Throttling per address punishes shared egress and misses the attack it is
+    meant to stop.
+
+```d2
+client -> edge: credentials
+edge -> auth: verify
+auth -> edge: token
+edge -> client: token + rotation window
+```
+
+<!-- A comment. The scanner masks this region, so any [[link]] inside it is
+     not a link and produces no edge in the graph. -->
+
+## Open items
+
+- [ ] Decide whether step 2 emits an audit event
+- [x] Confirm the throttle key is the subject

@@ -5,7 +5,29 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hyper_markdown"
 version = "0.1.0"
+description = "A strict, machine-checkable markdown dialect for project knowledge bases."
 requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12",
+    "pyyaml>=6",
+    "markdown>=3.6",
+    "pymdown-extensions>=10",
+]
+
+[project.optional-dependencies]
+mkdocs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9",
+    "mkdocs-d2-plugin",
+]
+dev = ["pytest>=8"]
+
+[project.scripts]
+hmd = "hyper_markdown.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

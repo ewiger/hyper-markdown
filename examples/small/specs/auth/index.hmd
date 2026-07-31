@@ -1,0 +1,15 @@
+---
+tags: [area/auth]
+---
+
+# Authentication
+
+- [[login]]
+- [[logging]] — the **auth** logging card, not the general one
+- [[tokens]] — the **auth** tokens card, not the shared one
+
+The last two are the spine rule earning its keep. Both names also exist nearer
+the root, but a bare name is probed against this directory first, so a card
+inside `specs/auth/` that writes `[[logging]]` gets the local variant without
+having to qualify it. Reaching the general card takes an absolute link:
+[[/logging]].

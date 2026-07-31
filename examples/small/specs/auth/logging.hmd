@@ -1,0 +1,21 @@
+---
+tags: [area/auth, area/ops]
+---
+
+# Logging (authentication)
+
+Extends [[/logging|the general logging rules]] rather than restating them. The
+absolute form is required here: a bare `[[logging]]` written in this directory
+would resolve to this very card.
+
+Never log a bearer token, a refresh token, or an authorization header, including
+on the failure path. ^no-token-logging
+
+## Auth-specific fields
+
+Every authentication decision logs the subject, the audience, and the outcome —
+never the credential that produced it.
+
+<!-- The general redaction rules are embedded below rather than restated. -->
+
+![[/logging#Redaction]]

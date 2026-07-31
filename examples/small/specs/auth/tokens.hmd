@@ -1,0 +1,16 @@
+---
+tags: [area/auth]
+---
+
+# Tokens (authentication)
+
+What authentication does with a token. The wire format and lifetime rules are
+shared and live in [[/shared/tokens]]; this card only covers issuance.
+
+## Issuance
+
+A token is issued only after a completed [[login]] flow. The issuing service
+never reuses a subject's previous token, even when the previous one is still
+inside its rotation overlap:
+
+![[/shared/tokens#^rotation-window]]

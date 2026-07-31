@@ -1,0 +1,30 @@
+---
+tags: [area/ops]
+---
+
+# Logging
+
+The general logging rules. Domain-specific namespaces extend this rather than
+restate it — see [[/specs/auth/logging|the authentication variant]].
+
+Every request carries a correlation id, propagated unchanged across service
+boundaries. ^correlation-id
+
+## Levels
+
+| Level | Use |
+| --- | --- |
+| `error` | the request failed and the caller must act |
+| `warn` | the request succeeded through a fallback |
+| `info` | one line per completed request |
+
+## Redaction
+
+Structured fields are redacted by key, never by pattern-matching the rendered
+line. A pattern that matches a secret today matches a different substring after
+the next format change.
+
+!!! warning "No credentials in logs"
+
+    Bearer tokens, refresh tokens, and signing keys MUST NOT reach a log sink,
+    including in error paths.

@@ -1,0 +1,25 @@
+---
+tags: [area/ops]
+---
+
+# Retry policy
+
+## Backoff
+
+Delay before attempt $n$ is exponential with full jitter, capped at
+$t_{max}$: ^backoff-formula
+
+$$
+t_n = U\bigl(0,\; \min(t_{max},\; b \cdot 2^n)\bigr)
+$$
+
+Full jitter rather than fixed backoff, because synchronized clients retrying on
+the same schedule reproduce the outage they are retrying against.[^thundering]
+
+[^thundering]: The failure mode is a thundering herd: every client backs off by
+    exactly the same amount and returns in a single wave.
+
+## Budget
+
+A caller retries at most three times, and the total time spent retrying counts
+against the original request deadline rather than extending it.

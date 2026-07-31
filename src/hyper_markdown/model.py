@@ -1,0 +1,129 @@
+"""Core data model for hyper-markdown documents.
+
+Every construct carries an exact source `Span`, so a diagnostic can point at it
+and a future language server can reuse the same positions (HMD-0001 §1).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+
+# Severities.
+ERROR = "error"
+WARNING = "warning"
+
+
+@dataclass(frozen=True)
+class Span:
+    """A byte range in a source file, with a 1-indexed line and column."""
+
+    start: int
+    end: int
+    line: int
+    column: int
+
+
+@dataclass(frozen=True)
+class Heading:
+    level: int
+    text: str
+    slug: str
+    span: Span
+
+
+@dataclass(frozen=True)
+class Anchor:
+    """A trailing ``^block-id`` marker (HMD-0001 §2)."""
+
+    block_id: str
+    span: Span
+
+
+@dataclass(frozen=True)
+class Link:
+    """A ``[[wikilink]]`` or, when `is_embed`, a ``![[embed]]``."""
+
+    page_ref: str
+    fragment: str | None
+    fragment_kind: str | None  # "heading" | "block" | None
+    display: str | None
+    is_embed: bool
+    raw: str
+    span: Span
+
+    @property
+    def target(self) -> str:
+        """The link as written, minus any display text — for diagnostics."""
+        if self.fragment is None:
+            return self.page_ref
+        marker = "#^" if self.fragment_kind == "block" else "#"
+        return f"{self.page_ref}{marker}{self.fragment}"
+
+
+@dataclass(frozen=True)
+class ImportStmt:
+    """One parsed ``from <ref> import <names>`` statement (HMD-0001 §5.3)."""
+
+    ref: str
+    wildcard: bool
+    bindings: tuple[tuple[str, str], ...]  # (name, local_name)
+    raw: str
+
+
+@dataclass
+class CardConfig:
+    """The reserved frontmatter keys: `tags`, `use`, `import`."""
+
+    tags: tuple[str, ...] = ()
+    # Feature name -> enabled. Absent means "inherit".
+    use: dict[str, bool] = field(default_factory=dict)
+    imports: tuple[ImportStmt, ...] = ()
+
+
+@dataclass
+class Diagnostic:
+    rule: str
+    severity: str
+    path: str  # root-relative, POSIX separators
+    line: int
+    column: int
+    message: str
+    candidates: tuple[str, ...] = ()
+
+    def sort_key(self) -> tuple:
+        return (self.path, self.line, self.column, self.rule)
+
+    def to_dict(self) -> dict:
+        out = {
+            "rule": self.rule,
+            "severity": self.severity,
+            "path": self.path,
+            "line": self.line,
+            "column": self.column,
+            "message": self.message,
+        }
+        if self.candidates:
+            out["candidates"] = list(self.candidates)
+        return out
+
+
+@dataclass
+class Document:
+    """One parsed `.hmd` file."""
+
+    path: Path
+    text: str
+    frontmatter: dict
+    card: CardConfig
+    headings: tuple[Heading, ...] = ()
+    anchors: tuple[Anchor, ...] = ()
+    links: tuple[Link, ...] = ()
+    # Diagnostics discovered at parse time (HMD009, HMD010, HMD013, HMD014).
+    diagnostics: list[Diagnostic] = field(default_factory=list)
+
+    def heading_slugs(self) -> set[str]:
+        return {h.slug for h in self.headings}
+
+    def block_ids(self) -> set[str]:
+        return {a.block_id for a in self.anchors}

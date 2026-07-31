@@ -1,0 +1,15 @@
+---
+tags: [meta]
+---
+
+# Shared
+
+Cards that more than one domain depends on. Nothing here may link *down* into a
+domain namespace: a shared card that knows about billing is no longer shared.
+
+- [[tokens]] — resolves to `shared/tokens.hmd`, this folder's own card
+- [[retry-policy]]
+
+Both are bare names found on the spine's first entry, this very directory. A
+card in `specs/billing/` reaches the same two pages with
+`from /shared import *`, which appends this directory to its search path.

@@ -1,0 +1,27 @@
+---
+tags: [meta]
+---
+
+# Small world
+
+A minimal hyper-markdown tree that exercises most of HMD-0001. Every link here
+is a bare name resolved by the spine walk, because this file sits at the
+namespace root and the folder notes it points at are one level down.
+
+## Map
+
+- [[specs]] — the specification namespace, itself split by domain
+- [[shared]] — cards that more than one domain depends on
+- [[glossary]] — one term per card
+- [[logging]] — the general logging rules
+
+Each of the first three resolves to a **folder note**: `[[specs]]` names a
+directory, so it binds to `specs/index.hmd`.
+
+## What is deliberately absent
+
+This file never writes `[[tokens]]`. Two cards claim that name —
+`shared/tokens.hmd` and `specs/auth/tokens.hmd` — and neither is on this file's
+spine, so the bare form would reach phase 3, match both, and raise HMD002. The
+cards that need both import them under distinct names instead; see
+[[invoices]].

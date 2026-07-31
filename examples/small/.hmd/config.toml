@@ -1,0 +1,11 @@
+# Project config for the small-world example.
+#
+# The .hmd/ directory doubles as the project root marker (HMD-0001 §4), so this
+# tree is self-contained: lint it with
+#   hmd lint --root examples/small
+
+wiki = "."
+
+[discovery]
+autodiscovery = true
+mode = "both"

@@ -1,0 +1,15 @@
+---
+tags: [meta]
+---
+
+# Glossary
+
+One term per card, so any card can transclude a definition without pulling in
+its neighbours.
+
+- [[token]] — the credential itself
+- [[idempotency]] — not yet written
+
+`[[idempotency]]` is a **red link**: no card claims that name anywhere in the
+tree. It lints as HMD001, a warning rather than an error, which is what makes it
+a work item instead of a build failure.
