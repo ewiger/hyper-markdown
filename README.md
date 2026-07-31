@@ -1,4 +1,4 @@
-# 🔗 hyper-markdown
+# ⚡ hyper-markdown
 
 [![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
 [![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
