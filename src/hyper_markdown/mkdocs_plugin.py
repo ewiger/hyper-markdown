@@ -14,6 +14,7 @@ runs, so `toc` and `footnotes` see one finished document.
 from __future__ import annotations
 
 import posixpath
+import re
 from pathlib import Path
 
 from mkdocs.config import config_options
@@ -23,7 +24,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File, Files
 
 from . import config as config_mod
-from . import urls
+from . import scan, urls
 from .embed import expand
 from .model import Link
 from .parse import slug_for
@@ -33,6 +34,11 @@ from .resolve import Workspace
 #: A nav entry with this value is replaced by the derived wiki section, so an
 #: authored book nav can say *where* the generated pages go.
 NAV_PLACEHOLDER = "hmd://wiki"
+
+#: An ordinary markdown link whose target is a `.hmd` file. Book pages and
+#: proposals link to cards this way — a wikilink would not work from outside the
+#: namespace, and the path they write is a real file in the repository.
+_HMD_HREF_RE = re.compile(r"\]\((?P<href>[^)\s#]+\.hmd)(?P<fragment>#[^)\s]*)?\)")
 
 
 class PluginConfig(BaseConfig):
@@ -50,8 +56,11 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         self.workspace: Workspace | None = None
         #: MkDocs source path (`a/b.md`) -> the `.hmd` page it came from.
         self.sources: dict[str, Path] = {}
+        #: The `.hmd` page -> the MkDocs source path it was registered under.
+        self.destinations: dict[Path, str] = {}
         #: Where the namespace root sits inside `docs_dir`, as a URL prefix.
         self.prefix = ""
+        self.docs_dir: Path | None = None
 
     # -- collection ------------------------------------------------------
 
@@ -62,7 +71,7 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
                 "folder note share one URL, which page.html cannot express"
             )
 
-        docs_dir = Path(config.docs_dir).resolve()
+        self.docs_dir = docs_dir = Path(config.docs_dir).resolve()
         root = Path(self.config.root).resolve() if self.config.root else docs_dir
         self.workspace = Workspace(config_mod.load(root_override=root))
         self.prefix = _prefix(docs_dir, self.workspace.root)
@@ -70,6 +79,7 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         for path in self.workspace.pages():
             dest = self._dest(path)
             self.sources[dest] = path
+            self.destinations[path] = dest
             files.append(
                 File.generated(
                     config,
@@ -153,9 +163,15 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
 
     def on_page_markdown(self, markdown: str, /, *, page, config, files) -> str:
         """Expand embeds and rewrite links before Python-Markdown runs."""
-        source = self.sources.get(page.file.src_uri)
-        if source is None or self.workspace is None:
+        if self.workspace is None:
             return markdown
+
+        source = self.sources.get(page.file.src_uri)
+        if source is None:
+            # Not a card. It may still link *to* one: a book page or a proposal
+            # writes an ordinary relative link to a `.hmd` file, because a
+            # wikilink does not work from outside the namespace.
+            return self._link_to_cards(markdown, page.file.src_uri)
 
         root = self.workspace.root
 
@@ -170,7 +186,42 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
                 href = f"{href}#{slug_for(link.fragment, set())}"
             return f"[{text}]({href})"
 
-        return expand(self.workspace, source, rewrite=rewrite).text
+        expanded = expand(self.workspace, source, rewrite=rewrite).text
+        return self._link_to_cards(expanded, page.file.src_uri)
+
+    def _link_to_cards(self, markdown: str, src_uri: str) -> str:
+        """Point ordinary markdown links at the page a `.hmd` file becomes.
+
+        The written path is a real file, which is what makes it work when the
+        repository is browsed on its own. The built site does not serve `.hmd`
+        sources, so the same link has to arrive at the rendered card instead of
+        404ing.
+
+        Masked first, so a `.hmd` path quoted inside a fence stays quoted.
+        """
+        masked = scan.mask(markdown)
+        directory = posixpath.dirname(src_uri)
+        out: list[str] = []
+        cursor = 0
+
+        for match in _HMD_HREF_RE.finditer(masked):
+            dest = self._card_at(directory, match.group("href"))
+            if dest is None:
+                continue
+            href = posixpath.relpath(dest, directory or ".")
+            out.append(markdown[cursor : match.start()])
+            out.append(f"]({href}{match.group('fragment') or ''})")
+            cursor = match.end()
+
+        out.append(markdown[cursor:])
+        return "".join(out)
+
+    def _card_at(self, directory: str, href: str) -> str | None:
+        """The registered page for a `.hmd` link, or None if it is not a card."""
+        if self.docs_dir is None or href.startswith(("http://", "https://", "/")):
+            return None
+        target = Path(posixpath.normpath(posixpath.join(directory, href)))
+        return self.destinations.get((self.docs_dir / target).resolve())
 
     # -- serving ---------------------------------------------------------
 

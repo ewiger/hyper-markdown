@@ -8,7 +8,7 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): **M1–M5 done**, 187 tests. `doc/` builds as a book
+**Snapshot** (2026-08-07): **M1–M5 done**, 191 tests. `doc/` builds as a book
 with the wiki as a section of its nav, green under `--strict`. What remains is
 the conformance corpus, the determinism test, and the open questions blocking
 both proposals.
@@ -66,6 +66,7 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | M5.13 | Namespace root may be a subtree of `docs_dir`; cards serve under its prefix | §2 | **done** |
 | M5.14 | `hmd://wiki` nav placeholder splices the derived section into an authored nav | §2 | **done** |
 | M5.15 | `doc/public/` book, with the wiki as a section of its nav (issue 0001) | issue 0001 | **done** |
+| M5.16 | Ordinary markdown links to `.hmd` files repointed at the rendered card (issue 0002) | issue 0002 | **done** |
 
 ### Cross-cutting
 
@@ -97,7 +98,7 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 187 passed
+python -m pytest                              # 191 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
 mkdocs build --strict                         # builds the book + wiki into site/
@@ -127,3 +128,6 @@ mkdocs serve                                  # live, watching the namespace roo
 - 2026-08-07: issue 0001 — the site became a book with the wiki inside it. The
   namespace root may now be a subtree of `docs_dir`, and `hmd://wiki` marks
   where the derived section belongs in an authored nav.
+- 2026-08-07: issue 0002 — ordinary markdown links to `.hmd` files 404'd on the
+  site. Every page now has such links repointed at the rendered card, masked so
+  fenced paths survive.

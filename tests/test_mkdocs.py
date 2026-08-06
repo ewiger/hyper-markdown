@@ -259,3 +259,54 @@ def test_an_authored_nav_without_the_placeholder_is_left_alone(tmp_path):
     assert ">One<" not in html
     # The cards still build; they are simply absent from the nav.
     assert (site / "wiki" / "one" / "index.html").is_file()
+
+
+# -- issue 0002: ordinary links to cards ---------------------------------
+
+
+def test_a_markdown_link_to_a_card_reaches_its_page(tmp_path):
+    """A page outside the namespace cannot use `[[…]]`, so it writes the real
+    path. The site does not serve `.hmd`, so the link has to be repointed."""
+    docs = tmp_path / "docs"
+    (docs / "wiki").mkdir(parents=True)
+    (docs / "index.md").write_text("# Book\n\n[card](wiki/one.hmd)\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    html = (site / "index.html").read_text()
+    assert 'href="wiki/one/"' in html
+    assert ".hmd" not in html
+
+
+def test_a_card_path_inside_a_fence_is_left_alone(tmp_path):
+    docs = tmp_path / "docs"
+    (docs / "wiki").mkdir(parents=True)
+    (docs / "index.md").write_text(
+        "# Book\n\n```\nsee [card](wiki/one.hmd)\n```\n", encoding="utf-8"
+    )
+    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    assert "wiki/one.hmd" in (site / "index.html").read_text()
+
+
+def test_a_link_to_a_missing_hmd_file_is_untouched(tmp_path):
+    docs = tmp_path / "docs"
+    (docs / "wiki").mkdir(parents=True)
+    (docs / "index.md").write_text("# Book\n\n[gone](wiki/nope.hmd)\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    assert "wiki/nope.hmd" in (site / "index.html").read_text()
+
+
+def test_a_card_can_also_link_to_a_card_by_path(tmp_path):
+    """Cards get the same treatment: the rewrite runs after expansion."""
+    docs = tmp_path / "docs"
+    (docs / "wiki").mkdir(parents=True)
+    (docs / "index.md").write_text("# Book\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text("# One\n\n[two](two.hmd)\n", encoding="utf-8")
+    (docs / "wiki" / "two.hmd").write_text("# Two\n", encoding="utf-8")
+
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    assert 'href="../two/"' in (site / "wiki" / "one" / "index.html").read_text()
