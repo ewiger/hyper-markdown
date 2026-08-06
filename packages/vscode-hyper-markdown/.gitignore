@@ -2,3 +2,6 @@
 *.vsix
 media/webview.js
 media/webview.js.map
+
+# KaTeX assets, copied from node_modules by esbuild.mjs.
+media/katex/

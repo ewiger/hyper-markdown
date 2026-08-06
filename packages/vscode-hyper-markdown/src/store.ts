@@ -20,16 +20,19 @@ import {
   type DocumentIR,
 } from "@hyper-markdown/core";
 
+import { DiagramEngine } from "./diagram/engine.js";
 import { VsCodeHost, discoverRoot } from "./workspaceHost.js";
 
 /** Milliseconds after the last keystroke before the preview re-parses (§6). */
 export const REPARSE_DEBOUNCE_MS = 150;
+
 
 export class Store implements vscode.Disposable {
   private workspace: Workspace | null = null;
   private host: VsCodeHost | null = null;
   private root: vscode.Uri | null = null;
   private readonly overrides = new Map<string, string>();
+  private readonly diagrams = new DiagramEngine();
   private readonly disposables: vscode.Disposable[] = [];
   private readonly changed = new vscode.EventEmitter<string | null>();
 
@@ -99,6 +102,27 @@ export class Store implements vscode.Disposable {
   render(rel: string): DocumentIR | null {
     if (this.workspace === null) return null;
     return new Renderer(this.workspace).render(rel);
+  }
+
+
+  /**
+   * Render every diagram in an IR (HMD-0022).
+   *
+   * Done here rather than in the core because rendering needs a subprocess,
+   * which the core cannot run.
+   */
+  async attachDiagrams(ir: DocumentIR): Promise<DocumentIR> {
+    const blocks = await Promise.all(
+      ir.blocks.map(async (block) => {
+        if (block.kind === "embed" && block.document !== null) {
+          return { ...block, document: await this.attachDiagrams(block.document) };
+        }
+        if (block.kind !== "diagram") return block;
+        const { dataUri, failure } = await this.diagrams.render(block.source);
+        return { ...block, dataUri, failure };
+      }),
+    );
+    return { ...ir, blocks };
   }
 
   backlinksFor(rel: string): BacklinkEntry[] {

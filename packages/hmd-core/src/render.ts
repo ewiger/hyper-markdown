@@ -12,16 +12,20 @@ import MarkdownIt from "markdown-it";
 import footnote from "markdown-it-footnote";
 import taskLists from "markdown-it-task-lists";
 
+import { DIAGRAM_LANGUAGES, fenceLanguage } from "./diagram/fence.js";
 import { bodySlice, expand, isFailure, type Slice } from "./expand.js";
 import {
   IR_VERSION,
   type Block,
+  type DiagramBlock,
   type DocumentIR,
   type EmbedBlock,
   type HtmlBlock,
   type ResolutionRef,
   type TargetRef,
 } from "./ir.js";
+import { calloutPlugin } from "./parse/callout.js";
+import { mathPlugin } from "./parse/math.js";
 import { MAX_EMBED_DEPTH } from "./lint.js";
 import type { Anchor, Link, ParsedDocument, Span } from "./model.js";
 import { split } from "./paths.js";
@@ -59,6 +63,10 @@ export function createMarkdownIt(): MarkdownIt {
   md.disable("code");
   md.use(footnote);
   md.use(taskLists, { enabled: true, label: true });
+  // The two the canonical stack gets from `admonition`, `pymdownx.details`,
+  // and `pymdownx.arithmatex`, which have no JavaScript equivalents.
+  md.use(calloutPlugin);
+  md.use(mathPlugin);
   return md;
 }
 
@@ -173,22 +181,36 @@ export class Renderer {
    * heading changes the key of every paragraph beneath it, and the renderer
    * would rebuild a document it could have patched (VSX-019).
    */
-  private htmlBlocks(text: string, startLine: number, refs: readonly Ref[]): HtmlBlock[] {
+  private htmlBlocks(text: string, startLine: number, refs: readonly Ref[]): Block[] {
     this.lineOffset = startLine;
     const env: Record<string, unknown> = {};
     const tokens = this.md.parse(text, env);
 
-    const out: HtmlBlock[] = [];
+    const out: Block[] = [];
     let group: typeof tokens = [];
     let depth = 0;
 
     const emit = (): void => {
       if (group.length === 0) return;
-      const line = group.find((t) => t.map)?.map?.[0];
-      const html = restore(this.md.renderer.render(group, this.md.options, env), refs);
+      const current = group;
       group = [];
-      if (html.trim() === "") return;
+
+      const line = current.find((t) => t.map)?.map?.[0];
       const at = line === undefined ? startLine : startLine + line;
+
+      // A diagram fence is its own block: it resolves against the filesystem
+      // and can be absent or stale, none of which survives an HTML string.
+      const only = current.length === 1 ? current[0] : undefined;
+      if (only !== undefined && only.type === "fence") {
+        const language = fenceLanguage(only.info);
+        if (DIAGRAM_LANGUAGES.has(language)) {
+          out.push(diagramBlock(only.content, language, at));
+          return;
+        }
+      }
+
+      const html = restore(this.md.renderer.render(current, this.md.options, env), refs);
+      if (html.trim() === "") return;
       out.push({ kind: "html", key: "", html, span: { start: 0, end: 0, line: at, column: 1 } });
     };
 
@@ -201,6 +223,7 @@ export class Renderer {
 
     return out;
   }
+
 
   /**
    * Replace each construct on one line with a sentinel, right to left so
@@ -342,6 +365,19 @@ export class Renderer {
 
 // -- helpers -------------------------------------------------------------
 
+/** A diagram fence, carried unrendered; the consumer runs `d2`. */
+function diagramBlock(source: string, language: string, line: number): DiagramBlock {
+  return {
+    kind: "diagram",
+    key: "",
+    language,
+    source,
+    dataUri: null,
+    failure: null,
+    span: { start: 0, end: 0, line, column: 1 },
+  };
+}
+
 function sentinel(index: number): string {
   return `${SENTINEL_PREFIX}${index}${SENTINEL_SUFFIX}`;
 }
@@ -417,7 +453,12 @@ export function escapeAttr(value: string): string {
 function assignKeys(blocks: Block[]): Block[] {
   const seen = new Map<string, number>();
   return blocks.map((block) => {
-    const content = block.kind === "html" ? block.html : `embed:${block.target.raw}`;
+    const content =
+      block.kind === "html"
+        ? block.html
+        : block.kind === "embed"
+          ? `embed:${block.target.raw}`
+          : `diagram:${block.source}`;
     const digest = fnv1a(content);
     const nth = seen.get(digest) ?? 0;
     seen.set(digest, nth + 1);

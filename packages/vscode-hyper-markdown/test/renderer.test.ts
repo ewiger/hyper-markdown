@@ -28,6 +28,8 @@ async function ir(files: Record<string, string>, path: string): Promise<Document
   return document;
 }
 
+const ir_ = (body: string): Promise<DocumentIR> => ir({ "a.hmd": body }, "a.hmd");
+
 let container: HTMLElement;
 
 beforeEach(() => {
@@ -141,6 +143,48 @@ describe("patching", () => {
     patchBlocks(container, (await ir({ "a.hmd": "# H\n\ntext [[half\n" }, "a.hmd")).blocks, settings);
     expect(container.textContent!.trim()).not.toBe("");
     expect(container.textContent).toContain("[[half");
+  });
+});
+
+describe("diagrams", () => {
+  const card = "# T\n\n```d2\na -> b\n```\n";
+
+  it("shows the source and the reason when there is no renderer", async () => {
+    const ir = await ir_(card);
+    // The core never renders; an unrendered diagram is the ordinary state.
+    patchBlocks(container, ir.blocks, settings);
+    const diagram = container.querySelector<HTMLElement>(".hmd-diagram");
+    expect(diagram).not.toBeNull();
+    expect(diagram!.classList.contains("is-unrendered")).toBe(true);
+    expect(diagram!.textContent).toContain("a -> b");
+  });
+
+  it("shows a failure beside the source, not instead of it", async () => {
+    const ir = await ir_(card);
+    const blocks = ir.blocks.map((b) =>
+      b.kind === "diagram" ? { ...b, failure: "d2 exploded" } : b,
+    );
+    patchBlocks(container, blocks, settings);
+    expect(container.textContent).toContain("d2 exploded");
+    expect(container.textContent).toContain("a -> b");
+  });
+
+  it("renders a data: URI as an image, never as markup", async () => {
+    const ir = await ir_(card);
+    const evil = `data:image/svg+xml;base64,${btoa("<svg onload=\"alert(1)\"></svg>")}`;
+    const blocks = ir.blocks.map((b) => (b.kind === "diagram" ? { ...b, dataUri: evil } : b));
+    patchBlocks(container, blocks, settings);
+
+    const image = container.querySelector<HTMLImageElement>("img.hmd-diagram-image");
+    expect(image).not.toBeNull();
+    expect(image!.getAttribute("src")).toBe(evil);
+    // An <img> cannot execute its payload; an inlined <svg> could.
+    expect(container.querySelector("svg")).toBeNull();
+  });
+
+  it("carries a data-line so a diagram participates in scroll sync", async () => {
+    patchBlocks(container, (await ir_(card)).blocks, settings);
+    expect(container.querySelector(".hmd-diagram")!.getAttribute("data-line")).toBe("3");
   });
 });
 

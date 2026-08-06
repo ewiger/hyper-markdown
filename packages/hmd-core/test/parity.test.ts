@@ -75,6 +75,7 @@ async function typescriptDiagnostics(root: string): Promise<PythonDiagnostic[]> 
 
 describe.each([
   ["examples/small", resolve(repoRoot, "examples/small")],
+  ["examples/cs-alg-sorting", resolve(repoRoot, "examples/cs-alg-sorting")],
   ["doc/wiki", resolve(repoRoot, "doc/wiki")],
 ])("parity on %s", (_label, root) => {
   it("produces the diagnostics the canonical implementation produces", async () => {

@@ -83,8 +83,11 @@ source editor and the rendered preview (89).
 footnotes, inline and display math, tables, task lists, strikethrough, and
 fenced code with syntax highlighting.
 
-**VSX-016** (MAY) D2 diagrams render. Deferred in v1; a D2 fence renders as a
-labelled code block until then, and `terrastruct/d2-vscode` covers the gap.
+**VSX-016** (MUST) A D2 fence renders as its **committed artifact**, compiled
+ahead of time by the `d2` CLI rather than by the extension. An unrendered fence
+shows its source with an action that renders it — a diagram not yet compiled is
+not a defect in the card and must not look like one. Specified by
+[HMD-0022](../../proposals/HMD-0022/README.md).
 
 **VSX-017** (MUST) Rendering is deterministic and offline. The same buffer and
 the same workspace produce the same preview, with no network access (P1).
@@ -191,9 +194,17 @@ an explicit user action, and every such action is undoable.
 
 ## 7. Runtime and packaging
 
-**VSX-060** (MUST) The extension has no runtime dependency on Python, on the
-`hmd` CLI, or on any other external binary. Interpreter discovery is the
-single largest onboarding cliff available to this feature, and it is avoidable.
+**VSX-060** (MUST) Opening a card, the preview, diagnostics, the index, and
+every other path a reader or an editing author touches have no runtime
+dependency on Python, on the `hmd` CLI, or on any other external binary.
+Interpreter discovery is the single largest onboarding cliff available to this
+feature, and it is avoidable.
+
+(MAY) An explicitly invoked command may require a build tool, and must say
+plainly which one when it is missing. Diagram rendering is the first such case
+([HMD-0022](../../proposals/HMD-0022/README.md) §7); `d2` is an author-time tool
+like a formatter, and requiring it of the person *writing* a diagram is ordinary
+where requiring it of the person *reading* a card is not.
 
 **VSX-061** (MUST) The extension works in a workspace with no `.hmd/config.toml`
 and no prior setup, falling back to the default root.

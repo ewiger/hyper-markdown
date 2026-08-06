@@ -1,54 +1,36 @@
 {
-  "$comment": "Known divergences from the canonical implementation (HMD-0020 §10). Each entry names a conformance case this implementation is expected to fail, and why. A case listed here that PASSES fails the build: an expected failure that starts succeeding and is not removed is how a ledger rots into a lie.",
+  "$comment": "Known divergences from the canonical implementation (HMD-0020 \u00a710). Each entry names a conformance case this implementation is expected to fail, and why. A case listed here that PASSES fails the build: an expected failure that starts succeeding and is not removed is how a ledger rots into a lie.",
   "cases": [],
   "rendering": [
     {
       "id": "raw-html-escaped",
       "reason": "Raw HTML in a card is escaped rather than passed through. Deliberate: a webview rendering workspace HTML is a script-injection surface reachable from any cloned repository.",
       "deliberate": true,
-      "spec": "HMD-0020 §3"
-    },
-    {
-      "id": "pymdownx-details",
-      "reason": "Collapsible `???` callouts have no markdown-it equivalent; they render as plain markdown.",
-      "deliberate": false,
-      "spec": "HMD-0020 §3.3"
-    },
-    {
-      "id": "admonition",
-      "reason": "`!!! note` callouts render as plain paragraphs; no markdown-it plugin is bundled yet.",
-      "deliberate": false,
-      "spec": "HMD-0020 §3.3"
-    },
-    {
-      "id": "arithmatex",
-      "reason": "Inline and display math render as literal text; KaTeX is not bundled yet.",
-      "deliberate": false,
-      "spec": "HMD-0020 §3.3"
-    },
-    {
-      "id": "d2-diagrams",
-      "reason": "A `d2` fence renders as a code block. D2 shells out to a binary the extension does not ship.",
-      "deliberate": true,
-      "spec": "HMD-0020 §3.3"
+      "spec": "HMD-0020 \u00a73"
     },
     {
       "id": "pymdownx-tilde-subscript",
       "reason": "`~x~` subscript is unsupported; markdown-it's builtin only covers `~~strikethrough~~`.",
       "deliberate": false,
-      "spec": "HMD-0020 §3.3"
+      "spec": "HMD-0020 \u00a73.3"
     },
     {
       "id": "setext-headings",
       "reason": "markdown-it recognises setext headings (`Title` over `=====`); the canonical scanner finds ATX headings only, so a setext heading has no slug on the Python side and is not addressable by `[[Page#Section]]`.",
       "deliberate": false,
-      "spec": "HMD-0001 §1"
+      "spec": "HMD-0001 \u00a71"
     },
     {
       "id": "astral-plane-columns",
       "reason": "Column numbers count UTF-16 code units here and code points in Python, so a diagnostic after an emoji on the same line can differ by one per astral character.",
       "deliberate": false,
-      "spec": "HMD-0020 §7"
+      "spec": "HMD-0020 \u00a77"
+    },
+    {
+      "id": "katex-vs-mathjax",
+      "reason": "Math is typeset by KaTeX here and by whatever MathJax the MkDocs site loads there. Both render the same LaTeX; the HTML around it differs.",
+      "deliberate": true,
+      "spec": "HMD-0020 \u00a73.3"
     }
   ]
 }

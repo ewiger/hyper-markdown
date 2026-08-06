@@ -237,13 +237,23 @@ export class PreviewController implements vscode.Disposable {
       return;
     }
 
-    this.post({
-      type: "render",
-      irVersion: IR_VERSION,
-      document,
-      mode: this.mode,
-      settings: this.settings(),
-      pinned: this.pinned,
+    const mode = this.mode;
+    const settings = this.settings();
+    const pinned = this.pinned;
+    const card = this.current;
+
+    // Reading diagram artifacts is the one asynchronous step; the guard below
+    // drops the result if the preview moved on while it was in flight.
+    void this.store.attachDiagrams(document).then((withDiagrams) => {
+      if (this.current !== card) return;
+      this.post({
+        type: "render",
+        irVersion: IR_VERSION,
+        document: withDiagrams,
+        mode,
+        settings,
+        pinned,
+      });
     });
   }
 

@@ -15,3 +15,4 @@ can reserve numbers without coordinating.
 | [HMD-0001](HMD-0001/README.md) | drafted | MVP — grammar, resolver, and `hmd lint` |
 | [HMD-0020](HMD-0020/README.md) | drafted | `@hyper-markdown/core` — the TypeScript document model |
 | [HMD-0021](HMD-0021/README.md) | drafted | The VS Code extension — the hyper-markdown preview surface |
+| [HMD-0022](HMD-0022/README.md) | drafted | Diagrams as committed artifacts |

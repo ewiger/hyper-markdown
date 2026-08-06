@@ -1,0 +1,76 @@
+---
+tags: [topic/algorithms, kind/algorithm, property/stable]
+---
+
+# Merge sort
+
+Split the array in half, sort each half recursively, then merge the two sorted
+halves by repeatedly taking the smaller front element. The merge is where the
+work happens; the split is free.
+
+**Invariant.** Every recursive call returns its subarray fully sorted, so the
+merge only ever combines two sorted runs.
+
+## Flow
+
+```d2
+direction: down
+
+start: "sort(a, lo, hi)" {shape: oval}
+base: "hi - lo < 2?" {shape: diamond}
+ret: return {shape: oval}
+split: "mid = (lo + hi) / 2"
+lhs: "sort(a, lo, mid)"
+rhs: "sort(a, mid, hi)"
+merge: "merge two sorted runs into a buffer"
+copy: "copy the buffer back"
+done: "subarray sorted" {shape: oval}
+
+start -> base
+base -> ret: "yes — 0 or 1 element"
+base -> split: no
+split -> lhs
+lhs -> rhs
+rhs -> merge
+merge -> copy
+copy -> done
+```
+
+## Cost
+
+The recurrence is the textbook one — two halves plus a linear merge:
+
+$$
+T(n) = 2\,T\!\left(\frac{n}{2}\right) + \Theta(n) = \Theta(n\log n)
+$$
+
+- **Best, average, worst** all $\Theta(n\log n)$. The split never depends on the
+  data, so there is no bad input — unlike [[quicksort]].
+- **Space** $O(n)$ for the merge buffer. This is the price, and it is the reason
+  [[heapsort]] exists.
+- **Stable**, provided the merge takes from the left run when the two fronts
+  compare equal.
+
+!!! note "The guarantee is the selling point"
+
+    Merge sort is the only sort here that is both stable and $O(n\log n)$ in the
+    worst case. When either property is a requirement rather than a preference,
+    the choice is already made. See [[stability]].
+
+## Bottom-up, and why it matters
+
+The recursive form is easier to read; the iterative form merges runs of width
+1, 2, 4, … and needs no call stack. It is also the form that generalises to
+data that does not fit in memory — external merge sort reads sorted runs from
+disk and merges them in a streaming pass, which is how databases sort tables
+larger than RAM.
+
+??? tip "Timsort"
+
+    Python's `sorted`, Java's `Arrays.sort` for objects, and Rust's stable sort
+    are all Timsort: merge sort that first finds naturally occurring sorted runs
+    in the input, extends short ones with [[insertion-sort]], and merges the
+    runs it found. On real-world data — which is rarely random — it often beats
+    $n\log n$ because the runs are already there.
+
+![[complexity#^big-o]]

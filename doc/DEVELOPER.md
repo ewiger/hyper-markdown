@@ -61,9 +61,9 @@ host, and `media/webview.js` for the sandboxed webview. Both are gitignored.
 #### Automated
 
 ```bash
-npm test                                  # both packages, 114 tests
-npm run -w @hyper-markdown/core test      # 83: scanner, resolver, IR, corpus, parity
-npm run -w vscode-hyper-markdown test     # 31: renderer under jsdom, protocol, CSP
+npm test                                  # both packages, 141 tests
+npm run -w @hyper-markdown/core test      # 106: scanner, resolver, IR, corpus, parity
+npm run -w vscode-hyper-markdown test     # 35: renderer under jsdom, protocol, CSP
 ```
 
 Two of those suites are doing more than they look:
@@ -134,7 +134,8 @@ npm run -w vscode-hyper-markdown package
 code --install-extension packages/vscode-hyper-markdown/vscode-hyper-markdown-0.1.0.vsix
 ```
 
-Reload the window afterwards. The VSIX is ~97 KB and carries no `node_modules`.
+Reload the window afterwards. The VSIX is ~440 KB — mostly KaTeX's fonts —
+and carries no `node_modules`.
 
 #### What to exercise
 
@@ -167,12 +168,37 @@ In order, against `examples/small`:
    and the preview does not jump to the top. This is keyed DOM patching
    (VSX-019) and it is the behaviour most likely to regress silently.
 
+#### The feature-rich fixture
+
+`examples/cs-alg-sorting` is the example to open when testing callouts, math,
+and diagrams: five sorting algorithms, seven D2 flowcharts, KaTeX throughout,
+`!!!` and `???` callouts, block embeds, and cross-card links. It lints clean
+under `--strict`, and every diagram in it compiles with `d2`.
+
+Launch it with:
+
+```bash
+code --extensionDevelopmentPath=packages/vscode-hyper-markdown examples/cs-alg-sorting
+```
+
+#### Diagrams need `d2`
+
+A ```` ```d2 ```` fence draws only if a renderer is available: `d2` on `PATH`, then
+`docker run terrastruct/d2:latest`. With neither, the block shows its source and
+says which two things were looked for — a diagram that is not drawn is not a
+defect in the card. Everything else on a card renders without any external tool.
+
+```bash
+brew install d2      # or see https://d2lang.com
+```
+
 #### Expected rough edges
 
-`login.hmd` deliberately contains constructs that are ledgered gaps, not bugs:
-the `$$…$$` math block, the `!!! note` callout, and the ` ```d2 ` fence all
-render as plain markdown. Task lists, tables, footnotes, code fences, and all
-six link constructs should look correct. The full list is in
+`login.hmd` exercises callouts, math, task lists, tables, footnotes, code
+fences, all six link constructs, and a D2 diagram; all of them should render.
+What remains ledgered is narrower: `~x~` subscript, setext headings, raw HTML
+(escaped here by design), and column numbers after astral-plane characters. The
+full list is in
 [`conformance-xfail.json`](../packages/hmd-core/conformance-xfail.json).
 
 #### The integration suite

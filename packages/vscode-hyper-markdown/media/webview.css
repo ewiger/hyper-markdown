@@ -227,6 +227,99 @@ body.is-pinned .hmd-breadcrumb::after {
   font-size: 0.9em;
 }
 
+/* -- callouts ---------------------------------------------------------- */
+
+/* Shape follows Python-Markdown's `admonition`, so a card looks the same here
+   and in a MkDocs build. */
+.admonition,
+.hmd-content details {
+  border: 1px solid var(--vscode-panel-border);
+  border-left: 3px solid var(--vscode-textLink-foreground);
+  border-radius: var(--hmd-radius);
+  margin: 1em 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--vscode-textBlockQuote-background);
+}
+
+.admonition-title,
+.hmd-content summary {
+  margin: 0 0 0.4em;
+  font-weight: 600;
+}
+
+.hmd-content summary {
+  cursor: pointer;
+}
+
+.admonition > :last-child,
+.hmd-content details > :last-child {
+  margin-bottom: 0;
+}
+
+.admonition.warning,
+.hmd-content details.warning {
+  border-left-color: var(--vscode-editorWarning-foreground);
+}
+
+.admonition.danger,
+.admonition.error,
+.hmd-content details.danger,
+.hmd-content details.error {
+  border-left-color: var(--vscode-errorForeground);
+}
+
+.admonition.tip,
+.admonition.success,
+.hmd-content details.tip,
+.hmd-content details.success {
+  border-left-color: var(--vscode-charts-green, var(--vscode-textLink-foreground));
+}
+
+/* -- math -------------------------------------------------------------- */
+
+.hmd-math-block {
+  overflow-x: auto;
+  padding: 0.25rem 0;
+}
+
+.hmd-math-error {
+  color: var(--vscode-errorForeground);
+}
+
+/* KaTeX ships its own colours; only the size needs to follow the editor. */
+.katex {
+  font-size: 1.05em;
+}
+
+/* -- diagrams ---------------------------------------------------------- */
+
+.hmd-diagram {
+  margin: 1em 0;
+  scroll-margin-top: 3rem;
+}
+
+.hmd-diagram-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--hmd-radius);
+  /* D2's default palette is drawn for a light background, so give it one
+     rather than inverting the image, which would distort every colour the
+     diagram's author chose. */
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.hmd-diagram-notice {
+  font-size: 0.85em;
+  opacity: 0.85;
+  padding: 0.35rem 0;
+}
+
+.hmd-diagram-source {
+  margin: 0;
+  opacity: 0.85;
+}
+
 /* -- backlinks --------------------------------------------------------- */
 
 .hmd-backlinks {

@@ -46,6 +46,18 @@ export {
   type RenderOptions,
 } from "./render.js";
 export { buildGraph, backlinks, type Graph, type GraphEdge, type GraphNode } from "./graph.js";
+export { calloutPlugin } from "./parse/callout.js";
+export { mathPlugin, renderMath } from "./parse/math.js";
+export {
+  CACHE_ENTRIES,
+  DIAGRAM_LANGUAGES,
+  MAX_SOURCE_BYTES,
+  RENDER_TIMEOUT_MS,
+  diagramKey,
+  fenceLanguage,
+  isDiagramFence,
+  sha256,
+} from "./diagram/fence.js";
 export { MemoryHost, type DirEntry, type WorkspaceHost } from "./host.js";
 export * from "./ir.js";
 export * from "./model.js";

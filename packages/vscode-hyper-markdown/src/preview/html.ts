@@ -16,6 +16,8 @@ export function makeNonce(): string {
 export interface ShellOptions {
   scriptUri: string;
   styleUri: string;
+  /** KaTeX's stylesheet, copied into `media/katex/` at build time. */
+  katexUri: string;
   cspSource: string;
   nonce: string;
 }
@@ -42,6 +44,7 @@ export function buildShell(options: ShellOptions): string {
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="${options.katexUri}" rel="stylesheet">
 <link href="${options.styleUri}" rel="stylesheet">
 <title>Hyper-Markdown</title>
 </head>
@@ -68,6 +71,9 @@ export function shellFor(webview: vscode.Webview, extensionUri: vscode.Uri): str
       .toString(),
     styleUri: webview
       .asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "webview.css"))
+      .toString(),
+    katexUri: webview
+      .asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "katex", "katex.min.css"))
       .toString(),
     cspSource: webview.cspSource,
     nonce: makeNonce(),

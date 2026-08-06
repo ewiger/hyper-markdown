@@ -1,0 +1,11 @@
+# Project config for the sorting-algorithms example.
+#
+# The .hmd/ directory doubles as the project root marker (HMD-0001 §4), so this
+# tree is self-contained:
+#   hmd lint --root examples/cs-alg-sorting
+
+wiki = "."
+
+[discovery]
+autodiscovery = true
+mode = "both"

@@ -13,9 +13,10 @@ touching each other.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): C1–C6 and E1–E5 done. 114 tests green, including
+**Snapshot** (2026-08-07): C1–C7 and E1–E5 done. 141 tests green, including
 byte-identical diagnostic parity with `hmd lint` on `examples/small` and
-`doc/wiki`. E6 (graph tab) and the Python corpus runner are the next blocks.
+`doc/wiki`. Callouts, math, and D2 diagrams render (HMD-0022). E6 (graph tab)
+and the Python corpus runner are the next blocks.
 
 ---
 
@@ -29,6 +30,7 @@ byte-identical diagnostic parity with `hmd lint` on `examples/small` and
 | C4 | Lint rules HMD001–HMD016 | **done** | `test/parity.test.ts` |
 | C5 | Conformance corpus and ledger | **done** | `test/corpus.test.ts` |
 | C6 | IR, expansion, markdown-it renderer | **done** | `test/render.test.ts` |
+| C7 | Callouts, math, D2 diagrams | **done** | `test/extensions.test.ts` |
 | E1 | Extension skeleton, language, grammar | **done** | `npm run -w vscode-hyper-markdown build` |
 | E2 | Index, watchers, diagnostics | **done** | `test/protocol.test.ts` |
 | E3 | Rendered tab, embeds, scroll sync | **done** | `test/renderer.test.ts` |
@@ -55,7 +57,11 @@ byte-identical diagnostic parity with `hmd lint` on `examples/small` and
 | C6.1 | `expand.ts` — page, `#Section`, `#^id`, depth 16, cycle stack | §8 | done |
 | C6.2 | `render.ts` — sentinel substitution, per-block `data-line`, block keys | §3, §7 | done |
 | C6.3 | `graph.ts` — nodes, edges, reverse edge map for backlinks | HMD-0021 §9 | done |
-| C6.4 | KaTeX, admonition, and details plugins | §3.3 | **ready** — ledgered as gaps |
+| C6.4 | `parse/callout.ts` — `!!!` admonitions and `???`/`???+` details | §3.3 | done |
+| C7.1 | `parse/math.ts` — KaTeX with arithmatex smart-dollar semantics | §3.3 | done |
+| C7.2 | `diagram/fence.ts` — fence detection, shared bounds, cache key | HMD-0022 §1 | done |
+| C7.3 | `diagram/sha256.ts` — sync digest, no Node builtins | HMD-0022 §3 | done |
+| C7.4 | `DiagramBlock`, `IR_VERSION` 2 | HMD-0022 §1 | done |
 
 ### E — the extension
 
@@ -75,7 +81,9 @@ byte-identical diagnostic parity with `hmd lint` on `examples/small` and
 | E4.1 | Backlinks tab, link and embed edges distinguished | §9 | done |
 | E4.2 | Breadcrumb, pin toggle | §3 | done |
 | E4.3 | `createCard` through `WorkspaceEdit` | §5 | done |
-| E5.1 | `.vscodeignore`, VSIX at 96 KB with no `node_modules` | §12 | done |
+| E4.4 | `diagram/engine.ts` — `d2` then Docker, 64-entry LRU, data: URI | HMD-0022 §2–§6 | done |
+| E4.5 | KaTeX stylesheet and woff2 fonts copied into the VSIX | HMD-0020 §3.3 | done |
+| E5.1 | `.vscodeignore`, VSIX with no `node_modules` | §12 | done |
 | E5.2 | Integration suite under `@vscode/test-cli` | Test Plan | **blocked** — see below |
 | E6.1 | Graph tab under the §10 contract | §10 | ready |
 

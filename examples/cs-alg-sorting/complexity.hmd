@@ -1,0 +1,89 @@
+---
+tags: [topic/algorithms, kind/reference]
+---
+
+# Complexity
+
+How the cost of a sort is described, and why the description is deliberately
+imprecise.
+
+## The notation
+
+Three symbols do almost all the work. Each bounds a function $f(n)$ — the count
+of operations on an input of size $n$ — by a simpler function $g(n)$:
+
+- $O(g)$ — an **upper** bound. $f$ grows no faster than $g$, up to a constant.
+- $\Omega(g)$ — a **lower** bound. $f$ grows at least as fast as $g$.
+- $\Theta(g)$ — both at once. $f$ grows exactly like $g$.
+
+Formally, $f(n) = O(g(n))$ when there are constants $c > 0$ and $n_0$ such that
+
+$$
+0 \le f(n) \le c \cdot g(n) \quad \text{for all } n \ge n_0
+$$
+
+The constants are what the notation throws away, and throwing them away is the
+point: they depend on the machine, the compiler, and the memory hierarchy, none
+of which the algorithm controls. ^big-o
+
+!!! warning "What the constants hide"
+
+    [[insertion-sort]] is $O(n^2)$ and [[merge-sort]] is $O(n\log n)$, yet
+    insertion sort is faster below roughly 10–50 elements on real hardware.
+    Every production sort exploits this by switching to insertion sort on small
+    partitions. An asymptotic bound describes the shape of a curve, not its
+    height.
+
+## The three cases
+
+The same algorithm has three costs, and quoting only one is how people mislead
+themselves:
+
+- **Best case** — the input that costs least. Usually already-sorted data.
+- **Average case** — the expectation over all input orderings, assumed uniform.
+- **Worst case** — the input that costs most. The only bound you can promise.
+
+[[quicksort]] is the sharp example: $\Theta(n\log n)$ on average and
+$\Theta(n^2)$ in the worst case, and the worst case used to be *sorted input*
+before randomised pivots became standard.
+
+## Counting what matters
+
+For a comparison sort, two operations are counted:
+
+- **Comparisons** — asking whether $a_i < a_j$.
+- **Swaps or moves** — writing an element to a new position.
+
+They are not interchangeable. [[heapsort]] and [[merge-sort]] make a similar
+number of comparisons, but merge sort moves every element $\log n$ times while
+heapsort's moves are scattered — which is why merge sort is often faster in
+practice despite using more memory. When a comparison is expensive, count
+comparisons; when a move is expensive, count moves.
+
+## The lower bound
+
+Any comparison sort needs $\Omega(n\log n)$ comparisons in the worst case. A
+sort's decision tree must have one leaf per possible ordering, so it has at
+least $n!$ leaves; a binary tree with $n!$ leaves has depth at least
+$\log_2(n!)$, and by Stirling's approximation $\log_2(n!) = \Theta(n\log n)$.
+No cleverness in comparison-based sorting escapes it. ^lower-bound
+
+??? tip "Sorts that beat the bound"
+
+    Counting sort, radix sort, and bucket sort run in $O(n)$ or $O(n + k)$ —
+    because they never compare two elements. They read the keys' structure
+    instead, which is why they need to know something about the keys in advance.
+    The lower bound applies to comparison sorts, and only to them.
+
+## Recurrences
+
+A divide-and-conquer sort's cost is naturally written as a recurrence. Merge
+sort splits into two halves and merges in linear time:
+
+$$
+T(n) = 2\,T\!\left(\frac{n}{2}\right) + \Theta(n)
+$$
+
+The master theorem gives $T(n) = \Theta(n\log n)$. The same recurrence with an
+unbalanced split — $T(n) = T(n-1) + \Theta(n)$ — gives $\Theta(n^2)$, which is
+exactly quicksort's worst case.

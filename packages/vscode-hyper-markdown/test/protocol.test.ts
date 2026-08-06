@@ -67,6 +67,7 @@ describe("content security policy", () => {
   const shell = buildShell({
     scriptUri: "vscode-resource://media/webview.js",
     styleUri: "vscode-resource://media/webview.css",
+    katexUri: "vscode-resource://media/katex/katex.min.css",
     cspSource: "vscode-resource://self",
     nonce: "deadbeef",
   });

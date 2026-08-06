@@ -19,8 +19,18 @@
     "vscode": "^1.90.0",
     "node": ">=20"
   },
-  "categories": ["Programming Languages", "Visualization", "Notebooks"],
-  "keywords": ["hyper-markdown", "hmd", "wiki", "wikilinks", "knowledge base"],
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Notebooks"
+  ],
+  "keywords": [
+    "hyper-markdown",
+    "hmd",
+    "wiki",
+    "wikilinks",
+    "knowledge base"
+  ],
   "main": "./dist/extension.js",
   "capabilities": {
     "untrustedWorkspaces": {
@@ -33,8 +43,13 @@
     "languages": [
       {
         "id": "hmd",
-        "aliases": ["Hyper-Markdown", "hmd"],
-        "extensions": [".hmd"],
+        "aliases": [
+          "Hyper-Markdown",
+          "hmd"
+        ],
+        "extensions": [
+          ".hmd"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -127,13 +142,19 @@
         },
         "hyperMarkdown.preview.embeds": {
           "type": "string",
-          "enum": ["expanded", "collapsed"],
+          "enum": [
+            "expanded",
+            "collapsed"
+          ],
           "default": "expanded",
           "description": "Whether embed cards start expanded or collapsed."
         },
         "hyperMarkdown.diagnostics.scope": {
           "type": "string",
-          "enum": ["open", "workspace"],
+          "enum": [
+            "open",
+            "workspace"
+          ],
           "default": "workspace",
           "markdownDescription": "Publish diagnostics for open documents only, or for every card in the index. A red link in a card nobody has opened is still a work item."
         }

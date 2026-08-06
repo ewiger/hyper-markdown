@@ -46,6 +46,9 @@ jobs:
       - name: Lint the example fixture
         run: uv run hmd lint --root examples/small
 
+      - name: Lint the sorting example
+        run: uv run hmd lint --root examples/cs-alg-sorting --strict
+
   # The TypeScript line (HMD-0020, HMD-0021). It runs independently of the
   # Python matrix so neither half can block the other's merge, and it installs
   # Python anyway: the conformance gate below is only meaningful when it can

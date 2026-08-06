@@ -6,7 +6,13 @@
  * that an editor exists.
  */
 
-import type { BacklinkEntry, Block, DocumentIR, EmbedBlock } from "@hyper-markdown/core";
+import type {
+  BacklinkEntry,
+  Block,
+  DiagramBlock,
+  DocumentIR,
+  EmbedBlock,
+} from "@hyper-markdown/core";
 
 export interface RenderSettings {
   embeds: "expanded" | "collapsed";
@@ -67,6 +73,42 @@ function createBlock(block: Block, settings: RenderSettings): HTMLElement {
   return updateBlock(element, block, settings, true);
 }
 
+/**
+ * A rendered diagram, or its source with the reason there isn't one (HMD-0022).
+ *
+ * The SVG arrives as a `data:` URI on an `<img>`, which executes no script — so
+ * diagram source from a cloned repository cannot run code in the webview.
+ */
+function renderDiagram(element: HTMLElement, block: DiagramBlock): void {
+  const rendered = block.dataUri !== null;
+  element.className = rendered ? "hmd-diagram" : "hmd-diagram is-unrendered";
+  element.dataset["line"] = String(block.span.line);
+  element.textContent = "";
+
+  if (rendered) {
+    const image = document.createElement("img");
+    image.className = "hmd-diagram-image";
+    image.src = block.dataUri!;
+    image.alt = `${block.language} diagram`;
+    element.append(image);
+    return;
+  }
+
+  // A diagram that is merely not drawn is not a defect in the card, so the
+  // source is shown as source and the reason sits beside it.
+  const notice = document.createElement("div");
+  notice.className = "hmd-diagram-notice";
+  notice.textContent = block.failure ?? `${block.language} diagram not rendered`;
+  element.append(notice);
+
+  const pre = document.createElement("pre");
+  pre.className = "hmd-diagram-source";
+  const code = document.createElement("code");
+  code.textContent = block.source;
+  pre.append(code);
+  element.append(pre);
+}
+
 function updateBlock(
   element: HTMLElement,
   block: Block,
@@ -82,6 +124,11 @@ function updateBlock(
     // The only innerHTML in the renderer, and only for content the core
     // produced with `html: false` (HMD-0021 §5).
     if (element.innerHTML !== block.html) element.innerHTML = block.html;
+    return element;
+  }
+
+  if (block.kind === "diagram") {
+    renderDiagram(element, block);
     return element;
   }
 

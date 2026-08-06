@@ -1,0 +1,72 @@
+---
+tags: [topic/algorithms, kind/overview]
+---
+
+# Sorting algorithms
+
+Five classic comparison sorts, one card each, with the cost model they share and
+the two properties that decide which one you actually reach for.
+
+Read [[complexity]] first if the notation is unfamiliar; [[stability]] explains
+the property that most often decides a real choice.
+
+## The five
+
+| Algorithm | Best | Average | Worst | Extra space | Stable |
+| --- | --- | --- | --- | --- | --- |
+| [[bubble-sort]] | $O(n)$ | $O(n^2)$ | $O(n^2)$ | $O(1)$ | yes |
+| [[insertion-sort]] | $O(n)$ | $O(n^2)$ | $O(n^2)$ | $O(1)$ | yes |
+| [[merge-sort]] | $O(n\log n)$ | $O(n\log n)$ | $O(n\log n)$ | $O(n)$ | yes |
+| [[quicksort]] | $O(n\log n)$ | $O(n\log n)$ | $O(n^2)$ | $O(\log n)$ | no |
+| [[heapsort]] | $O(n\log n)$ | $O(n\log n)$ | $O(n\log n)$ | $O(1)$ | no |
+
+!!! note "Why five, and why these"
+
+    Bubble and insertion sort share a cost class but not a temperament, which
+    makes them the clearest pair for showing that big-O is not the whole story.
+    Merge, quick, and heap are the three ways to reach $O(n\log n)$, and each
+    pays for it differently: memory, worst case, or constant factor.
+
+## How they relate
+
+```d2
+direction: right
+
+quadratic: "Quadratic: O(n²)" {
+  bubble: Bubble sort
+  insertion: Insertion sort
+}
+
+linearithmic: "Linearithmic: O(n log n)" {
+  merge: Merge sort
+  quick: Quicksort
+  heap: Heapsort
+}
+
+quadratic.insertion -> linearithmic.merge: "divide instead of scan"
+quadratic.insertion -> linearithmic.heap: "pick the minimum faster"
+linearithmic.merge -> linearithmic.quick: "partition in place"
+```
+
+## Choosing one
+
+!!! tip "The short version"
+
+    Use your language's built-in sort. It is almost certainly a hybrid of
+    [[merge-sort]] and [[insertion-sort]] that beats anything on this page.
+
+When you cannot:
+
+- **Small or nearly sorted input** — [[insertion-sort]]. Its $O(n)$ best case is
+  real, and its constant factor is tiny.
+- **You need [[stability]]** — [[merge-sort]].
+- **Memory is tight and worst case matters** — [[heapsort]]. It is the only sort
+  here that is both in-place and $O(n\log n)$ in the worst case.
+- **Average speed matters most** — [[quicksort]], with a randomised pivot.
+
+## The lower bound
+
+No comparison sort beats $O(n\log n)$ in the worst case, and the argument is
+short enough to state here:
+
+![[complexity#^lower-bound]]

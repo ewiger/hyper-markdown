@@ -109,6 +109,7 @@ export class Workspace {
     for (const rel of paths) {
       workspace.addDocument(rel, parse(rel, await host.readFile(rel)));
     }
+
     return workspace;
   }
 
