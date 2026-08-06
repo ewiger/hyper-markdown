@@ -57,8 +57,8 @@ def test_hrefs_are_relative_to_the_source_path(tmp_path, source, target, expecte
 # -- the build -----------------------------------------------------------
 
 
-def build(tmp_path: Path, docs_dir: Path, **extra) -> Path:
-    """Build `docs_dir` into a temporary site and return the site directory."""
+def _build_config(tmp_path: Path, docs_dir: Path, **extra):
+    """A loaded MkDocs config pointing at `docs_dir`, building into tmp_path."""
     site_dir = tmp_path / "site"
     config_file = tmp_path / "mkdocs.yml"
     settings = {
@@ -70,8 +70,13 @@ def build(tmp_path: Path, docs_dir: Path, **extra) -> Path:
         **extra,
     }
     config_file.write_text(yaml.safe_dump(settings), encoding="utf-8")
-    mkdocs_build.build(mkdocs_config.load_config(str(config_file)))
-    return site_dir
+    return mkdocs_config.load_config(str(config_file))
+
+
+def build(tmp_path: Path, docs_dir: Path, **extra) -> Path:
+    """Build `docs_dir` into a temporary site and return the site directory."""
+    mkdocs_build.build(_build_config(tmp_path, docs_dir, **extra))
+    return tmp_path / "site"
 
 
 def test_every_card_reaches_the_site(tmp_path):
@@ -174,3 +179,24 @@ def test_plain_markdown_builds_alongside_cards(tmp_path):
     assert (site / "plain" / "index.html").is_file()
     # `.md` is invisible to the resolver, so a wikilink naming one stays red.
     assert 'class="hmd-redlink"' in (site / "index.html").read_text()
+
+
+# -- §5 serving ----------------------------------------------------------
+
+
+def test_serving_watches_the_namespace_root(tmp_path):
+    """MkDocs watches its docs_dir; the namespace root may be elsewhere, and a
+    `.hmd` edit that triggers no rebuild makes `mkdocs serve` quietly stale."""
+
+    class StubServer:
+        def __init__(self):
+            self.watched = []
+
+        def watch(self, path, *args, **kwargs):
+            self.watched.append(path)
+
+    config = _build_config(tmp_path, FIXTURE)
+    mkdocs_build.build(config)
+    server = StubServer()
+    config.plugins["hyper-markdown"].on_serve(server, config=config, builder=None)
+    assert server.watched == [str(FIXTURE)]
