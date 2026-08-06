@@ -310,3 +310,29 @@ def test_a_card_can_also_link_to_a_card_by_path(tmp_path):
 
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     assert 'href="../two/"' in (site / "wiki" / "one" / "index.html").read_text()
+
+
+# -- issue 0003: the toolchain renders code blocks ------------------------
+
+
+def test_fenced_code_survives_the_build(tmp_path):
+    """A dependency can break fences without failing the build — Pygments 2.20
+    silently stopped pymdownx.superfences from matching any fence at all, and
+    every code block on the site degraded to inline text. Assert the output, not
+    the versions."""
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(
+        "# Home\n\n```yaml\nkey: value\n```\n", encoding="utf-8"
+    )
+
+    site = build(
+        tmp_path,
+        docs,
+        markdown_extensions=["pymdownx.superfences", "toc", "tables"],
+    )
+    html = (site / "index.html").read_text()
+    assert "<pre" in html, "fenced code rendered as inline text"
+    # Highlighting splits the text into spans, so the literal line is not
+    # contiguous — check the tokens survived, not the formatting.
+    assert "key" in html and "value" in html

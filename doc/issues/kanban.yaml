@@ -17,12 +17,15 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 2 # to be incremented when adding a new issue card
+  last_id: 3 # to be incremented when adding a new issue card
   items:
     backlog: []
     todo: []
     doing: []
     done:
+      - id: 3
+        title: "Pygments 2.20 silently breaks every code block"
+        file: "0003-pygments-220-breaks-code-blocks.md"
       - id: 2
         title: "Markdown links to .hmd files 404 on the site"
         file: "0002-md-links-to-cards-404.md"

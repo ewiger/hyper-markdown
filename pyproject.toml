@@ -19,6 +19,11 @@ mkdocs = [
     "mkdocs>=1.6",
     "mkdocs-material>=9",
     "mkdocs-d2-plugin",
+    # Pygments 2.20.0 breaks pymdownx.superfences: its preprocessor stops
+    # matching fences entirely, so every code block on every page silently
+    # degrades to inline text. Nothing errors — the build stays green and the
+    # site is wrong. Lift the ceiling once pymdown-extensions ships a fix.
+    "pygments<2.20",
 ]
 dev = ["pytest>=8"]
 

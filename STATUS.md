@@ -8,7 +8,7 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): **M1–M5 done**, 191 tests. `doc/` builds as a book
+**Snapshot** (2026-08-07): **M1–M5 done**, 192 tests. `doc/` builds as a book
 with the wiki as a section of its nav, green under `--strict`. What remains is
 the conformance corpus, the determinism test, and the open questions blocking
 both proposals.
@@ -67,6 +67,7 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | M5.14 | `hmd://wiki` nav placeholder splices the derived section into an authored nav | §2 | **done** |
 | M5.15 | `doc/public/` book, with the wiki as a section of its nav (issue 0001) | issue 0001 | **done** |
 | M5.16 | Ordinary markdown links to `.hmd` files repointed at the rendered card (issue 0002) | issue 0002 | **done** |
+| M5.17 | `pygments<2.20` pinned; a built page is asserted to contain `<pre>` (issue 0003) | issue 0003 | **done** |
 
 ### Cross-cutting
 
@@ -98,7 +99,7 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 191 passed
+python -m pytest                              # 192 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
 mkdocs build --strict                         # builds the book + wiki into site/
@@ -131,3 +132,7 @@ mkdocs serve                                  # live, watching the namespace roo
 - 2026-08-07: issue 0002 — ordinary markdown links to `.hmd` files 404'd on the
   site. Every page now has such links repointed at the rendered card, masked so
   fenced paths survive.
+- 2026-08-07: issue 0003 — Pygments 2.20 silently stopped `pymdownx.superfences`
+  from matching any fence, so every code block on the site rendered as running
+  text while the build stayed green. Pinned, and guarded by asserting the
+  rendered HTML rather than the versions.
