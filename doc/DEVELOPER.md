@@ -80,69 +80,55 @@ Two of those suites are doing more than they look:
 
 #### Manual — the Extension Development Host
 
-The recommended route. It touches nothing in your real editor.
-
-**Press F5** from the repository root. There is exactly one configuration, so
-there is nothing to select: VS Code remembers the last configuration you picked,
-and a list of several means F5 lands wherever you were last rather than where
-you meant.
-
-A second VS Code window opens with `examples/cs-alg-sorting` as its workspace
-and every other extension disabled — the fixture that exercises callouts, math,
-diagrams, embeds, and cross-card links.
-
-For another tree, pass it on the command line rather than adding a
-configuration:
-
 ```bash
-npm run build
-code -n --extensionDevelopmentPath=$PWD/packages/vscode-hyper-markdown \
-  $PWD/examples/small
+npm run example            # examples/cs-alg-sorting — callouts, math, diagrams
+npm run example:small      # examples/small — namespaces, imports, a red link
+npm run example:wiki       # this repository's own doc/wiki
 ```
 
-`-n` matters: without it, `code` hands the arguments to an already-running
-instance, which ignores `--extensionDevelopmentPath` and quietly opens an
-ordinary window.
+Each builds both bundles, then opens a second VS Code window with the example
+as its workspace and every other extension disabled. Add `--print` to see the
+command without running it:
 
-**Do not point a configuration at `examples/` itself.** `examples/small` uses
-absolute refs such as `/shared/tokens`, which are absolute to *its own* root. A
-root one level up turns every one of them red — `hmd lint --root examples`
-reports 3 errors and 12 warnings that do not exist when each tree is linted on
-its own.
+```bash
+node scripts/launch-example.mjs small --print
+```
 
-What F5 actually does — the configuration is type `extensionHost`, so instead of
-debugging a program VS Code launches a second copy of itself:
+**Why a script and no `launch.json`.** F5 runs whichever launch configuration
+VS Code last remembered, and that memory lives in workspace storage — invisible,
+and not resettable from a file. Reducing the file to a single entry did not help,
+because the stored pointer survives. A command has no memory, so the launch
+configurations were deleted rather than maintained alongside something that
+works.
 
-| Argument | Effect |
-| --- | --- |
-| `--extensionDevelopmentPath=packages/vscode-hyper-markdown` | Load the extension from source. Nothing is installed; the marketplace is not involved. |
-| `--disable-extensions` | Every other extension off, so anything you see is ours. |
-| `examples/small` | The new window's workspace folder. |
+The script passes `-n`. Without it `code` hands its arguments to an
+already-running instance, which ignores `--extensionDevelopmentPath` and quietly
+opens an ordinary window — the most likely reason a manual `code
+--extensionDevelopmentPath=…` appears to do nothing.
 
-The debugger attaches to the new window's extension host, and `outFiles` points
-at the source maps, so breakpoints in TypeScript work — you can stop inside the
-resolver while the preview waits.
+**Do not target `examples/` itself.** `examples/small` uses absolute refs such
+as `/shared/tokens`, which are absolute to *its own* root. A root one level up
+turns every one of them red: `hmd lint --root examples` reports 3 errors and 12
+warnings that do not exist when each tree is linted on its own.
 
-While it is running:
+**If you need breakpoints.** No debugger configuration ships. Add a throwaway
+`.vscode/launch.json` of `type: extensionHost` with
+`--extensionDevelopmentPath` and an `outFiles` glob over
+`packages/vscode-hyper-markdown/dist`; the bundles carry source maps, so
+breakpoints in TypeScript resolve. It is deliberately not committed — one
+person's debugger setup is not worth the F5 ambiguity it reintroduces for
+everyone else.
 
-- **Cmd+R** in the dev window reloads the extension after a rebuild. Much faster
-  than relaunching.
-- The **Debug Console** in your main window carries the extension's output and
-  any thrown errors.
+While a host window is running:
+
+- **Cmd+R** in it reloads the extension after a rebuild. Much faster than
+  relaunching, but it does not rebuild — keep
+  `npm run -w vscode-hyper-markdown watch` in a terminal for a tight loop.
+- **Help → Toggle Developer Tools** in the host window shows the extension
+  host's console, including anything the extension logs or throws.
 - The webview is a separate context. Its breakpoints and console need
   **Developer: Open Webview Developer Tools** from the command palette *in the
-  dev window*.
-
-Both configurations declare `preLaunchTask: "build: hyper-markdown extension"`,
-which runs `npm run build` — `tsc` for the core, then esbuild for both bundles —
-so F5 always launches current code. The whole build is well under a second, and
-paying it on every launch is cheaper than the one time you debug a stale bundle
-and conclude the fix did not work.
-
-Cmd+R does **not** rerun that task. For a tight edit loop keep
-`npm run -w vscode-hyper-markdown watch` in a terminal and reload with Cmd+R;
-that path rebuilds the extension bundle only, so a change under
-`packages/hmd-core/` still needs `npm run build` or a fresh F5.
+  host window*.
 
 #### Manual — installing the VSIX
 
@@ -190,16 +176,10 @@ In order, against `examples/small`:
 
 #### The feature-rich fixture
 
-`examples/cs-alg-sorting` is the example to open when testing callouts, math,
-and diagrams: five sorting algorithms, seven D2 flowcharts, KaTeX throughout,
-`!!!` and `???` callouts, block embeds, and cross-card links. It lints clean
-under `--strict`, and every diagram in it compiles with `d2`.
-
-Launch it with:
-
-```bash
-code --extensionDevelopmentPath=packages/vscode-hyper-markdown examples/cs-alg-sorting
-```
+`examples/cs-alg-sorting` is what `npm run example` opens: five sorting
+algorithms, seven D2 flowcharts, KaTeX throughout, `!!!` and `???` callouts,
+block embeds, and cross-card links. It lints clean under `--strict`, and every
+diagram in it compiles with `d2`.
 
 #### Diagrams need `d2`
 

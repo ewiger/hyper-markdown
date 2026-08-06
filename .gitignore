@@ -358,3 +358,7 @@ dist
 
 # VS Code extension packaging
 *.vsix
+
+# A committed launch.json reintroduces the F5 ambiguity that `npm run example`
+# exists to avoid. See doc/DEVELOPER.md.
+.vscode/
