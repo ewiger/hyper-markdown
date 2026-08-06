@@ -10,7 +10,8 @@
         "--disable-extensions",
         "${workspaceFolder}/examples/small"
       ],
-      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"]
+      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"],
+      "preLaunchTask": "build: hyper-markdown extension"
     },
     {
       "name": "Hyper-Markdown: Extension Host (this repo, doc/wiki)",
@@ -21,7 +22,8 @@
         "--disable-extensions",
         "${workspaceFolder}"
       ],
-      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"]
+      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"],
+      "preLaunchTask": "build: hyper-markdown extension"
     }
   ]
 }

@@ -113,11 +113,16 @@ While it is running:
   **Developer: Open Webview Developer Tools** from the command palette *in the
   dev window*.
 
-**Gotcha.** The root configuration has no `preLaunchTask`, so F5 runs whatever is
-already in `dist/`. Edit source, press F5, and you are testing the previous
-bundle. Keep `npm run -w vscode-hyper-markdown watch` running in a terminal and
-use Cmd+R instead. (The configuration inside
-`packages/vscode-hyper-markdown/.vscode/launch.json` *does* rebuild first.)
+Both configurations declare `preLaunchTask: "build: hyper-markdown extension"`,
+which runs `npm run build` — `tsc` for the core, then esbuild for both bundles —
+so F5 always launches current code. The whole build is well under a second, and
+paying it on every launch is cheaper than the one time you debug a stale bundle
+and conclude the fix did not work.
+
+Cmd+R does **not** rerun that task. For a tight edit loop keep
+`npm run -w vscode-hyper-markdown watch` in a terminal and reload with Cmd+R;
+that path rebuilds the extension bundle only, so a change under
+`packages/hmd-core/` still needs `npm run build` or a fresh F5.
 
 #### Manual — installing the VSIX
 
