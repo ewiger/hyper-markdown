@@ -1,0 +1,185 @@
+/**
+ * The workspace index and its lifecycle (HMD-0021 §8, §5.1).
+ *
+ * One `Workspace` from the core, kept current against both the disk and the
+ * editor's unsaved buffers. Updates are incremental: an edit re-parses one card
+ * and drops the memoised resolutions, never the tree.
+ */
+
+import * as vscode from "vscode";
+
+import {
+  Renderer,
+  SUFFIX,
+  Workspace,
+  backlinks,
+  check,
+  parse,
+  type BacklinkEntry,
+  type Diagnostic,
+  type DocumentIR,
+} from "@hyper-markdown/core";
+
+import { VsCodeHost, discoverRoot } from "./workspaceHost.js";
+
+/** Milliseconds after the last keystroke before the preview re-parses (§6). */
+export const REPARSE_DEBOUNCE_MS = 150;
+
+export class Store implements vscode.Disposable {
+  private workspace: Workspace | null = null;
+  private host: VsCodeHost | null = null;
+  private root: vscode.Uri | null = null;
+  private readonly overrides = new Map<string, string>();
+  private readonly disposables: vscode.Disposable[] = [];
+  private readonly changed = new vscode.EventEmitter<string | null>();
+
+  /** Fires with the card that changed, or null when the whole index moved. */
+  readonly onDidChange = this.changed.event;
+
+  dispose(): void {
+    for (const d of this.disposables) d.dispose();
+    this.changed.dispose();
+  }
+
+  get namespaceRoot(): vscode.Uri | null {
+    return this.root;
+  }
+
+  get ready(): boolean {
+    return this.workspace !== null;
+  }
+
+  /** Build the index for the first workspace folder holding a namespace root. */
+  async initialize(): Promise<void> {
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    if (folder === undefined) return;
+
+    const discovered = await discoverRoot(folder.uri);
+    this.root = discovered.root;
+    this.host = new VsCodeHost(discovered.root, () => this.overrides);
+    this.workspace = await Workspace.load(this.host, discovered.config);
+    this.syncOpenDocuments();
+    this.watch();
+    this.changed.fire(null);
+  }
+
+  async rebuild(): Promise<void> {
+    for (const d of this.disposables.splice(0)) d.dispose();
+    this.overrides.clear();
+    await this.initialize();
+  }
+
+  // -- addressing ------------------------------------------------------
+
+  /** Root-relative POSIX path for a document, or null if it is outside. */
+  relFor(uri: vscode.Uri): string | null {
+    if (this.root === null) return null;
+    const base = this.root.toString();
+    const target = uri.toString();
+    if (target === base) return "";
+    if (!target.startsWith(`${base}/`)) return null;
+    const rel = decodeURIComponent(target.slice(base.length + 1));
+    return rel.endsWith(SUFFIX) ? rel : null;
+  }
+
+  uriFor(rel: string): vscode.Uri | null {
+    return this.host?.uriFor(rel) ?? null;
+  }
+
+  // -- reads -----------------------------------------------------------
+
+  pages(): string[] {
+    return this.workspace?.pages() ?? [];
+  }
+
+  diagnostics(): Diagnostic[] {
+    return this.workspace === null ? [] : check(this.workspace);
+  }
+
+  render(rel: string): DocumentIR | null {
+    if (this.workspace === null) return null;
+    return new Renderer(this.workspace).render(rel);
+  }
+
+  backlinksFor(rel: string): BacklinkEntry[] {
+    return this.workspace === null ? [] : backlinks(this.workspace, rel);
+  }
+
+  // -- writes ----------------------------------------------------------
+
+  /** Re-parse one card from an in-memory buffer (VSX-013). */
+  update(rel: string, text: string): void {
+    if (this.workspace === null) return;
+    this.overrides.set(rel, text);
+    this.workspace.addDocument(rel, parse(rel, text));
+    this.changed.fire(rel);
+  }
+
+  private syncOpenDocuments(): void {
+    for (const document of vscode.workspace.textDocuments) {
+      const rel = this.relFor(document.uri);
+      if (rel === null) continue;
+      this.overrides.set(rel, document.getText());
+      this.workspace?.addDocument(rel, parse(rel, document.getText()));
+    }
+  }
+
+  private watch(): void {
+    if (this.root === null) return;
+
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(this.root, `**/*${SUFFIX}`),
+    );
+    this.disposables.push(watcher);
+
+    const reload = async (uri: vscode.Uri): Promise<void> => {
+      const rel = this.relFor(uri);
+      if (rel === null || this.host === null || this.workspace === null) return;
+      try {
+        this.workspace.addDocument(rel, parse(rel, await this.host.readFile(rel)));
+      } catch {
+        return;
+      }
+      this.changed.fire(rel);
+    };
+
+    this.disposables.push(
+      watcher.onDidCreate((uri) => void reload(uri)),
+      watcher.onDidChange((uri) => {
+        // An open document is authoritative; its own change event already
+        // refreshed the index from the buffer, which may be ahead of disk.
+        const rel = this.relFor(uri);
+        if (rel !== null && this.overrides.has(rel)) return;
+        void reload(uri);
+      }),
+      watcher.onDidDelete((uri) => {
+        const rel = this.relFor(uri);
+        if (rel === null) return;
+        this.overrides.delete(rel);
+        this.workspace?.removeDocument(rel);
+        this.changed.fire(null);
+      }),
+      vscode.workspace.onDidCloseTextDocument((document) => {
+        const rel = this.relFor(document.uri);
+        if (rel !== null) this.overrides.delete(rel);
+      }),
+    );
+  }
+}
+
+/** A trailing-edge debounce that can be cancelled on dispose. */
+export function debounce<T extends unknown[]>(
+  ms: number,
+  fn: (...args: T) => void,
+): ((...args: T) => void) & { cancel(): void } {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const wrapped = (...args: T): void => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+  wrapped.cancel = (): void => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
+  };
+  return wrapped;
+}

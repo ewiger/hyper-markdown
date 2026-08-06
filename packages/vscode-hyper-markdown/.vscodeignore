@@ -1,0 +1,13 @@
+# The VSIX ships two bundles and the static assets they need, nothing else
+# (HMD-0021 §12).
+
+src/**
+test/**
+media/*.ts
+node_modules/**
+esbuild.mjs
+tsconfig.json
+vitest.config.ts
+**/*.map
+**/*.tsbuildinfo
+.vscodeignore

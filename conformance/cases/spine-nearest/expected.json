@@ -1,0 +1,10 @@
+{
+  "diagnostics": [],
+  "resolutions": [
+    {
+      "raw": "[[tokens]]",
+      "source": "specs/auth/login.hmd",
+      "target": "specs/auth/tokens.hmd"
+    }
+  ]
+}

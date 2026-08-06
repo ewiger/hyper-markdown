@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Hyper-Markdown",
+  "scopeName": "source.hmd",
+  "patterns": [
+    { "include": "#frontmatter" },
+    { "include": "#embed" },
+    { "include": "#wikilink" },
+    { "include": "#anchor" },
+    { "include": "text.html.markdown" }
+  ],
+  "repository": {
+    "frontmatter": {
+      "comment": "A --- fence at offset 0 only (HMD-0001 §2).",
+      "begin": "\\A---\\s*$",
+      "end": "^---\\s*$",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.frontmatter.begin.hmd" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.frontmatter.end.hmd" }
+      },
+      "name": "meta.embedded.block.yaml",
+      "patterns": [{ "include": "source.yaml" }]
+    },
+    "embed": {
+      "comment": "![[target#fragment|display]]",
+      "name": "meta.embed.wiki.hmd",
+      "match": "(!\\[\\[)([^\\[\\]\\n|#]*)(?:(#\\^?)([^\\[\\]\\n|]*))?(?:(\\|)([^\\[\\]\\n]*))?(\\]\\])",
+      "captures": {
+        "1": { "name": "punctuation.definition.link.wiki.hmd" },
+        "2": { "name": "entity.name.reference.hmd" },
+        "3": { "name": "punctuation.definition.link.wiki.hmd" },
+        "4": { "name": "entity.other.attribute-name.fragment.hmd" },
+        "5": { "name": "punctuation.definition.link.wiki.hmd" },
+        "6": { "name": "string.other.link.title.hmd" },
+        "7": { "name": "punctuation.definition.link.wiki.hmd" }
+      }
+    },
+    "wikilink": {
+      "comment": "[[target#fragment|display]]",
+      "name": "meta.link.wiki.hmd",
+      "match": "(\\[\\[)([^\\[\\]\\n|#]*)(?:(#\\^?)([^\\[\\]\\n|]*))?(?:(\\|)([^\\[\\]\\n]*))?(\\]\\])",
+      "captures": {
+        "1": { "name": "punctuation.definition.link.wiki.hmd" },
+        "2": { "name": "entity.name.reference.hmd" },
+        "3": { "name": "punctuation.definition.link.wiki.hmd" },
+        "4": { "name": "entity.other.attribute-name.fragment.hmd" },
+        "5": { "name": "punctuation.definition.link.wiki.hmd" },
+        "6": { "name": "string.other.link.title.hmd" },
+        "7": { "name": "punctuation.definition.link.wiki.hmd" }
+      }
+    },
+    "anchor": {
+      "comment": "A trailing ^block-id (HMD-0001 §2).",
+      "match": "[ \\t]+(\\^)([A-Za-z0-9][A-Za-z0-9_-]{0,63})[ \\t]*$",
+      "captures": {
+        "1": { "name": "punctuation.definition.label.hmd" },
+        "2": { "name": "entity.name.label.hmd" }
+      }
+    }
+  }
+}
