@@ -76,6 +76,7 @@ ordinary GFM, plus callouts, footnotes, math, and D2 diagrams.
 | Command | What it does |
 | --- | --- |
 | `hmd lint` | Parse, resolve, and report — all 16 rules, text or JSON |
+| `hmd render` | Expand embeds and rewrite links, to flat markdown or HTML |
 | `hmd graph` | Dump the resolved link graph as JSON |
 | `hmd info` | Show the resolved root and discovery policy |
 
@@ -83,6 +84,35 @@ Each takes `--root` to override the namespace root, which otherwise comes from
 the `wiki` setting in `.hmd/config.toml` (defaulting to `doc/wiki`). A `.hmd/`
 directory doubles as the project root marker, so any subtree can be
 self-contained.
+
+## Publishing
+
+A tree of cards builds as a MkDocs site. The plugin registers `.hmd` files,
+derives the nav from the namespace tree, expands embeds, and rewrites every
+wikilink to a real link:
+
+```bash
+pip install "hyper-markdown[mkdocs]"
+mkdocs build --strict     # or: mkdocs serve
+```
+
+```yaml
+# mkdocs.yml
+docs_dir: doc/wiki
+plugins:
+  - hyper-markdown
+exclude_docs: |
+  *.hmd
+```
+
+A card at `a/b.hmd` serves at `a/b/`, and so does a folder note at
+`a/b/index.hmd` — two names for one page, one URL. Cards sort by path, or by a
+`nav:` integer in their frontmatter. An unresolved link renders as a red link
+rather than failing the build, so a wiki stays publishable while it is still
+being written.
+
+This repository is its own example: [`doc/wiki/`](doc/wiki/) is the site
+[`mkdocs.yml`](mkdocs.yml) builds.
 
 ## Example
 
@@ -93,9 +123,10 @@ link that shows what an unwritten page looks like.
 
 ## Status
 
-Pre-release, and the spec is still `drafted`. The scanner, resolver, and linter
-are implemented and covered by the test suite; `hmd render` and the MkDocs
-plugin are planned. Expect the format to move before 1.0.
+Pre-release, and both specs are still `drafted`. The scanner, resolver, linter,
+embed expander, renderer, and MkDocs plugin are implemented and covered by the
+test suite. See [STATUS.md](STATUS.md) for what is done and what is not. Expect
+the format to move before 1.0.
 
 ## Documentation
 
@@ -103,6 +134,8 @@ plugin are planned. Expect the format to move before 1.0.
   grammar, resolution algorithm, configuration, rule IDs
 - [HMD-0001 worked examples](doc/proposals/HMD-0001/examples.md) — resolution
   tables and a syntax-coverage map for the fixture above
+- [HMD-0002](doc/proposals/HMD-0002/README.md) — MkDocs book-mode rendering:
+  URLs, nav, expansion, red links
 
 ## Development
 

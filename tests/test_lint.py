@@ -194,3 +194,15 @@ def test_linting_a_subset_of_paths(build_workspace):
     ws = build_workspace({**BASE, "a.hmd": "# A\n\n[[nope]]\n", "b.hmd": "# B\n\n[[nope]]\n"})
     diagnostics = check(ws, [ws.root / "a.hmd"])
     assert {d.path for d in diagnostics} == {"a.hmd"}
+
+
+def test_hmd013_malformed_nav_key(build_workspace):
+    """`nav` orders a card in the site nav; a non-integer is a defect, not a
+    default (HMD-0002 §2)."""
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav: first\n---\n\n# A\n"})
+    assert "HMD013" in rules_for(ws)
+
+
+def test_a_well_formed_nav_key_is_accepted(build_workspace):
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav: 10\n---\n\n# A\n"})
+    assert "HMD013" not in rules_for(ws)

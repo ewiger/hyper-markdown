@@ -1,6 +1,6 @@
 # HMD-0002: MkDocs book-mode rendering
 
-**Status**: drafted
+**Status**: drafted (implemented; three open questions block acceptance)
 **Created**: 2026-08-06
 **Source**: [HMD-0001 §9](../HMD-0001/README.md), open questions 8 and 9
 
@@ -46,8 +46,12 @@ without deciding it here.
 - The plugin MUST therefore require `use_directory_urls: true`, and MUST fail
   the build with a usage error otherwise rather than emitting links it knows are
   wrong.
-- Link rewriting MUST emit a relative path from the source page's URL to the
-  target's, so a site is servable from a subdirectory.
+- Link rewriting MUST emit a path relative to the **source file**, not to the
+  page's URL — `kanban.md`, not `../kanban/`. MkDocs resolves and validates every
+  link against the source tree and computes the final URL itself, so a
+  source-relative path gets the URL for free *and* gets the link checked.
+  Emitting the finished URL bypasses validation and duplicates arithmetic MkDocs
+  is already doing.
 - A fragment MUST be appended unchanged; §3 of HMD-0001 already guarantees the
   slug the resolver matched is the slug the renderer emits.
 
@@ -113,10 +117,17 @@ detection, which the plugin inherits rather than reimplements.
 ## Reference Implementation
 
 - `src/hyper_markdown/embed.py` — expansion, cycle detection, depth limit
-- `src/hyper_markdown/render/flat.py`, `render/markdown_ext.py`
+- `src/hyper_markdown/render/flat.py` — the flat-markdown emitter
 - `src/hyper_markdown/mkdocs_plugin.py` — `on_files`, nav, `on_page_markdown`
 - `src/hyper_markdown/urls.py` — §1, the one place a URL is computed
 - `pyproject.toml` — `[project.entry-points."mkdocs.plugins"]`
+
+No `render/markdown_ext.py`. Once §3 fixed expansion at `on_page_markdown`, a
+Python-Markdown extension had nothing left to do: expansion and link rewriting
+share a single walk over the source, because a link inside embedded content must
+be resolved from the card it was written in while the text it becomes belongs to
+the host page. Splitting that across two components would have meant resolving
+twice.
 
 ## Test Plan
 
@@ -153,3 +164,11 @@ mkdocs build --strict
 ## Changelog
 
 - 2026-08-06: drafted
+- 2026-08-07: implemented. Three corrections forced by the implementation:
+  §1 link rewriting is relative to the **source path** rather than the page URL,
+  because MkDocs validates links against the source tree and computes URLs
+  itself; `render/markdown_ext.py` is dropped, since fixing expansion at
+  `on_page_markdown` left a Python-Markdown extension nothing to do; and a site
+  needs `exclude_docs: "*.hmd"` plus `validation.links.not_found: info`, the
+  latter because cards link out to the repository — proposals, styles, source —
+  with ordinary relative links whose targets are real files but not site pages

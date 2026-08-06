@@ -1,0 +1,60 @@
+site_name: hyper-markdown
+site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
+docs_dir: doc/wiki
+
+# The plugin registers every card itself; without this MkDocs would also copy
+# the raw `.hmd` sources into the site as static files.
+exclude_docs: |
+  *.hmd
+
+# A card and its folder note share one URL, so directory URLs are required
+# rather than merely preferred (HMD-0002 §1).
+use_directory_urls: true
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - hyper-markdown
+
+# Cards link out to the repository — proposals, styles, source — with ordinary
+# relative markdown links, by the convention in `hyper-markdown.hmd`. Those
+# targets are real files but they are not site pages, so a miss is reported
+# rather than fatal. Wikilinks are checked by `hmd lint`, not by MkDocs.
+validation:
+  links:
+    not_found: info
+
+extra_css:
+  - assets/hmd.css
+
+# The "free" half of the syntax: everything the format does not own itself
+# (HMD-0001 §9).
+markdown_extensions:
+  - admonition
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

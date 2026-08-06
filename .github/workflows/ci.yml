@@ -31,7 +31,7 @@ jobs:
       - name: Install
         run: |
           uv venv
-          uv pip install -e ".[dev]"
+          uv pip install -e ".[dev,mkdocs]"
 
       - name: Test
         run: uv run python -m pytest
@@ -45,3 +45,8 @@ jobs:
 
       - name: Lint the example fixture
         run: uv run hmd lint --root examples/small
+
+      # The second consumer of the resolver (HMD-0002). A build that goes red
+      # here means the model works for lint but not for rendering.
+      - name: Build the wiki
+        run: uv run mkdocs build --strict

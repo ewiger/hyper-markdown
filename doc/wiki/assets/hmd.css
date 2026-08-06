@@ -1,0 +1,15 @@
+/* A red link marks a page worth writing later, not a build failure. */
+.hmd-redlink {
+  color: var(--md-typeset-color, #b3261e);
+  border-bottom: 1px dashed currentColor;
+  opacity: 0.75;
+  cursor: help;
+}
+
+[data-md-color-scheme="default"] .hmd-redlink {
+  color: #b3261e;
+}
+
+[data-md-color-scheme="slate"] .hmd-redlink {
+  color: #f2b8b5;
+}
