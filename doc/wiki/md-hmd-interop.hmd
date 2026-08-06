@@ -48,14 +48,19 @@ cannot, which is why the editor line rejected flat markdown as its *transport*
 even while erasure stays the right *build* output. Erasure is a shipping format,
 not an interchange format.
 
-**`md` → `hmd` is inference.** Take a folder of ordinary markdown and promote
+**`md` → `hmd` is conversion.** Take a folder of ordinary markdown and convert
 it: relative links become wikilinks where the target is unambiguous, folders
-become namespaces, sibling references collapse to bare names. Where inference
-cannot be certain it leaves the relative link alone — the mixed state is valid,
-which is the whole point of a superset.
+become namespaces, sibling references collapse to bare names. Where the
+converter cannot be certain it leaves the relative link alone — the mixed state
+is valid, which is the whole point of a superset.
 
-This direction is the adoption path, and it is where the analogy earns its keep.
-Nobody rewrites a wiki by hand. `allowJs` is why TypeScript won.
+Conversion is not only a migration path. It is the fastest way to *write*
+hyper-markdown: draft in plain markdown at speed, with ordinary relative links
+and no namespace in your head, then convert and let the resolver tell you what
+it could not place. Authoring stops requiring you to know the tree.
+
+That is where the analogy earns its keep. Nobody rewrites a wiki by hand, and
+`allowJs` is why TypeScript won.
 
 ## Why this is canonical, not a plugin
 
@@ -73,8 +78,8 @@ touching it? Sidecar frontmatter, a manifest, or nothing at all. Open.
 - Is erasure a build product only, or is round-tripping `hmd → md → hmd` a
   guarantee worth paying for? The lossy parts say no; the adoption story says
   it would be nice.
-- Does `md → hmd` promotion ever run destructively, or only ever as a diff a
-  human accepts?
+- Does conversion ever run destructively, or only ever as a diff a human
+  accepts? An authoring loop wants it in place; a migration wants review.
 - Does a compiler framing want a `hmd build` command distinct from
   `hmd render`, the way `tsc` is distinct from a formatter?
 

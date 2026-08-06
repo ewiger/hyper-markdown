@@ -38,6 +38,8 @@ an explicit `nav:` in `mkdocs.yml`.
 fine for a built site and fatal for a preview, which is why the editor line
 rejected flat markdown as its transport while MkDocs output stays one-way. The
 broader idea — `.md` is to `.hmd` as JavaScript is to TypeScript, with `md →
-hmd` as the `allowJs` adoption path — is sketched without consequence in
+hmd` as a conversion step that doubles as the fast authoring loop (draft in
+plain markdown, convert, let the resolver report what it could not place) — is
+sketched without consequence in
 [`doc/wiki/md-hmd-interop.hmd`](../wiki/md-hmd-interop.hmd). No proposal owns
 it.
