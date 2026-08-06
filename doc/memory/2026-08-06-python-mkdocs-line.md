@@ -11,6 +11,19 @@ milestone and its spec section. `doc/issues/kanban.yaml` stays for granular,
 short-lived cards; it is currently empty. Update the STATUS row in the same
 commit that changes the code.
 
+## Proposal number ranges, including the overflow
+
+Three ranges, fixed:
+
+- **`HMD-0002`–`HMD-0019`** — Python, MkDocs, the MVP. This branch.
+- **`HMD-0020`–`HMD-0099`** — editor and JavaScript, on `feat/vsc-ext`.
+- **`HMD-0100`+** — the MVP line again, once `0019` is exhausted.
+
+The overflow to `0100` is decided in advance so nobody has to renegotiate mid-
+stream. Eighteen proposals is the budget the MVP is expected to fit in; passing
+it is a signal worth noticing rather than an error. The gap at `0020`–`0099`
+leaves the editor line the same room.
+
 ## Two agent identities, two branches
 
 `feat/mvp` is Python, MkDocs, and `HMD-0002`–`HMD-0019`. `feat/vsc-ext` is

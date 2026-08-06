@@ -8,12 +8,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ..embed import MAX_EMBED_DEPTH
 from ..model import ERROR, WARNING, Diagnostic, Document, Link
 from ..resolve import INDEX_STEM, SUFFIX, Outcome, Workspace
-
-#: Maximum embed expansion depth. Deep enough for legitimate composition,
-#: shallow enough to bound work on adversarial input (HMD-0001 §6).
-MAX_EMBED_DEPTH = 16
 
 SEVERITY = {
     "HMD001": WARNING,

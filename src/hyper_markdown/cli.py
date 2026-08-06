@@ -16,6 +16,8 @@ import typer
 from . import config as config_mod
 from . import graph as graph_mod
 from .lint import check, format_json, format_text, summarize
+from .model import Diagnostic
+from .render import flat
 from .resolve import SUFFIX, Workspace
 
 app = typer.Typer(
@@ -93,6 +95,39 @@ def graph(
         typer.echo(f"hmd: graph supports --format json only, got {output_format!r}", err=True)
         raise typer.Exit(EXIT_USAGE)
     typer.echo(graph_mod.to_json(_workspace(root)))
+
+
+@app.command()
+def render(
+    path: Path = typer.Argument(..., help="The card to render."),
+    root: Optional[Path] = RootOption,
+    to: str = typer.Option("markdown", "--to", help="Output format: markdown or html."),
+) -> None:
+    """Expand embeds and rewrite resolved links.
+
+    Flat markdown is a one-way build product; it does not round-trip back into
+    `.hmd`.
+    """
+    if to not in ("markdown", "html"):
+        typer.echo(f"hmd: unknown target {to!r} (expected markdown or html)", err=True)
+        raise typer.Exit(EXIT_USAGE)
+
+    workspace = _workspace(root)
+    target = path.resolve()
+    if target not in workspace.documents:
+        typer.echo(f"hmd: not a page inside the namespace root: {path}", err=True)
+        raise typer.Exit(EXIT_USAGE)
+
+    result = flat.to_html(workspace, target) if to == "html" else flat.render(workspace, target)
+    typer.echo(result.text)
+
+    for diagnostic in sorted(result.diagnostics, key=Diagnostic.sort_key):
+        typer.echo(
+            f"{diagnostic.path}:{diagnostic.line}:{diagnostic.column}: "
+            f"{diagnostic.severity}[{diagnostic.rule}] {diagnostic.message}",
+            err=True,
+        )
+    raise typer.Exit(EXIT_DIAGNOSTICS if result.diagnostics else EXIT_OK)
 
 
 @app.command()

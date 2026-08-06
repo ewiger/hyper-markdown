@@ -8,7 +8,8 @@ as `HMD-0001`, with the proposal itself at `HMD-0001/README.md`.
 
 `HMD-0002` through `HMD-0019` are reserved for the Python and MkDocs line of
 work. Editor and JavaScript proposals start at `HMD-0020`, so the two streams
-can reserve numbers without coordinating.
+can reserve numbers without coordinating. When the Python line exhausts `0019`
+it continues at **`HMD-0100`**, leaving `0020`–`0099` to the editor line.
 
 | ID | Status | Title |
 | --- | --- | --- |

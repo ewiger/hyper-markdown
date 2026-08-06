@@ -8,8 +8,8 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-06): M1–M3 done. MVP acceptance met. M4 → M5 is the next
-block, now specified by [HMD-0002](doc/proposals/HMD-0002/README.md) (drafted).
+**Snapshot** (2026-08-07): M1–M4 done, 162 tests. M5 is next, specified by
+[HMD-0002](doc/proposals/HMD-0002/README.md) (drafted).
 
 ---
 
@@ -20,7 +20,7 @@ block, now specified by [HMD-0002](doc/proposals/HMD-0002/README.md) (drafted).
 | M1 | Model and scanner | **done** | `tests/test_scan.py`, `tests/test_parse.py` |
 | M2 | Resolver | **done** | `tests/test_resolve.py`, `tests/test_imports.py` |
 | M3 | `hmd lint` | **done** | both lint gates below exit 0 |
-| M4 | Expansion and secondary commands | **ready** | `hmd render` round-trips the fixture |
+| M4 | Expansion and secondary commands | **done** | `tests/test_embed.py`, `tests/test_render.py` |
 | M5 | MkDocs plugin | **ready** | `mkdocs build --strict` green |
 
 M1–M3 are what HMD-0001 requires to call the MVP done. M4 and M5 are the next
@@ -36,12 +36,12 @@ before the expander does.
 
 | ID | Work point | Spec | State |
 | --- | --- | --- | --- |
-| M4.1 | `embed.py` — page, `#Section`, and `#^id` expansion | §6 | ready |
-| M4.2 | Cycle detection (HMD007) and depth limit 16 (HMD008) as one shared constant | §6 | ready |
-| M4.3 | `render/flat.py` — flat-markdown emitter | §7 | ready |
-| M4.4 | `hmd render PATH --to markdown\|html` | §7 | ready |
-| M4.5 | HMD007 / HMD008 wired into `lint/rules.py` — currently unreachable, no expander exists | §8 | ready |
-| M4.6 | Corpus cases for expansion: section stop, 2-page cycle, 17-deep chain | Test Plan | ready |
+| M4.1 | `embed.py` — page, `#Section`, and `#^id` expansion | §6 | **done** |
+| M4.2 | Cycle detection (HMD007) and depth limit 16 (HMD008) as one shared constant | §6 | **done** |
+| M4.3 | `render/flat.py` — flat-markdown emitter | §7 | **done** |
+| M4.4 | `hmd render PATH --to markdown\|html` | §7 | **done** |
+| M4.5 | `MAX_EMBED_DEPTH` moved to `embed.py`; `lint/rules.py` imports it | §6 | **done** |
+| M4.6 | Tests for expansion: section stop, block marker, cycle, 17-deep chain, rewrite-from-host | Test Plan | **done** |
 
 ### M5 — MkDocs
 
@@ -92,7 +92,7 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 141 passed
+python -m pytest                              # 162 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
 mkdocs build --strict                         # M5 — not yet runnable
@@ -111,3 +111,6 @@ mkdocs build --strict                         # M5 — not yet runnable
   five decisions blocking M5 pulled out.
 - 2026-08-06: HMD-0002 drafted; all five decisions answered, M5 moves from
   `blocked` to `ready`.
+- 2026-08-07: M4 done — `embed.py`, `render/flat.py`, `hmd render`. Expansion
+  and link rewriting share one walk, since a link inside embedded content
+  resolves from its own card but is written relative to the host page.
