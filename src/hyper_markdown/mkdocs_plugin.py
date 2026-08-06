@@ -13,6 +13,7 @@ runs, so `toc` and `footnotes` see one finished document.
 
 from __future__ import annotations
 
+import posixpath
 from pathlib import Path
 
 from mkdocs.config import config_options
@@ -29,7 +30,15 @@ from .parse import slug_for
 from .resolve import Workspace
 
 
+#: A nav entry with this value is replaced by the derived wiki section, so an
+#: authored book nav can say *where* the generated pages go.
+NAV_PLACEHOLDER = "hmd://wiki"
+
+
 class PluginConfig(BaseConfig):
+    #: The namespace root. Defaults to `docs_dir`, but may name a subtree of it:
+    #: a site can cover all of `doc/` while `[[…]]` stays restricted to
+    #: `doc/wiki`, so a book and its wiki live in one build.
     root = config_options.Optional(config_options.Dir(exists=True))
     build_nav = config_options.Type(bool, default=True)
 
@@ -41,6 +50,8 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         self.workspace: Workspace | None = None
         #: MkDocs source path (`a/b.md`) -> the `.hmd` page it came from.
         self.sources: dict[str, Path] = {}
+        #: Where the namespace root sits inside `docs_dir`, as a URL prefix.
+        self.prefix = ""
 
     # -- collection ------------------------------------------------------
 
@@ -51,11 +62,13 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
                 "folder note share one URL, which page.html cannot express"
             )
 
-        root = Path(self.config.root) if self.config.root else Path(config.docs_dir)
+        docs_dir = Path(config.docs_dir).resolve()
+        root = Path(self.config.root).resolve() if self.config.root else docs_dir
         self.workspace = Workspace(config_mod.load(root_override=root))
+        self.prefix = _prefix(docs_dir, self.workspace.root)
 
         for path in self.workspace.pages():
-            dest = urls.dest_for(self.workspace.root, path)
+            dest = self._dest(path)
             self.sources[dest] = path
             files.append(
                 File.generated(
@@ -65,13 +78,24 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
                 )
             )
 
-        if self.config.build_nav and not config.nav:
-            config.nav = self._nav(files)
+        if not self.config.build_nav:
+            return files
+
+        derived = self._nav()
+        # An authored nav wins, except where it asks for the wiki by name. That
+        # is the whole integration: a book keeps its own order and says where
+        # the generated section belongs.
+        config.nav = _splice(config.nav, derived) if config.nav else derived
         return files
+
+    def _dest(self, path: Path) -> str:
+        """The MkDocs source path a card is registered under, prefix included."""
+        dest = urls.dest_for(self.workspace.root, path)
+        return posixpath.join(self.prefix, dest) if self.prefix else dest
 
     # -- §2 nav ----------------------------------------------------------
 
-    def _nav(self, files: Files) -> list:
+    def _nav(self) -> list:
         """Derive the nav from the namespace tree.
 
         Ordering is `nav:` first, ascending, then root-relative path — which is
@@ -155,6 +179,42 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         if self.workspace is not None:
             server.watch(str(self.workspace.root))
         return server
+
+
+def _prefix(docs_dir: Path, root: Path) -> str:
+    """How far the namespace root sits below `docs_dir`, as a URL prefix.
+
+    A root outside `docs_dir` gets no prefix: its pages are still generated, they
+    simply land at the site root.
+    """
+    try:
+        relative = root.relative_to(docs_dir).as_posix()
+    except ValueError:
+        return ""
+    return "" if relative == "." else relative
+
+
+def _splice(node, derived: list):
+    """Replace every `hmd://wiki` in an authored nav with the derived section.
+
+    As a mapping value it becomes that entry's children; as a list item it is
+    spliced in place, so a section can hold hand-written pages beside generated
+    ones.
+    """
+    if isinstance(node, list):
+        out: list = []
+        for item in node:
+            if item == NAV_PLACEHOLDER:
+                out.extend(derived)
+            else:
+                out.append(_splice(item, derived))
+        return out
+    if isinstance(node, dict):
+        return {
+            key: derived if value == NAV_PLACEHOLDER else _splice(value, derived)
+            for key, value in node.items()
+        }
+    return node
 
 
 def _titlecase(stem: str) -> str:

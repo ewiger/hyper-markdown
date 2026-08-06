@@ -17,9 +17,12 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 0 # to be incremented when adding a new issue card
+  last_id: 1 # to be incremented when adding a new issue card
   items:
     backlog: []
     todo: []
     doing: []
-    done: []
+    done:
+      - id: 1
+        title: "Book and wiki in one site"
+        file: "0001-book-and-wiki-in-one-site.md"

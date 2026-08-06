@@ -96,23 +96,43 @@ pip install "hyper-markdown[mkdocs]"
 mkdocs build --strict     # or: mkdocs serve
 ```
 
-```yaml
-# mkdocs.yml
-docs_dir: doc/wiki
-plugins:
-  - hyper-markdown
-exclude_docs: |
-  *.hmd
-```
-
 A card at `a/b.hmd` serves at `a/b/`, and so does a folder note at
 `a/b/index.hmd` — two names for one page, one URL. Cards sort by path, or by a
 `nav:` integer in their frontmatter. An unresolved link renders as a red link
 rather than failing the build, so a wiki stays publishable while it is still
 being written.
 
-This repository is its own example: [`doc/wiki/`](doc/wiki/) is the site
-[`mkdocs.yml`](mkdocs.yml) builds.
+### A book with a wiki in it
+
+The namespace does not have to be the whole site. Point `docs_dir` at a
+documentation tree and `root` at the part of it that is a namespace: the book is
+ordinary Markdown, the wiki is generated, and `hmd://wiki` says where the
+generated section belongs in your nav.
+
+```yaml
+# mkdocs.yml
+docs_dir: doc
+plugins:
+  - hyper-markdown:
+      root: doc/wiki        # only this subtree is a namespace
+exclude_docs: |
+  *.hmd
+
+nav:
+  - Home: index.md
+  - The format: public/format.md
+  - Wiki:
+      - Overview: wiki/README.md
+      - hmd://wiki          # ← the derived section lands here
+```
+
+An authored nav wins everywhere except where it names the wiki. Omit the
+placeholder and your nav is used verbatim; omit `nav` entirely and the whole
+thing is derived from the namespace tree.
+
+This repository is its own example: [`doc/`](doc/) is the site
+[`mkdocs.yml`](mkdocs.yml) builds, with [`doc/public/`](doc/public/) as the book
+and [`doc/wiki/`](doc/wiki/) as the wiki section inside it.
 
 ## Example
 

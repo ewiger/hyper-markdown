@@ -1,11 +1,18 @@
 site_name: hyper-markdown
 site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
-docs_dir: doc/wiki
 
-# The plugin registers every card itself; without this MkDocs would also copy
-# the raw `.hmd` sources into the site as static files.
+# The site covers the whole documentation tree, while the `[[…]]` namespace is
+# restricted to `doc/wiki` by the plugin's `root` below. The book and the wiki
+# build together; only the wiki is a namespace.
+docs_dir: doc
+
+# The working memory of the project, not part of the published book.
 exclude_docs: |
   *.hmd
+  models/
+  issues/
+  memory/
+  proposals/TEMPLATE.md
 
 # A card and its folder note share one URL, so directory URLs are required
 # rather than merely preferred (HMD-0002 §1).
@@ -16,6 +23,7 @@ theme:
   features:
     - navigation.sections
     - navigation.top
+    - navigation.indexes
     - content.code.copy
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -30,7 +38,28 @@ theme:
         name: Switch to light mode
 
 plugins:
-  - hyper-markdown
+  - hyper-markdown:
+      root: doc/wiki
+
+# The authored nav wins everywhere except where it asks for the wiki by name.
+# `hmd://wiki` is replaced by the section derived from the namespace tree, so
+# the book keeps its own order and still says where the cards belong.
+nav:
+  - Home: index.md
+  - The format: public/format.md
+  - Namespaces: public/namespaces.md
+  - Publishing: public/publishing.md
+  - Wiki:
+      - Overview: wiki/README.md
+      - hmd://wiki
+  - Specifications:
+      - proposals/README.md
+      - HMD-0001 — MVP: proposals/HMD-0001/README.md
+      - HMD-0001 examples: proposals/HMD-0001/examples.md
+      - HMD-0002 — MkDocs: proposals/HMD-0002/README.md
+
+extra_css:
+  - wiki/assets/hmd.css
 
 # Cards link out to the repository — proposals, styles, source — with ordinary
 # relative markdown links, by the convention in `hyper-markdown.hmd`. Those
@@ -39,9 +68,6 @@ plugins:
 validation:
   links:
     not_found: info
-
-extra_css:
-  - assets/hmd.css
 
 # The "free" half of the syntax: everything the format does not own itself
 # (HMD-0001 §9).

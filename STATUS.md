@@ -8,9 +8,10 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): **M1–M5 done**, 183 tests. `doc/wiki` builds as a
-MkDocs site under `--strict`. What remains is the conformance corpus, the
-determinism test, and the open questions blocking both proposals.
+**Snapshot** (2026-08-07): **M1–M5 done**, 187 tests. `doc/` builds as a book
+with the wiki as a section of its nav, green under `--strict`. What remains is
+the conformance corpus, the determinism test, and the open questions blocking
+both proposals.
 
 ---
 
@@ -62,6 +63,9 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | M5.10 | `[project.entry-points."mkdocs.plugins"]` in `pyproject.toml` | Reference Impl. | **done** |
 | M5.11 | `use_directory_urls: false` fails the build with a usage error | §1 | **done** |
 | M5.12 | Integration test: build succeeds, `.hmd` pages present in output, red links carry the class | Test Plan | **done** |
+| M5.13 | Namespace root may be a subtree of `docs_dir`; cards serve under its prefix | §2 | **done** |
+| M5.14 | `hmd://wiki` nav placeholder splices the derived section into an authored nav | §2 | **done** |
+| M5.15 | `doc/public/` book, with the wiki as a section of its nav (issue 0001) | issue 0001 | **done** |
 
 ### Cross-cutting
 
@@ -93,19 +97,19 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 183 passed
+python -m pytest                              # 187 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
-mkdocs build --strict                         # builds doc/wiki into site/
+mkdocs build --strict                         # builds the book + wiki into site/
 mkdocs serve                                  # live, watching the namespace root
 ```
 
 ## Related indexes
 
 - [doc/proposals/README.md](doc/proposals/README.md) — proposal numbers and status
-- [doc/issues/kanban.yaml](doc/issues/kanban.yaml) — issue cards; currently empty.
-  This file is the milestone tracker; the kanban stays the place for granular,
-  short-lived cards.
+- [doc/issues/kanban.yaml](doc/issues/kanban.yaml) — issue cards. This file is
+  the milestone tracker; the kanban holds granular, short-lived work that does
+  not need a proposal.
 
 ## Changelog
 
@@ -120,3 +124,6 @@ mkdocs serve                                  # live, watching the namespace roo
   point, CI gate. `doc/wiki` is the live example. `nav` became a real reserved
   frontmatter key with HMD013 validation, and `render/markdown_ext.py` was
   dropped as redundant; both recorded in HMD-0002's changelog.
+- 2026-08-07: issue 0001 — the site became a book with the wiki inside it. The
+  namespace root may now be a subtree of `docs_dir`, and `hmd://wiki` marks
+  where the derived section belongs in an authored nav.

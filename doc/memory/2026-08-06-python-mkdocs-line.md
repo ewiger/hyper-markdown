@@ -60,6 +60,18 @@ the plugin generated; and `validation.links.not_found: info`, because cards link
 out to the repository with ordinary relative links whose targets are real files
 but not site pages.
 
+## The site is a book with a wiki in it
+
+`docs_dir` is `doc/`; the namespace is restricted to `doc/wiki` by the plugin's
+`root`. `doc/public/` holds the book's chapters and `doc/index.md` is its cover
+— the cover sits at the docs root rather than in `public/` because MkDocs serves
+the site home from `docs_dir/index.md`, and a book whose `/` is a 404 is worse
+than one whose cover is one directory up from its chapters.
+
+`hmd://wiki` in an authored nav is replaced by the derived wiki section. Without
+it the plugin could only derive the whole nav or none of it, which forced a
+choice between a book and a wiki.
+
 ## Erasure is a shipping format, not an interchange format
 
 `hmd → md` drops the embed boundary and the provenance of every link. That is

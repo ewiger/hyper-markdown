@@ -67,8 +67,15 @@ without deciding it here.
   order. This amends the closed reserved set of HMD-0001 §5.3 to `tags`, `use`,
   `import`, `nav`.
 - A malformed `nav` value MUST be reported as HMD013.
-- An explicit `nav:` in `mkdocs.yml` MUST win; the plugin only fills an absent
-  one.
+- An explicit `nav:` in `mkdocs.yml` MUST win, except where it names the wiki:
+  a nav entry whose value is `hmd://wiki` MUST be replaced by the derived
+  section — as a mapping value it becomes that entry's children, as a list item
+  it is spliced in place. Without this a site is a book *or* a wiki; the
+  placeholder is what lets it be a book *with* a wiki in it.
+- The namespace root MAY be a subtree of `docs_dir`, named by the plugin's
+  `root` option. Pages then serve under that subtree's path. A site therefore
+  covers a whole documentation tree while `[[…]]` stays restricted to the part
+  that is a namespace, and the rest builds as ordinary MkDocs pages.
 
 ### 3. Expansion
 
@@ -172,3 +179,6 @@ mkdocs build --strict
   needs `exclude_docs: "*.hmd"` plus `validation.links.not_found: info`, the
   latter because cards link out to the repository — proposals, styles, source —
   with ordinary relative links whose targets are real files but not site pages
+- 2026-08-07: §2 gains the `hmd://wiki` nav placeholder and a namespace root
+  that may be a subtree of `docs_dir`, so one build holds a book and a wiki.
+  Implemented directly as a feature (issue 0001), not respecified.

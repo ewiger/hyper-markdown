@@ -200,3 +200,62 @@ def test_serving_watches_the_namespace_root(tmp_path):
     server = StubServer()
     config.plugins["hyper-markdown"].on_serve(server, config=config, builder=None)
     assert server.watched == [str(FIXTURE)]
+
+
+# -- a restricted namespace inside a larger site -------------------------
+
+
+def _book_and_wiki(tmp_path: Path) -> Path:
+    """A docs tree where only part of it is a namespace."""
+    docs = tmp_path / "docs"
+    (docs / "wiki").mkdir(parents=True)
+    (docs / "index.md").write_text("# Book\n\n[the wiki](wiki/one.md)\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text("# One\n\n[[two]]\n", encoding="utf-8")
+    (docs / "wiki" / "two.hmd").write_text("# Two\n", encoding="utf-8")
+    return docs
+
+
+def test_the_namespace_may_be_a_subtree_of_the_site(tmp_path):
+    """`docs_dir` covers the book; `root` restricts what `[[…]]` can reach."""
+    docs = _book_and_wiki(tmp_path)
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+
+    assert (site / "index.html").is_file()  # the book page, not a card
+    assert (site / "wiki" / "one" / "index.html").is_file()
+    # Links between cards stay correct under the prefix.
+    assert 'href="../two/"' in (site / "wiki" / "one" / "index.html").read_text()
+
+
+def test_a_book_page_is_not_a_link_target(tmp_path):
+    """The book is outside the namespace, so a card cannot wikilink into it."""
+    docs = _book_and_wiki(tmp_path)
+    (docs / "wiki" / "one.hmd").write_text("# One\n\n[[index]]\n", encoding="utf-8")
+    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    assert 'class="hmd-redlink"' in (site / "wiki" / "one" / "index.html").read_text()
+
+
+def test_the_placeholder_splices_the_wiki_into_an_authored_nav(tmp_path):
+    docs = _book_and_wiki(tmp_path)
+    site = build(
+        tmp_path,
+        docs,
+        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        nav=[{"Home": "index.md"}, {"Wiki": ["hmd://wiki"]}],
+    )
+    html = (site / "index.html").read_text()
+    assert "Wiki" in html and ">One<" in html and ">Two<" in html
+    assert "hmd://wiki" not in html
+
+
+def test_an_authored_nav_without_the_placeholder_is_left_alone(tmp_path):
+    docs = _book_and_wiki(tmp_path)
+    site = build(
+        tmp_path,
+        docs,
+        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        nav=[{"Home": "index.md"}],
+    )
+    html = (site / "index.html").read_text()
+    assert ">One<" not in html
+    # The cards still build; they are simply absent from the nav.
+    assert (site / "wiki" / "one" / "index.html").is_file()
