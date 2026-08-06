@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Hyper-Markdown: Extension Host (examples/small)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-hyper-markdown",
+        "--disable-extensions",
+        "${workspaceFolder}/examples/small"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"]
+    },
+    {
+      "name": "Hyper-Markdown: Extension Host (this repo, doc/wiki)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-hyper-markdown",
+        "--disable-extensions",
+        "${workspaceFolder}"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"]
+    }
+  ]
+}
