@@ -81,9 +81,15 @@ byte-identical diagnostic parity with `hmd lint` on `examples/small` and
 
 ## Open
 
-- **E5.2 — integration tests.** `@vscode/test-cli` downloads a VS Code build on
-  first run. Attempted on a side branch; see the branch log in the commit
-  message rather than re-deriving it here.
+- **E5.2 — integration tests.** Written, compiling, and **parked on
+  `feat/vsc-ext-1`** (commit `cb8c6e4`). Two blockers, neither in our code:
+  `@vscode/test-electron` 2.5.2 spawns `Contents/MacOS/Electron` and VS Code
+  1.132.0 ships that binary as `Code`; and symlinking around the rename
+  invalidates the `.app` signature, so macOS kills the process with `SIGKILL`.
+  Untested next step is `@vscode/test-electron` 3.1.0. Neither blocker exists on
+  a Linux runner, so when this is unparked it belongs in CI under `xvfb-run`,
+  not on a laptop. The harness also downloads ~305 MB (~912 MB unpacked) on
+  first run, which is why it is not in the default test command.
 - **C5.3 — the Python corpus runner.** The corpus is written and the TypeScript
   side runs it. Until Python runs it too, the contract is enforced in one
   direction only, and `test/parity.test.ts` is doing the real work by shelling
