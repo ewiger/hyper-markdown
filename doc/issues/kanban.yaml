@@ -7,6 +7,11 @@
 # .grem/issues/archive/ and delete its card here.
 #
 # Convention: doc/wiki/kanban.hmd
+#
+# NUMBERING IS SPLIT BY STREAM. The Python and MkDocs line numbers from 1; the
+# TypeScript and editor line numbers from 100. The two develop on separate
+# branches and merge in both directions, and a shared counter would collide on
+# every merge. Proposals are split the same way at HMD-0020.
 
 board:
   title: "doc/issues/ Kanban board"
@@ -17,9 +22,18 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 0 # to be incremented when adding a new issue card
+  last_id: 102 # to be incremented when adding a new issue card
   items:
-    backlog: []
-    todo: []
+    backlog:
+      - id: "0101"
+        title: "Live-editing behaviours are only checked by hand"
+        file: 0101-live-preview-checks-unautomated.md
+      - id: "0102"
+        title: "Diagrams render on a white surface in every theme"
+        file: 0102-diagram-theme-surface.md
+    todo:
+      - id: "0100"
+        title: "A ??? callout snaps shut on every re-render"
+        file: 0100-callout-open-state-lost.md
     doing: []
     done: []
