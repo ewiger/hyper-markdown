@@ -558,6 +558,12 @@ Unit tests (vitest) MUST include:
   `hmd-redlink`; an unknown `irVersion` is refused.
 - Determinism: parsing the same tree twice, and with `listDirectory` returning
   entries in reverse order, produces byte-identical IR.
+- Partial input: a buffer truncated at every byte offset of a fixture card
+  parses without throwing, and each result is a renderable document. This is
+  the cheapest possible fuzz test for live editing and it covers every
+  mid-keystroke state the format admits.
+- Key stability: inserting a paragraph at the top of a document leaves every
+  following block's `key` unchanged; editing one block changes only its own.
 
 Integration tests MUST include:
 
@@ -596,3 +602,6 @@ npm run -w @hyper-markdown/core lint
 ## Changelog
 
 - 2026-08-06: drafted
+- 2026-08-06: §7 gains `Block.key` and the partial-input rule; live-on-type
+  editing (VSX-013, VSX-018, VSX-019) promoted from a consequence of the
+  architecture to a constraint the parser and IR are designed against

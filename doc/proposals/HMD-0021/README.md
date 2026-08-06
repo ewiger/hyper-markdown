@@ -225,6 +225,42 @@ The renderer walks HMD-0020 §7 and does no markdown parsing of its own.
   instead. Reported through the extension's own channel, never as a lint rule
   (HMD-0020 §9).
 
+#### 5.1 Live editing
+
+The preview follows the in-memory buffer, so it is redrawn while its source is
+in a transiently invalid state. This subsection is what makes that survivable.
+
+- The host MUST render from the **unsaved buffer**, re-parsing 150 ms after the
+  last keystroke (§6). Saving MUST NOT be a precondition for anything the
+  preview shows.
+- The renderer MUST **patch** the existing DOM against the incoming IR, keyed
+  by `Block.key` (HMD-0020 §7), rather than replacing the document. Blocks whose
+  key and content are unchanged MUST NOT be touched. This preserves scroll
+  position, embed collapse state, and focus across an update (VSX-019), and it
+  is also what keeps the update cost proportional to the edit rather than to
+  the document.
+- The panel MUST NOT blank, show an error page, or flash an intermediate state
+  between renders. A construct in the middle of being typed renders as literal
+  text — which HMD-0020 §3.2 already requires for malformed input — and the
+  surrounding card renders normally (VSX-018).
+- If a render fails outright, the previous render MUST stay on screen and the
+  failure MUST be surfaced without clearing it. Stale content with a warning is
+  strictly better than a blank panel, because the author can still read what
+  they wrote.
+- Scroll sync MUST hold its position by source line across a re-render, not by
+  pixel offset. Content above the viewport changes height as it is edited.
+- Editing a card that the previewed card **embeds** MUST re-render the preview,
+  from the embedded card's unsaved buffer where it is open in another tab. An
+  embed is a live window onto another card, and a window that shows a stale
+  copy of a file open two tabs away is a bug the author will not think to
+  suspect.
+- **Diagnostics run on a slower clock than the preview.** Diagnostics for a
+  document are published **500 ms** after the last keystroke, and diagnostics
+  falling on the line holding the cursor are withheld entirely until the cursor
+  leaves that line (VSX-033). Every partially typed link is briefly an
+  `HMD001` or `HMD010`; reporting those to the Problems panel in real time
+  would make the panel useless and the editor hostile.
+
 ### 6. Scroll sync and click-through
 
 Both directions run off the `data-line` attributes HMD-0020 §7 requires.
@@ -445,6 +481,11 @@ Integration tests (`@vscode/test-cli`) MUST include:
   publishes exactly the diagnostics `hmd lint` publishes for the same tree.
 - `openPreviewToSide` opens a panel rendering the same content as the view.
 - Editing a buffer without saving updates both the preview and the diagnostics.
+- Typing an incomplete `[[` and pausing leaves the preview rendered and the
+  Problems panel silent for that line; completing the link resolves it without
+  an intervening blank frame.
+- Editing a paragraph halfway down a long card leaves the preview's scroll
+  position and every collapsed embed card exactly as they were.
 - Deleting a card's target on disk turns its inbound links red without a
   reload.
 
@@ -478,3 +519,6 @@ npm run -w vscode-hyper-markdown package
 ## Changelog
 
 - 2026-08-06: drafted
+- 2026-08-06: §5.1 added — live editing against the unsaved buffer, keyed DOM
+  patching, no-blank rendering, and diagnostics on a slower clock than the
+  preview

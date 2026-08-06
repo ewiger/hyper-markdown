@@ -37,6 +37,16 @@ before the UI ever sees it, and a hyper-markdown preview whose embeds render as
 anonymous prose has given up the only thing it does that a markdown previewer
 cannot.
 
+## Live-on-type is a constraint, not a feature
+
+Type on the left, see it rendered on the right, without saving — this is the
+defining interaction, and the parser and IR are designed against it rather than
+merely permitting it. Consequences that would otherwise look like
+over-engineering: the parser never throws on partial input, every IR block
+carries a stable key so the renderer patches instead of rebuilding, and
+diagnostics run on a slower clock than the preview so half-typed links do not
+raise squiggles.
+
 ## LSP is deferred without a decision
 
 Not "later in the plan" — genuinely open. If the feature set ever justifies a
