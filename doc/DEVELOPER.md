@@ -82,13 +82,33 @@ Two of those suites are doing more than they look:
 
 The recommended route. It touches nothing in your real editor.
 
-**Press F5** from the repository root and pick
-**"Hyper-Markdown: Extension Host (examples/small)"**.
+**Press F5** from the repository root. There is exactly one configuration, so
+there is nothing to select: VS Code remembers the last configuration you picked,
+and a list of several means F5 lands wherever you were last rather than where
+you meant.
 
-A second VS Code window opens with `examples/small` as its workspace and every
-other extension disabled. `examples/small` is the right fixture to test against:
-14 cards exercising the spine walk, both import forms, folder notes, embeds, and
-one deliberate red link.
+A second VS Code window opens with `examples/cs-alg-sorting` as its workspace
+and every other extension disabled — the fixture that exercises callouts, math,
+diagrams, embeds, and cross-card links.
+
+For another tree, pass it on the command line rather than adding a
+configuration:
+
+```bash
+npm run build
+code -n --extensionDevelopmentPath=$PWD/packages/vscode-hyper-markdown \
+  $PWD/examples/small
+```
+
+`-n` matters: without it, `code` hands the arguments to an already-running
+instance, which ignores `--extensionDevelopmentPath` and quietly opens an
+ordinary window.
+
+**Do not point a configuration at `examples/` itself.** `examples/small` uses
+absolute refs such as `/shared/tokens`, which are absolute to *its own* root. A
+root one level up turns every one of them red — `hmd lint --root examples`
+reports 3 errors and 12 warnings that do not exist when each tree is linted on
+its own.
 
 What F5 actually does — the configuration is type `extensionHost`, so instead of
 debugging a program VS Code launches a second copy of itself:

@@ -2,37 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension (cs-alg-sorting)",
+      // One configuration on purpose — see the note in the repository root's
+      // .vscode/launch.json. For another tree, pass it on the command line
+      // instead of adding an entry here.
+      "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--disable-extensions",
         "${workspaceFolder}/../../examples/cs-alg-sorting"
-      ],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "preLaunchTask": "npm: build"
-    },
-    {
-      "name": "Run Extension (examples/small)",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--disable-extensions",
-        "${workspaceFolder}/../../examples/small"
-      ],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "preLaunchTask": "npm: build"
-    },
-    {
-      "name": "Run Extension (doc/wiki)",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--disable-extensions",
-        "${workspaceFolder}/../.."
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "npm: build"
