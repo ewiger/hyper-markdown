@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Hyper-Markdown: Extension Host (cs-alg-sorting)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-hyper-markdown",
+        "--disable-extensions",
+        "${workspaceFolder}/examples/cs-alg-sorting"
+      ],
+      "outFiles": ["${workspaceFolder}/packages/vscode-hyper-markdown/dist/**/*.js"],
+      "preLaunchTask": "build: hyper-markdown extension"
+    },
+    {
       "name": "Hyper-Markdown: Extension Host (examples/small)",
       "type": "extensionHost",
       "request": "launch",
