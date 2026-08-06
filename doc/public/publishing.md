@@ -89,3 +89,38 @@ mkdocs serve
 
 The plugin watches the namespace root, which MkDocs would otherwise ignore — a
 `.hmd` edit that triggered no rebuild would leave the preview quietly stale.
+
+## Deployment
+
+This site is published to GitHub Pages from a workflow, not from a branch. CI
+builds `site/` and hands it straight to the Pages CDN as an artifact, so the
+rendered HTML never enters version control and there is no `gh-pages` branch to
+keep in sync:
+
+```yaml
+permissions:
+  contents: read
+  pages: write
+  id-token: write     # deploy-pages authenticates by OIDC
+
+steps:
+  - run: mkdocs build --strict
+  - uses: actions/upload-pages-artifact@v3
+    with: { path: site }
+  - uses: actions/deploy-pages@v4
+```
+
+The repository must have **Settings → Pages → Source** set to *GitHub Actions*
+for this to work; with the older *Deploy from a branch* setting the workflow
+runs and publishes nothing.
+
+`--strict` is the same gate the test workflow applies. A build that warns is not
+published, which keeps the site and the lint result describing the same tree.
+
+## A note on MkDocs 2.0
+
+The MkDocs name is being reused for a ground-up rewrite with no plugin system, no
+migration path, and a different config format. A hyper-markdown site is a MkDocs
+*plugin*, so that release would not degrade it — it would remove it. The
+dependency is therefore pinned to `mkdocs>=1.6,<2` rather than left open, and
+which 1.x successor to follow is an open question rather than a decided one.

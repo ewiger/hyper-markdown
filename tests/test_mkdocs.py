@@ -336,3 +336,70 @@ def test_fenced_code_survives_the_build(tmp_path):
     # Highlighting splits the text into spans, so the literal line is not
     # contiguous — check the tokens survived, not the formatting.
     assert "key" in html and "value" in html
+
+
+# -- diagrams, math, callouts in a build ---------------------------------
+
+
+def _rich_docs(tmp_path: Path) -> Path:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(
+        "# Home\n\n"
+        '!!! note "Heads up"\n\n    a callout body\n\n'
+        "Inline $x^2$ and display:\n\n$$\nE = mc^2\n$$\n\n"
+        "```d2\na -> b\n```\n\n"
+        "```python\nprint('not a diagram')\n```\n",
+        encoding="utf-8",
+    )
+    return docs
+
+
+def _rich_extensions() -> list:
+    return [
+        "admonition",
+        "footnotes",
+        "tables",
+        "toc",
+        {"pymdownx.arithmatex": {"generic": True}},
+        "pymdownx.details",
+        "pymdownx.superfences",
+    ]
+
+
+def test_callouts_and_math_survive_the_build(tmp_path):
+    site = build(tmp_path, _rich_docs(tmp_path), markdown_extensions=_rich_extensions())
+    html = (site / "index.html").read_text()
+    assert 'class="admonition note"' in html
+    assert "a callout body" in html
+    # Arithmatex marks the spans; MathJax typesets them in the browser.
+    assert html.count('class="arithmatex"') >= 2
+
+
+def test_a_d2_fence_becomes_a_diagram_and_other_fences_do_not(tmp_path):
+    site = build(tmp_path, _rich_docs(tmp_path), markdown_extensions=_rich_extensions())
+    html = (site / "index.html").read_text()
+    assert "hmd-diagram" in html
+    assert "not a diagram" in html and "<pre" in html  # the python fence is code
+
+
+def test_diagrams_can_be_switched_off(tmp_path):
+    site = build(
+        tmp_path,
+        _rich_docs(tmp_path),
+        plugins=[{"hyper-markdown": {"diagrams": False}}],
+        markdown_extensions=_rich_extensions(),
+    )
+    assert "hmd-diagram" not in (site / "index.html").read_text()
+
+
+def test_an_embedded_diagram_renders_in_the_host_page(tmp_path):
+    """Diagrams run after expansion, so a diagram embedded from another card
+    renders like one written here."""
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text("# Home\n\n![[chart]]\n", encoding="utf-8")
+    (docs / "chart.hmd").write_text("# Chart\n\n```d2\na -> b\n```\n", encoding="utf-8")
+
+    site = build(tmp_path, docs, markdown_extensions=_rich_extensions())
+    assert "hmd-diagram" in (site / "index.html").read_text()

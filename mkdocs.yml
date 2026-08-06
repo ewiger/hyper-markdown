@@ -1,6 +1,11 @@
 site_name: hyper-markdown
 site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
 
+# A GitHub project site, so the book is served from a subpath rather than the
+# domain root. The build does not need this — MkDocs emits relative links — but
+# canonical URLs and `sitemap.xml` are wrong without it.
+site_url: https://ewiger.github.io/hyper-markdown/
+
 # The site covers the whole documentation tree, while the `[[…]]` namespace is
 # restricted to `doc/wiki` by the plugin's `root` below. The book and the wiki
 # build together; only the wiki is a namespace.
@@ -48,6 +53,7 @@ nav:
   - Home: index.md
   - The format: public/format.md
   - Namespaces: public/namespaces.md
+  - Rich content: public/rich-content.md
   - Publishing: public/publishing.md
   - Wiki:
       - Overview: wiki/README.md
@@ -60,6 +66,13 @@ nav:
 
 extra_css:
   - wiki/assets/hmd.css
+
+# Arithmatex emits `\(…\)` and typesets nothing itself, so math needs MathJax to
+# be present or every formula renders as its own source. This is the only
+# runtime dependency the site has on a network; the build itself stays offline.
+extra_javascript:
+  - wiki/assets/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 # Cards link out to the repository — proposals, styles, source — with ordinary
 # relative markdown links, by the convention in `hyper-markdown.hmd`. Those

@@ -1,0 +1,74 @@
+name: Pages
+
+# Publication, deliberately not a job inside `ci.yml`. That workflow cancels
+# runs in progress, which is right for a test matrix and wrong for a deploy.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# What `deploy-pages` needs. `id-token` is not optional: it authenticates to
+# the Pages API by OIDC rather than with `GITHUB_TOKEN`.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and never cancel one that has started — a half-uploaded
+# artifact is a broken site.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: build and deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Install
+        run: |
+          uv venv
+          uv pip install -e ".[mkdocs]"
+
+      # Diagrams degrade to a labelled placeholder without this, which would
+      # publish quietly wrong pages rather than failing — so the deploy needs
+      # the same engine the tests get.
+      - name: Install d2
+        run: |
+          container=$(docker create terrastruct/d2:latest)
+          for candidate in /usr/local/bin/d2 /usr/bin/d2 /bin/d2 /d2; do
+            docker cp "$container:$candidate" /usr/local/bin/d2 2>/dev/null && break
+          done
+          docker rm "$container"
+          sudo chmod +x /usr/local/bin/d2
+          d2 --version
+
+      # The same gate `ci.yml` gets. Nothing is published that does not build
+      # clean, so `--strict` stays on here rather than being relaxed for the
+      # sake of shipping something.
+      - name: Build
+        run: uv run mkdocs build --strict
+
+      # The built tree never enters git. It is uploaded as a Pages artifact and
+      # served from the CDN, which is why this repository has no `gh-pages`
+      # branch and `site/` stays ignored.
+      - name: Upload
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

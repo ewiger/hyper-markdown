@@ -24,7 +24,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File, Files
 
 from . import config as config_mod
-from . import scan, urls
+from . import diagram, scan, urls
 from .embed import expand
 from .model import Link
 from .parse import slug_for
@@ -47,6 +47,9 @@ class PluginConfig(BaseConfig):
     #: `doc/wiki`, so a book and its wiki live in one build.
     root = config_options.Optional(config_options.Dir(exists=True))
     build_nav = config_options.Type(bool, default=True)
+    #: Render `d2` fences. With no `d2` binary on PATH they degrade to a
+    #: labelled placeholder rather than failing the build (HMD-0022 §5).
+    diagrams = config_options.Type(bool, default=True)
 
 
 class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
@@ -61,6 +64,7 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         #: Where the namespace root sits inside `docs_dir`, as a URL prefix.
         self.prefix = ""
         self.docs_dir: Path | None = None
+        self.engine = diagram.D2Engine()
 
     # -- collection ------------------------------------------------------
 
@@ -168,10 +172,11 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
 
         source = self.sources.get(page.file.src_uri)
         if source is None:
-            # Not a card. It may still link *to* one: a book page or a proposal
+            # Not a card. It may still link *to* one — a book page or a proposal
             # writes an ordinary relative link to a `.hmd` file, because a
-            # wikilink does not work from outside the namespace.
-            return self._link_to_cards(markdown, page.file.src_uri)
+            # wikilink does not work from outside the namespace — and it may
+            # carry diagrams of its own.
+            return self._diagrams(self._link_to_cards(markdown, page.file.src_uri))
 
         root = self.workspace.root
 
@@ -187,7 +192,29 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
             return f"[{text}]({href})"
 
         expanded = expand(self.workspace, source, rewrite=rewrite).text
-        return self._link_to_cards(expanded, page.file.src_uri)
+        return self._diagrams(self._link_to_cards(expanded, page.file.src_uri))
+
+    def _diagrams(self, markdown: str) -> str:
+        """Render `d2` fences to images, or to a labelled placeholder.
+
+        Runs after expansion, so a diagram embedded from another card renders
+        like one written here.
+        """
+        if not self.config.diagrams:
+            return markdown
+
+        out: list[str] = []
+        cursor = 0
+        for info, body, start, end in scan.find_fences(markdown):
+            language = info.split()[0].lower() if info.split() else ""
+            if language not in diagram.LANGUAGES:
+                continue
+            out.append(markdown[cursor:start])
+            out.append(diagram.to_html(language, body, self.engine) + "\n")
+            cursor = end
+
+        out.append(markdown[cursor:])
+        return "".join(out)
 
     def _link_to_cards(self, markdown: str, src_uri: str) -> str:
         """Point ordinary markdown links at the page a `.hmd` file becomes.

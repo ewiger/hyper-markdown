@@ -13,3 +13,23 @@
 [data-md-color-scheme="slate"] .hmd-redlink {
   color: #f2b8b5;
 }
+
+/* A diagram that is merely not drawn is not a defect in the card. It is shown
+   with its source, labelled, rather than as a blank or an error. */
+.hmd-diagram img {
+  max-width: 100%;
+  height: auto;
+}
+
+.hmd-diagram--placeholder {
+  border-left: 3px solid var(--md-default-fg-color--lighter, #ccc);
+  padding-left: 0.8rem;
+}
+
+.hmd-diagram__note {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+  margin-bottom: 0.3rem;
+}

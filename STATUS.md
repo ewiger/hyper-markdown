@@ -8,7 +8,7 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): **M1–M5 done**, 192 tests. `doc/` builds as a book
+**Snapshot** (2026-08-07): **M1–M5 done**, 209 tests. `doc/` builds as a book
 with the wiki as a section of its nav, green under `--strict`. What remains is
 the conformance corpus, the determinism test, and the open questions blocking
 both proposals.
@@ -68,6 +68,7 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | M5.15 | `doc/public/` book, with the wiki as a section of its nav (issue 0001) | issue 0001 | **done** |
 | M5.16 | Ordinary markdown links to `.hmd` files repointed at the rendered card (issue 0002) | issue 0002 | **done** |
 | M5.17 | `pygments<2.20` pinned; a built page is asserted to contain `<pre>` (issue 0003) | issue 0003 | **done** |
+| M5.18 | Callouts, math (MathJax), and D2 diagrams render; `diagram.py` (issue 0004) | HMD-0001 §9, HMD-0022 | **done** |
 
 ### Cross-cutting
 
@@ -79,6 +80,9 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | X.4 | `mkdocs build --strict` added to `.github/workflows/ci.yml` | Deployment | **done** |
 | X.5 | Move HMD-0001 from `drafted` to `accepted` — requires its nine Open Questions resolved | Open Questions | blocked |
 | X.6 | `doc/memory/` created, holding the Python-line decisions | CLAUDE.md | **done** |
+| X.7 | `mkdocs<2`, `mkdocs-material<10` pinned — MkDocs 2.0 removes the plugin system | Deployment | **done** |
+| X.8 | GitHub Pages published from `.github/workflows/pages.yml`, artifact-based, no `gh-pages` branch | Deployment | **done** |
+| X.9 | Pick the 1.x successor to follow — ProperDocs, Zensical, or an own renderer | Deployment | blocked |
 
 ## Decisions
 
@@ -99,7 +103,7 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 192 passed
+python -m pytest                              # 209 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
 mkdocs build --strict                         # builds the book + wiki into site/
@@ -132,7 +136,14 @@ mkdocs serve                                  # live, watching the namespace roo
 - 2026-08-07: issue 0002 — ordinary markdown links to `.hmd` files 404'd on the
   site. Every page now has such links repointed at the rendered card, masked so
   fenced paths survive.
+- 2026-08-07: the site is published — GitHub Pages, artifact-based, from a
+  separate `pages.yml` so a cancelled test run cannot cancel a deploy. MkDocs
+  pinned below 2.0 in the same commit: that release removes the plugin system,
+  which is not a degradation of this project's rendering path but its deletion.
 - 2026-08-07: issue 0003 — Pygments 2.20 silently stopped `pymdownx.superfences`
   from matching any fence, so every code block on the site rendered as running
   text while the build stayed green. Pinned, and guarded by asserting the
   rendered HTML rather than the versions.
+- 2026-08-07: issue 0004 — math, callouts, and D2 implemented. `d2` fences
+  render through the binary to a `data:` URI image and degrade to a labelled
+  placeholder without it, taking HMD-0022's semantics while keeping the engine.
