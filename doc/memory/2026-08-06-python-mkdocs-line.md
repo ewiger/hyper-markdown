@@ -45,6 +45,21 @@ HMD-0001 §5.3 pins the reserved frontmatter keys as a closed set of `tags`,
 extension. The fallback, if that trade is rejected, is derived order only plus
 an explicit `nav:` in `mkdocs.yml`.
 
+## MkDocs computes URLs; the plugin only names sources
+
+Links are rewritten to a path relative to the **source file** (`kanban.md`), not
+to the page's URL (`../kanban/`). MkDocs resolves and validates every link
+against the source tree and derives the URL itself, so a source-relative path
+gets the URL for free and gets the link checked. Emitting the finished URL made
+MkDocs report every wikilink as an unrecognized relative link — it was correct
+output that bypassed validation.
+
+Two settings a hyper-markdown site needs, both non-obvious: `exclude_docs:
+"*.hmd"`, or MkDocs copies the raw sources in as static files beside the pages
+the plugin generated; and `validation.links.not_found: info`, because cards link
+out to the repository with ordinary relative links whose targets are real files
+but not site pages.
+
 ## Erasure is a shipping format, not an interchange format
 
 `hmd → md` drops the embed boundary and the provenance of every link. That is

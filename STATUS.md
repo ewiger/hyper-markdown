@@ -8,7 +8,7 @@ row in the same commit that changes the code.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): **M1–M5 done**, 182 tests. `doc/wiki` builds as a
+**Snapshot** (2026-08-07): **M1–M5 done**, 183 tests. `doc/wiki` builds as a
 MkDocs site under `--strict`. What remains is the conformance corpus, the
 determinism test, and the open questions blocking both proposals.
 
@@ -72,7 +72,7 @@ Spec references are to [HMD-0002](doc/proposals/HMD-0002/README.md).
 | X.3 | `doc/wiki/hyper-markdown.hmd` still describes resolution as "by filename alone" — predates the spine walk | Backwards Compat. | ready |
 | X.4 | `mkdocs build --strict` added to `.github/workflows/ci.yml` | Deployment | **done** |
 | X.5 | Move HMD-0001 from `drafted` to `accepted` — requires its nine Open Questions resolved | Open Questions | blocked |
-| X.6 | `doc/memory/` does not exist, though `CLAUDE.md` instructs every agent invocation to read it | CLAUDE.md | ready |
+| X.6 | `doc/memory/` created, holding the Python-line decisions | CLAUDE.md | **done** |
 
 ## Decisions
 
@@ -93,7 +93,7 @@ Three open questions remain in HMD-0002 and must close before it moves to
 ## Gates
 
 ```bash
-python -m pytest                              # 182 passed
+python -m pytest                              # 183 passed
 hmd lint doc/wiki                             # exit 0, clean
 hmd lint --root examples/small                # exit 0, exactly 1 warning (HMD001)
 mkdocs build --strict                         # builds doc/wiki into site/
