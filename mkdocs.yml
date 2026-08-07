@@ -99,10 +99,10 @@ plugins:
 # the book keeps its own order and still says where the cards belong.
 nav:
   - Home: index.md
-  - The format: public/format.md
+  - Introduction: public/introduction.md
   - Namespaces: public/namespaces.md
-  - Rich content: public/rich-content.md
-  - Publishing: public/publishing.md
+  - Features: public/features.md
+  - Presentation: public/presentation.md
   - Wiki:
       - Overview: wiki/README.md
       - hmd://wiki
@@ -112,6 +112,7 @@ nav:
       - HMD-0001 examples: proposals/HMD-0001/examples.md
       - HMD-0002 — MkDocs: proposals/HMD-0002/README.md
       - HMD-0003 — HQL: proposals/HMD-0003/README.md
+      - HMD-0004 — The hyper web: proposals/HMD-0004/README.md
 
 # `generator: false` drops Material's own footer credit so the copyright above
 # is the only line there — the footer is small enough that two claims on it

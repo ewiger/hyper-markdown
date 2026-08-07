@@ -55,6 +55,7 @@ when a gate would catch its return, and every row below has one.
 | M5.19 | Strikethrough, tables, and task lists shown and gated | [0005](../../issues/0005-strikethrough-shown-as-its-own-source.md) | `<del>`, `<table`, task item in built HTML |
 | M5.20 | An escaped pipe inside a table code span kept its backslash, on the page whose job is to show what to type; cells rewritten as raw inline HTML | [0006](../../issues/0006-escaped-pipe-in-a-table-code-span.md) | `tests/test_docs.py` |
 | M5.21 | Site branding — the README's `⚡` as an SVG logo and favicon, amber-on-black palette, repository and social links, a hero on the cover | — | `tests/test_docs.py` |
+| M5.22 | The book's front chapters restructured: the cover carries the vision, `rich-content.md` → `features.md` (what a page can be, shown working), `publishing.md` → `presentation.md` (conversion targets, then viewers). Contributor material — the CI gates, the `doc/` conventions, and Pages deployment — left the book for `DEVELOP.md` at the repo root, referenced from the README | — | `mkdocs build --strict`, `tests/test_docs.py` |
 
 The standing lesson from 0003 and 0005: **a green build is not evidence of
 correct output.** 0003 was a green build with wrong output; 0005 was a green

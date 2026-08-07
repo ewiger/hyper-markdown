@@ -79,6 +79,13 @@ HTML unambiguously a build product, which is the same argument
 - How self-contained is "single file"? Inlining CSS and F18's `data:` URIs is
   easy; F17 currently depends on MathJax, which is a script tag pointing
   outward. Either vendor it or pre-render the math.
+- The HTML target does not yet keep the promise the book makes for it.
+  `hmd render --to html` runs Python-Markdown over the expanded card and returns
+  a **body fragment**: no document wrapper, no CSS, no MathJax, and — the
+  substantive gap — no diagrams, because `diagram.py` is wired into
+  `mkdocs_plugin.py` alone, so a ` ```d2 ` fence reaches HTML as a code block.
+  `doc/public/presentation.md` states the target as lossless, which is the
+  design; closing this row is what makes the statement true.
 - Does `md → hmd` need the same option in reverse? Only for the markdown
   targets — HTML has no reverse direction.
 

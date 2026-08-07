@@ -120,7 +120,7 @@ exclude_docs: |
 
 nav:
   - Home: index.md
-  - The format: public/format.md
+  - Introduction: public/introduction.md
   - Wiki:
       - Overview: wiki/README.md
       - hmd://wiki          # ← the derived section lands here
@@ -167,9 +167,13 @@ still open:
 
 ```bash
 uv venv
-uv pip install -e ".[dev]"
+uv pip install -e ".[dev,mkdocs]"
 python -m pytest
 ```
+
+[DEVELOP.md](DEVELOP.md) is the contributor's guide: the gates CI applies, how
+the documentation tree is organised, where progress is tracked, and how the site
+is published.
 
 ## License
 
