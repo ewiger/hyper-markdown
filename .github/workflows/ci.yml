@@ -22,8 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Pinned to the exact release, not to `@v9`. `astral-sh/setup-uv` ships
+      # `v9.0.0` but maintains no moving `v9` tag — its floating majors stop at
+      # `v7` — so the shorthand every other action accepts fails here with
+      # "unable to find version", before a single step runs. Check that a
+      # floating tag exists before shortening this.
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
@@ -78,7 +83,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: "3.13"
           enable-cache: true
