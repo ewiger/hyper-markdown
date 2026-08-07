@@ -13,6 +13,7 @@ from typing import Optional
 
 import typer
 
+from . import __version__
 from . import config as config_mod
 from . import graph as graph_mod
 from .lint import check, format_json, format_text, summarize
@@ -32,6 +33,31 @@ EXIT_USAGE = 2
 
 RootOption = typer.Option(None, "--root", help="Namespace root (default: the `wiki` setting, or doc/wiki).")
 FormatOption = typer.Option("text", "--format", help="Output format: text or json.")
+
+
+def _show_version(value: bool) -> None:
+    """Report the module's version, not the installed distribution's.
+
+    `importlib.metadata` would answer for the wheel on the path, which is the
+    wrong answer in a checkout — the number a contributor is about to tag lives
+    in `__init__.py`, and `hmd --version` should show that one.
+    """
+    if value:
+        typer.echo(f"hmd {__version__}")
+        raise typer.Exit(EXIT_OK)
+
+
+@app.callback()
+def cli(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=_show_version,
+        is_eager=True,
+        help="Show the version and exit.",
+    ),
+) -> None:
+    """Lint, query, and inspect a hyper-markdown knowledge base."""
 
 
 def _workspace(root: Optional[Path], start: Path | None = None) -> Workspace:

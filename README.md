@@ -79,6 +79,7 @@ ordinary GFM, plus callouts, footnotes, math, and D2 diagrams.
 | `hmd render` | Expand embeds and rewrite links, to flat markdown or HTML |
 | `hmd graph` | Dump the resolved link graph as JSON |
 | `hmd info` | Show the resolved root and discovery policy |
+| `hmd --version` | Print the installed version |
 
 Each takes `--root` to override the namespace root, which otherwise comes from
 the `wiki` setting in `.hmd/config.toml` (defaulting to `doc/wiki`). A `.hmd/`
@@ -143,9 +144,11 @@ link that shows what an unwritten page looks like.
 
 ## Status
 
-Pre-release, and both specs are still `drafted`. The scanner, resolver, linter,
+`0.1.0`, and both specs are still `drafted`. The scanner, resolver, linter,
 embed expander, renderer, and MkDocs plugin are implemented and covered by the
-test suite. Expect the format to move before 1.0.
+test suite. Expect the format to move before 1.0 — until then a minor bump may
+break `.hmd` sources, not only the Python API. What each release changed is in
+[CHANGELOG.md](CHANGELOG.md).
 
 Progress is tracked per proposal, in a `STATUS.md` beside each one — what is
 done, what is broken, which limitations are deliberate, and which questions are

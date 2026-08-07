@@ -65,3 +65,39 @@ jobs:
       # here means the model works for lint but not for rendering.
       - name: Build the wiki
         run: uv run mkdocs build --strict
+
+  # The same build `release.yml` runs, minus the upload. Packaging breaks in
+  # ways the test matrix cannot see — an editable install resolves through
+  # `src/` and never exercises the entry points — and PyPI will not let a
+  # filename be replaced, so the place to find a bad wheel is on the pull
+  # request.
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Build
+        run: uv build
+
+      - name: Check the metadata
+        run: uvx twine check --strict dist/*
+
+      - name: Install the wheel and smoke-test it
+        run: |
+          uv venv /tmp/smoke
+          VIRTUAL_ENV=/tmp/smoke uv pip install "$(ls dist/*.whl)[mkdocs]"
+          cd /tmp
+          /tmp/smoke/bin/hmd --version
+          /tmp/smoke/bin/python -c "
+          from importlib.metadata import entry_points
+          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
+          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
+          print('mkdocs plugin entry point resolves')
+          "

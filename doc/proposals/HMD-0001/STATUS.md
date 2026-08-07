@@ -69,10 +69,19 @@ Specified, unblocked, not started.
 | --- | --- | --- |
 | T1 | Conformance corpus at `tests/corpus/<case>/` with `expected.json` | Test Plan (sketch 111) |
 | T2 | Determinism test: same tree twice, and with files created in a different order, byte-identical JSON | Test Plan |
+| T3 | Publish `0.1.0` to PyPI — tag `v0.1.0` on `main` once the trusted publisher and the `pypi` environment exist | — |
 
 T1 and T2 belong together and should land together. The corpus is also the
 cross-implementation contract the editor line consumes, so its shape is worth
 more care than its coverage.
+
+T3 is the only work point that cannot be finished by a commit. The packaging
+side of it is done — metadata, changelog, `hmd --version`, a CI job that builds
+the wheel and installs it away from `src/`, and a tag-driven release workflow —
+but the upload authenticates by OIDC against a trusted publisher configured on
+PyPI, and that configuration lives in a web form rather than in this repository.
+Until it exists the workflow runs green and fails at the upload with a `403`.
+[DEVELOP.md](../../../DEVELOP.md) carries the settings to enter.
 
 ### Broken
 
@@ -146,3 +155,8 @@ unwritten page looks like. A clean run there is a regression, not an improvement
 - 2026-08-07: split out of the repo-root `STATUS.md`, which tracked both
   proposals at once. Progress is now tracked per proposal, and the to-do list is
   split into planned work, broken, limitations, and open questions.
+- 2026-08-08: prepared `0.1.0` for distribution — `CHANGELOG.md`, PyPI metadata,
+  `hmd --version`, a packaging job in CI, and a tag-driven release workflow. The
+  version now has one home, `__init__.py`, from which `pyproject.toml` derives
+  its own; the suite fails if the changelog does not mention the number. The
+  upload itself is T3 and waits on configuration that is not a commit.
