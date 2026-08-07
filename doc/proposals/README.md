@@ -11,7 +11,20 @@ work. Editor and JavaScript proposals start at `HMD-0020`, so the two streams
 can reserve numbers without coordinating. When the Python line exhausts `0019`
 it continues at **`HMD-0100`**, leaving `0020`–`0099` to the editor line.
 
-| ID | Status | Title |
-| --- | --- | --- |
-| [HMD-0001](HMD-0001/README.md) | drafted | MVP — grammar, resolver, and `hmd lint` |
-| [HMD-0002](HMD-0002/README.md) | drafted | MkDocs book-mode rendering |
+| ID | Status | Title | Progress |
+| --- | --- | --- | --- |
+| [HMD-0001](HMD-0001/README.md) | drafted | MVP — grammar, resolver, and `hmd lint` | [STATUS](HMD-0001/STATUS.md) |
+| [HMD-0002](HMD-0002/README.md) | drafted | MkDocs book-mode rendering | [STATUS](HMD-0002/STATUS.md) |
+
+## Progress is tracked per proposal
+
+Each proposal carries a sibling `STATUS.md` — what is done, what is broken, what
+is a known limitation, and what is an open question or blocker. Those files are
+the **only** place work is tracked; there is no repository-wide task list and no
+board. A task that belongs to no proposal has nowhere to live, which usually
+means it is a decision nobody has taken yet, and belongs under a tracker's open
+questions.
+
+The `README.md` / `STATUS.md` split is decision versus state: the record changes
+when the design changes, the tracker changes with the commits. See
+[`doc/wiki/tracking.hmd`](../wiki/tracking.hmd) for the convention in full.

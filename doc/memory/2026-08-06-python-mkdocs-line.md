@@ -6,10 +6,17 @@ Real-time decisions taken while drafting
 
 ## STATUS.md is the milestone tracker
 
-A single `STATUS.md` at the repo root indexes every work point against its
-milestone and its spec section. `doc/issues/kanban.yaml` stays for granular,
-short-lived cards; it is currently empty. Update the STATUS row in the same
-commit that changes the code.
+> **Superseded 2026-08-07.** A single repo-root `STATUS.md` indexed every work
+> point for both proposals at once, with `doc/issues/kanban.yaml` alongside it
+> for granular cards. Both are gone. Progress is now tracked per proposal in
+> `doc/proposals/HMD-NNNN/STATUS.md`, whose TODO is split into planned work,
+> broken, limitations, and open questions. Two trackers and a board meant three
+> places a task could hide; the rule now is that a proposal owns its own state
+> and nothing else holds a task list. See
+> [`doc/wiki/tracking.hmd`](../wiki/tracking.hmd).
+
+The part that survives: update the tracker row in the same commit that changes
+the code.
 
 ## Proposal number ranges, including the overflow
 

@@ -1,0 +1,200 @@
+---
+tags: [area/format, status/canonical]
+---
+
+# Hyper-markdown feature list
+
+The complete, numbered list of what the format supports — one row per feature,
+each with a stable `F<n>` that the rest of the project can cite. This card is
+the **index**; it is deliberately not the normative text. Where a construct has
+a specification, the row points at it, because a feature list that restates its
+own spec drifts from it by the second edit.
+
+Two things live here and nowhere else: the **numbering**, and the **status** of
+every feature including the ones that do not exist yet. See [[hyper-markdown]]
+for what the format is for, and [[md-hmd-interop]] for its relation to plain
+markdown.
+
+## How to read the tables
+
+Every table below has the same five columns, so a feature reads the same way
+wherever it appears.
+
+| Column | Meaning |
+| --- | --- |
+| **#** | Stable identifier. Never reused, never renumbered. |
+| **Feature** | The name to call it in prose. |
+| **Written** | What an author types. |
+| **Provided by** | Who implements it — the format itself, or the extension bought to avoid implementing it. |
+| **Status** | Where it stands, from the vocabulary below. |
+
+**Status vocabulary** — `shipped` works today and is gated by a test ·
+`planned` specified or agreed, not built · `nice to have` wanted, unspecified,
+nobody has committed · `deferred` explicitly postponed to a later spec ·
+`rejected` decided against, recorded so it is not relitigated.
+
+## Block A — linking constructs
+
+The six constructs the format owns. No existing extension provides them, which
+is the entire reason the dialect exists. Normative text is
+[HMD-0001](../proposals/HMD-0001/README.md) §2 for the grammar, §5 for
+resolution, §6 for expansion.
+
+| # | Feature | Written | Provided by | Status |
+| --- | --- | --- | --- | --- |
+| F1 | Wikilink | `[[page]]` | the format, §2 / §5 | shipped |
+| F2 | Aliased wikilink | <code>&#91;&#91;page&#124;display text&#93;&#93;</code> | the format, §2 | shipped |
+| F3 | Heading reference | `[[page#Section]]` | the format, §2 / §3 | shipped |
+| F4 | Block anchor | `text ^block-id` | the format, §2 | shipped |
+| F5 | Block reference | `[[page#^block-id]]` | the format, §2 | shipped |
+| F6 | Embed | `![[…]]` | the format, §6 | shipped |
+
+An embed is any of F1–F5 with a `!` in front, so F6 multiplies the table rather
+than extending it. Expansion is textual, does not shift heading levels, detects
+cycles (HMD007), and caps depth at 16 (HMD008).
+
+## Block B — frontmatter
+
+A card may open with a YAML mapping at byte 0. Exactly four keys are reserved;
+every other key stays user-owned and unexamined. Normative text is
+[HMD-0001](../proposals/HMD-0001/README.md) §5.3, except `nav`, which
+[HMD-0002](../proposals/HMD-0002/README.md) §2 added as an amendment.
+
+| # | Feature | Written | Provided by | Status |
+| --- | --- | --- | --- | --- |
+| F7 | Tags | `tags: [area/auth]` | the format, §5.3 | shipped |
+| F8 | Per-card toggles | `use: [no_autodiscovery]` | the format, §5.3 | shipped |
+| F9 | Explicit imports | `import: [from /shared import *]` | the format, §5.3 | shipped |
+| F10 | Nav position | `nav: 10` | the format, HMD-0002 §2 | shipped |
+
+`tags` answer *what a card is about*; namespaces answer *where it lives*. The
+two axes stay separate on purpose, and a tag is never a link target.
+
+## Block C — block-level content
+
+Bought, not built. These are ordinary Python-Markdown extensions, fixed by
+[HMD-0001](../proposals/HMD-0001/README.md) §9 and enabled in `mkdocs.yml`. The
+format's scanner treats every one of them as opaque: no construct is recognised
+inside a fence or a code span.
+
+| # | Feature | Written | Provided by | Status |
+| --- | --- | --- | --- | --- |
+| F11 | Callouts | `!!! note` | `admonition` | shipped |
+| F12 | Collapsible callouts | `??? tip` | `pymdownx.details` | shipped |
+| F13 | Fenced code | ` ```lang ` | `pymdownx.superfences` | shipped |
+| F14 | Tables | <code>&#124; a &#124; b &#124;</code> | `tables` | shipped |
+| F15 | Task lists | `- [x] item` | `pymdownx.tasklist` | shipped |
+| F16 | Footnotes | `text[^1]` | `footnotes` | shipped |
+| F17 | Display and inline math | `$x$`, `$$…$$` | `pymdownx.arithmatex` + MathJax | shipped |
+| F18 | D2 diagrams | ` ```d2 ` | `diagram.py` + the `d2` binary | shipped |
+| F19 | Heading permalinks | *(automatic)* | `toc` | shipped |
+
+F18 is the one row that is not purely bought: a `d2` fence is a **diagram, not a
+code block**, it renders through the binary to a `data:` URI image, and it
+degrades to a labelled placeholder when the binary is absent. F19 is load-bearing
+rather than decorative — F3 resolves against the slugs `toc` assigns, so the
+link and its destination cannot disagree.
+
+## Block D — inline content
+
+| # | Feature | Written | Provided by | Status |
+| --- | --- | --- | --- | --- |
+| F20 | Strikethrough | `~~text~~` | `pymdownx.tilde` | shipped |
+
+## Block E — absent, on purpose
+
+Recorded so that each stays decided. A `rejected` row is not an invitation.
+
+| # | Feature | Written | Provided by | Status |
+| --- | --- | --- | --- | --- |
+| F21 | Inline properties | `key:: value` | — | deferred |
+| F22 | Highlights | `==text==` | — | rejected |
+| F23 | Mermaid diagrams | ` ```mermaid ` | — | rejected |
+| F24 | Templates | — | — | deferred |
+| F25 | Query language | — | — | deferred |
+| F26 | Backlinks and category pages | — | — | nice to have |
+| F27 | Escapes for reserved characters | — | — | nice to have |
+| F28 | A literal `[[` outside a code span | — | — | nice to have |
+
+F22 and F23 are rejected by the source, not merely unbuilt — F23 because D2
+(F18) already covers diagrams and two diagram languages is one too many.
+
+F27 and F28 are the two real gaps, and they are the same gap seen from either
+end. There is no escape mechanism anywhere: the reserved set inside a target is
+exactly `[`, `]`, `|`, `#`, `^`, and newline, so a target needing one of them is
+simply malformed (HMD010) — and in the other direction, the only way to *show* a
+wikilink without resolving it is to put it in a code span or a fence, because
+those are the regions the scanner masks. Raw inline HTML is **not** masked, so
+`<code>` written by hand still gets scanned.
+
+The F2 row above is where that bites: it renders a pipe inside a table cell,
+which forces raw `<code>` (issue 0006), which in turn forces `&#91;&#91;` for
+the brackets so the scanner does not read the cell as a real link. A card that
+documents the format is the one card most likely to need this, which is why the
+gap is recorded rather than worked around quietly.
+
+## Presentation layers
+
+The feature list above is renderer-agnostic — it says what the *format* has.
+What reaches a reader depends on which surface renders it, and there are two.
+Both consume the same semantics; neither redefines them.
+
+### Layer 1 — MkDocs, the published book
+
+Specified by [HMD-0002](../proposals/HMD-0002/README.md), implemented as a
+single file, `mkdocs_plugin.py`, registered through
+`[project.entry-points."mkdocs.plugins"]`. It expands embeds and rewrites links
+at `on_page_markdown`, before Python-Markdown runs, so every bought extension in
+Blocks C and D sees ordinary markdown and needs to know nothing about the
+format.
+
+This layer is **erasure**: the output is flat HTML in which the boundary between
+a card and the content it embedded is gone, along with the provenance of every
+link. That is correct for a shipping format and fatal for a preview — see
+[[md-hmd-interop]], which is where the argument lives. **Book mode only**;
+backlinks and category pages are F26.
+
+One structural property is worth stating, because it is what keeps the layer
+cheap: MkDocs touches exactly one file. `parse`, `resolve`, `embed`, `urls`, and
+`lint` do not import it, and HMD-0002 §1–§4 name no renderer. Swapping it is one
+file and `mkdocs.yml`, not a re-specification.
+
+### Layer 2 — preview mode, the editor surface
+
+The sibling line: a TypeScript document model and a VS Code webview that renders
+a card as you edit it. It is specified on the `feat/vsc-ext` branch by HMD-0020
+(`@hyper-markdown/core`, the document model), HMD-0021 (the extension and its
+preview surface), and HMD-0022 (D2 in the webview, under its content security
+policy). Those proposals are not on this branch yet — the branch merges soon,
+and the links belong here once it does.
+
+The load-bearing difference from Layer 1 is that preview mode **keeps the embed
+boundary**. It renders F6 as visibly embedded content with its source attached,
+which is the one thing it does that a plain markdown previewer cannot, and the
+reason the editor line rejected flat markdown as its transport. Layer 1 throws
+that away deliberately; Layer 2 cannot.
+
+Python stays canonical for semantics. A second parser that resolved a name
+differently from the command line would be worse than no second parser, so
+[HMD-0001](../proposals/HMD-0001/README.md) and the conformance corpus are the
+contract between the two layers rather than a shared runtime.
+
+### Support matrix
+
+Where the two layers differ. Everything not listed is shipped on Layer 1 and
+tracked against Layer 2 by its own proposals.
+
+| # | Feature | Layer 1 — MkDocs | Layer 2 — preview |
+| --- | --- | --- | --- |
+| F6 | Embed | expanded, boundary erased | expanded, boundary kept |
+| F10 | `nav:` | orders the site nav | no meaning |
+| F18 | D2 diagrams | `data:` URI `<img>` | `data:` URI under the webview CSP |
+| F26 | Backlinks | out of scope | the natural home for it |
+
+## Changing this card
+
+Add a feature by appending the next free number in its block; never renumber and
+never reuse. Move a row's **Status** in the same commit that changes the code,
+the way a proposal's tracker moves a work point — see [[tracking]]. This card
+tracks the *format*; a tracker tracks the *implementation* of one proposal, and
+the two answer different questions.

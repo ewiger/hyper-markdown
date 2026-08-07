@@ -8,6 +8,13 @@
 ADR-style proposal skeleton. Copy to doc/proposals/HMD-NNNN/README.md and
 reserve the ID in doc/proposals/README.md. Fill each section; delete the guidance
 comments and any section that genuinely does not apply. House rules:
+  - Create a sibling HMD-NNNN/STATUS.md alongside this file. That tracker is the
+    only place work against the proposal is tracked — not doc/memory/, not
+    doc/wiki/, not this record. It carries Done, then a TODO split into planned
+    work / broken / limitations / open questions and blockers. This file records
+    the decision; STATUS.md records the state. See doc/wiki/tracking.hmd.
+  - Never write progress into this record. A spec section says what the system
+    MUST do, in the present tense, whether or not it is built yet.
   - Normative statements use RFC 2119 keywords in CAPS: MUST, MUST NOT, SHOULD, MAY.
     Reserve them for real requirements; use plain prose for rationale.
   - Pin critical values exactly (hex, byte layout, sizes with units, digests). Never
@@ -108,7 +115,9 @@ Integration tests MUST include:
 
 ## Open Questions
 Every unresolved decision, each phrased as a question. These MUST be resolved (values
-"frozen") before Status moves from drafted to accepted.
+"frozen") before Status moves from drafted to accepted. Mirror them in STATUS.md
+under *Open questions and blockers*, which is where they are worked; this list is
+the normative one.
 
 - What exact value should `<constant>` take?
 - <other open decision>

@@ -72,11 +72,20 @@ editor side.
 
 ## The rest
 
-Task lists, footnotes[^1], tables, and `~~strikethrough~~` are all present for
-the same reason: they cost nothing and the format does not have to own them.
+Task lists, footnotes[^1], tables, and ~~strikethrough~~ are all present for the
+same reason: they cost nothing and the format does not have to own them.
 
 - [x] Buy the free syntax
 - [ ] Build any of it twice
+
+| Construct | Renders as |
+| --- | --- |
+| `~~text~~` | ~~text~~ |
+| `- [x] item` | a checked box |
+
+The numbered list of every feature the format supports, with which extension
+provides it and where it stands, is the
+[format specification](../wiki/hmd-format-specification.hmd).
 
 [^1]: Footnotes come from the `footnotes` extension, and the four-space indent
     they use is exactly why the scanner does *not* mask indented blocks — doing

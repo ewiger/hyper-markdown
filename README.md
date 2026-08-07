@@ -145,8 +145,14 @@ link that shows what an unwritten page looks like.
 
 Pre-release, and both specs are still `drafted`. The scanner, resolver, linter,
 embed expander, renderer, and MkDocs plugin are implemented and covered by the
-test suite. See [STATUS.md](STATUS.md) for what is done and what is not. Expect
-the format to move before 1.0.
+test suite. Expect the format to move before 1.0.
+
+Progress is tracked per proposal, in a `STATUS.md` beside each one — what is
+done, what is broken, which limitations are deliberate, and which questions are
+still open:
+
+- [HMD-0001 status](doc/proposals/HMD-0001/STATUS.md) — the format and the CLI
+- [HMD-0002 status](doc/proposals/HMD-0002/STATUS.md) — the site
 
 ## Documentation
 

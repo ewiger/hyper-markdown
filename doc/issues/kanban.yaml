@@ -17,12 +17,18 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 4 # to be incremented when adding a new issue card
+  last_id: 6 # to be incremented when adding a new issue card
   items:
     backlog: []
     todo: []
     doing: []
     done:
+      - id: 6
+        title: "Escaped pipe inside a table code span keeps its backslash"
+        file: "0006-escaped-pipe-in-a-table-code-span.md"
+      - id: 5
+        title: "Strikethrough renders as its own source"
+        file: "0005-strikethrough-shown-as-its-own-source.md"
       - id: 4
         title: "Math, callouts, and D2 diagrams"
         file: "0004-math-callouts-diagrams.md"

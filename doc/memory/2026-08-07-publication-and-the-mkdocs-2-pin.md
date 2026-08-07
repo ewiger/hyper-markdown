@@ -42,16 +42,11 @@ no commit to point at.
 
 ## What was deliberately *not* decided
 
-Which 1.x line to follow. Three candidates, tracked as X.9 in
-[STATUS.md](../../STATUS.md):
-
-- **ProperDocs** — oprypin's fork, an exact drop-in that keeps the plugin API.
-  `mkdocs_plugin.py` would work unchanged; only the command name changes.
-- **Zensical** — squidfunk's successor, drop-in for 1.x *config*. Whether it
-  exposes an equivalent plugin API is the load-bearing unknown, and the only
-  question actually worth researching before choosing.
-- **An own `hmd build`** — `urls.py`, `embed.py`, and the resolver already own
-  everything except templating.
+Which 1.x line to follow. The decision recorded here is only that it *waits* —
+the candidates, the trade-offs, and the one question worth researching first are
+live state, so they live in the tracker as
+[HMD-0002 Q4](../proposals/HMD-0002/STATUS.md#open-questions-and-blockers) and
+not in this memo.
 
 Nothing needs to be chosen while 1.6 keeps working. The reason it can wait is
 structural: MkDocs touches exactly one file. `parse`, `resolve`, `embed`,

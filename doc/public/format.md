@@ -10,7 +10,7 @@ building them, which is what keeps its own surface small enough to specify.
 | Written | Means |
 | --- | --- |
 | `[[page]]` | a link to a page, resolved by name |
-| `[[page\|display text]]` | the same link, showing different words |
+| <code>[[page&#124;display text]]</code> | the same link, showing different words |
 | `[[page#Section]]` | a link to a heading inside that page |
 | `text ^block-id` | a **block anchor**, naming one block |
 | `[[page#^block-id]]` | a link to that named block |

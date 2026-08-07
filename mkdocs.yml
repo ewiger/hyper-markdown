@@ -11,13 +11,16 @@ site_url: https://ewiger.github.io/hyper-markdown/
 # build together; only the wiki is a namespace.
 docs_dir: doc
 
-# The working memory of the project, not part of the published book.
+# The working memory of the project, not part of the published book. The
+# per-proposal STATUS.md trackers are excluded for the same reason the issues
+# are: they are where the work is argued, not what the book teaches.
 exclude_docs: |
   *.hmd
   models/
   issues/
   memory/
   proposals/TEMPLATE.md
+  proposals/*/STATUS.md
 
 # A card and its folder note share one URL, so directory URLs are required
 # rather than merely preferred (HMD-0002 §1).

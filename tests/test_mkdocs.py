@@ -364,7 +364,31 @@ def _rich_extensions() -> list:
         {"pymdownx.arithmatex": {"generic": True}},
         "pymdownx.details",
         "pymdownx.superfences",
+        {"pymdownx.tasklist": {"custom_checkbox": True}},
+        "pymdownx.tilde",
     ]
+
+
+def test_the_free_syntax_survives_the_build(tmp_path):
+    """The tail of HMD-0001 §9 — strikethrough, tables, task lists — is claimed
+    by the Rich content page and was never gated. Issue 0005: the page quoted
+    `~~strikethrough~~` inside backticks, so it rendered as its own source and
+    read as a broken extension. Assert the output, as issue 0003 does."""
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(
+        "# Home\n\n"
+        "plain ~~struck~~ text\n\n"
+        "| a | b |\n| --- | --- |\n| 1 | 2 |\n\n"
+        "- [x] done\n- [ ] todo\n",
+        encoding="utf-8",
+    )
+
+    site = build(tmp_path, docs, markdown_extensions=_rich_extensions())
+    html = (site / "index.html").read_text()
+    assert "<del>struck</del>" in html, "strikethrough rendered as its own source"
+    assert "<table" in html
+    assert "task-list" in html
 
 
 def test_callouts_and_math_survive_the_build(tmp_path):
