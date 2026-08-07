@@ -2,7 +2,7 @@
 tags: [area/format, status/canonical]
 ---
 
-# Hyper-markdown feature list
+# Feature list
 
 The complete, numbered list of what the format supports — one row per feature,
 each with a stable `F<n>` that the rest of the project can cite. This card is
@@ -15,17 +15,18 @@ every feature including the ones that do not exist yet. See [[hyper-markdown]]
 for what the format is for, and [[md-hmd-interop]] for its relation to plain
 markdown.
 
-## How to read the tables
+## How to read the table
 
-Every table below has the same five columns, so a feature reads the same way
-wherever it appears.
+One flat table, six columns, every feature the format has or has considered —
+built or not, accepted or rejected.
 
 | Column | Meaning |
 | --- | --- |
 | **#** | Stable identifier. Never reused, never renumbered. |
 | **Feature** | The name to call it in prose. |
 | **Written** | What an author types. |
-| **Provided by** | Who implements it — the format itself, or the extension bought to avoid implementing it. |
+| **Comes from or inspired by** | Where the idea is sourced from. |
+| **Implemented by** | What makes it work — the format itself, an extension, a binary — or `—` if unbuilt. |
 | **Status** | Where it stands, from the vocabulary below. |
 
 **Status vocabulary** — `shipped` works today and is gated by a test ·
@@ -33,91 +34,72 @@ wherever it appears.
 nobody has committed · `deferred` explicitly postponed to a later spec ·
 `rejected` decided against, recorded so it is not relitigated.
 
-## Block A — linking constructs
+| # | Feature | Written | Comes from or inspired by | Implemented by | Status |
+| --- | --- | --- | --- | --- | --- |
+| F1 | Wikilink | `[[page]]` | MediaWiki / WikiWikiWeb | the format, [HMD-0001](../proposals/HMD-0001/README.md) §2 / §5 | shipped |
+| F2 | Aliased wikilink | <code>&#91;&#91;page&#124;display text&#93;&#93;</code> | MediaWiki | the format, HMD-0001 §2 | shipped |
+| F3 | Heading reference | `[[page#Section]]` | MediaWiki | the format, HMD-0001 §2 / §3 | shipped |
+| F4 | Block anchor | `text ^block-id` | Obsidian | the format, HMD-0001 §2 | shipped |
+| F5 | Block reference | `[[page#^block-id]]` | Obsidian | the format, HMD-0001 §2 | shipped |
+| F6 | Embed | `![[…]]` | Obsidian (spelling), MediaWiki transclusion (concept) | the format, HMD-0001 §6 | shipped |
+| F7 | Tags | `tags: [area/auth]` | Jekyll frontmatter, GitHub | the format, HMD-0001 §5.3 | shipped |
+| F8 | Per-card toggles | `use: [no_autodiscovery]` | — | the format, HMD-0001 §5.3 | shipped |
+| F9 | Explicit imports | `import: [from /shared import *]` | Python's `import` | the format, HMD-0001 §5.3 | shipped |
+| F10 | Nav position | `nav: 10` | MkDocs `nav:` | the format, [HMD-0002](../proposals/HMD-0002/README.md) §2 | shipped |
+| F11 | Callouts | `!!! note` | reStructuredText admonitions | `admonition` | shipped |
+| F12 | Collapsible callouts | `??? tip` | reStructuredText admonitions | `pymdownx.details` | shipped |
+| F13 | Fenced code | ` ```lang ` | GFM | `pymdownx.superfences` | shipped |
+| F14 | Tables | <code>&#124; a &#124; b &#124;</code> | GFM | `tables` | shipped |
+| F15 | Task lists | `- [x] item` | GFM | `pymdownx.tasklist` | shipped |
+| F16 | Footnotes | `text[^1]` | Pandoc | `footnotes` | shipped |
+| F17 | Display and inline math | `$x$`, `$$…$$` | LaTeX | `pymdownx.arithmatex` + MathJax | shipped |
+| F18 | D2 diagrams | ` ```d2 ` | D2 | `diagram.py` + the `d2` binary | shipped |
+| F19 | Heading permalinks | *(automatic)* | MkDocs / Sphinx | `toc` | shipped |
+| F20 | Strikethrough | `~~text~~` | GFM | `pymdownx.tilde` | shipped |
+| F21 | Inline properties | `key:: value` | Logseq | — | deferred |
+| F22 | Highlights | `==text==` | Obsidian, CriticMarkup | — | nice to have |
+| F23 | Mermaid diagrams | ` ```mermaid ` | Mermaid | — | rejected |
+| F24 | Templates | — | Confluence, MediaWiki | — | deferred |
+| F25 | Query language | — | Obsidian Dataview, Confluence CQL | — | nice to have |
+| F26 | Backlinks and category pages | — | Wikipedia, Obsidian | — | nice to have |
+| F27 | Escapes for reserved characters | — | — | — | nice to have |
+| F28 | A literal `[[` outside a code span | — | — | — | nice to have |
 
-The six constructs the format owns. No existing extension provides them, which
-is the entire reason the dialect exists. Normative text is
-[HMD-0001](../proposals/HMD-0001/README.md) §2 for the grammar, §5 for
-resolution, §6 for expansion.
+F6 is any of F1–F5 with a `!` in front, so it multiplies the table rather than
+adding a new construct. Expansion is textual, does not shift heading levels,
+detects cycles (HMD007), and caps depth at 16 (HMD008).
 
-| # | Feature | Written | Provided by | Status |
-| --- | --- | --- | --- | --- |
-| F1 | Wikilink | `[[page]]` | the format, §2 / §5 | shipped |
-| F2 | Aliased wikilink | <code>&#91;&#91;page&#124;display text&#93;&#93;</code> | the format, §2 | shipped |
-| F3 | Heading reference | `[[page#Section]]` | the format, §2 / §3 | shipped |
-| F4 | Block anchor | `text ^block-id` | the format, §2 | shipped |
-| F5 | Block reference | `[[page#^block-id]]` | the format, §2 | shipped |
-| F6 | Embed | `![[…]]` | the format, §6 | shipped |
+F18 is the one row whose implementation is not purely bought: a `d2` fence is a
+**diagram, not a code block**, it renders through the binary to a `data:` URI
+image, and it degrades to a labelled placeholder when the binary is absent. F19
+is load-bearing rather than decorative — F3 resolves against the slugs `toc`
+assigns, so the link and its destination cannot disagree.
 
-An embed is any of F1–F5 with a `!` in front, so F6 multiplies the table rather
-than extending it. Expansion is textual, does not shift heading levels, detects
-cycles (HMD007), and caps depth at 16 (HMD008).
+F23 is rejected by the source, not merely unbuilt, because D2 (F18) already
+covers diagrams and two diagram languages is one too many. F22 was rejected on
+the same footing and is no longer — it is now `nice to have`, wanted but
+unspecified and uncommitted.
 
-## Block B — frontmatter
+The **Comes from** column distinguishes the wiki tradition from Obsidian
+deliberately, because the two are routinely conflated. F1–F3 are MediaWiki
+syntax, and older than that in spirit: `[[…]]` and its `|` alias have been the
+wiki link since MediaWiki carried them to Wikipedia in 2002, with WikiWikiWeb
+(1995) upstream of both, and `#` for a fragment is older still — it is URI
+syntax. Obsidian adopted all three in 2020 *because* they were already the
+convention every wiki reader knew; it did not invent them. What Obsidian did
+contribute is the block layer, F4 and F5: the `^block-id` anchor and the
+`[[page#^block-id]]` reference have no MediaWiki ancestor, since MediaWiki
+addresses sections but never blocks. F6 splits — the `![[…]]` spelling is
+Obsidian's, the idea of transcluding one page into another is MediaWiki's
+(`{{Template}}`, 2004), which is the same lineage F24 cites.
 
-A card may open with a YAML mapping at byte 0. Exactly four keys are reserved;
-every other key stays user-owned and unexamined. Normative text is
-[HMD-0001](../proposals/HMD-0001/README.md) §5.3, except `nav`, which
-[HMD-0002](../proposals/HMD-0002/README.md) §2 added as an amendment.
+Note that F26 already credited Wikipedia while F1–F3 credited Obsidian for that
+same inheritance; the rows now agree.
 
-| # | Feature | Written | Provided by | Status |
-| --- | --- | --- | --- | --- |
-| F7 | Tags | `tags: [area/auth]` | the format, §5.3 | shipped |
-| F8 | Per-card toggles | `use: [no_autodiscovery]` | the format, §5.3 | shipped |
-| F9 | Explicit imports | `import: [from /shared import *]` | the format, §5.3 | shipped |
-| F10 | Nav position | `nav: 10` | the format, HMD-0002 §2 | shipped |
-
-`tags` answer *what a card is about*; namespaces answer *where it lives*. The
-two axes stay separate on purpose, and a tag is never a link target.
-
-## Block C — block-level content
-
-Bought, not built. These are ordinary Python-Markdown extensions, fixed by
-[HMD-0001](../proposals/HMD-0001/README.md) §9 and enabled in `mkdocs.yml`. The
-format's scanner treats every one of them as opaque: no construct is recognised
-inside a fence or a code span.
-
-| # | Feature | Written | Provided by | Status |
-| --- | --- | --- | --- | --- |
-| F11 | Callouts | `!!! note` | `admonition` | shipped |
-| F12 | Collapsible callouts | `??? tip` | `pymdownx.details` | shipped |
-| F13 | Fenced code | ` ```lang ` | `pymdownx.superfences` | shipped |
-| F14 | Tables | <code>&#124; a &#124; b &#124;</code> | `tables` | shipped |
-| F15 | Task lists | `- [x] item` | `pymdownx.tasklist` | shipped |
-| F16 | Footnotes | `text[^1]` | `footnotes` | shipped |
-| F17 | Display and inline math | `$x$`, `$$…$$` | `pymdownx.arithmatex` + MathJax | shipped |
-| F18 | D2 diagrams | ` ```d2 ` | `diagram.py` + the `d2` binary | shipped |
-| F19 | Heading permalinks | *(automatic)* | `toc` | shipped |
-
-F18 is the one row that is not purely bought: a `d2` fence is a **diagram, not a
-code block**, it renders through the binary to a `data:` URI image, and it
-degrades to a labelled placeholder when the binary is absent. F19 is load-bearing
-rather than decorative — F3 resolves against the slugs `toc` assigns, so the
-link and its destination cannot disagree.
-
-## Block D — inline content
-
-| # | Feature | Written | Provided by | Status |
-| --- | --- | --- | --- | --- |
-| F20 | Strikethrough | `~~text~~` | `pymdownx.tilde` | shipped |
-
-## Block E — absent, on purpose
-
-Recorded so that each stays decided. A `rejected` row is not an invitation.
-
-| # | Feature | Written | Provided by | Status |
-| --- | --- | --- | --- | --- |
-| F21 | Inline properties | `key:: value` | — | deferred |
-| F22 | Highlights | `==text==` | — | rejected |
-| F23 | Mermaid diagrams | ` ```mermaid ` | — | rejected |
-| F24 | Templates | — | — | deferred |
-| F25 | Query language | — | — | deferred |
-| F26 | Backlinks and category pages | — | — | nice to have |
-| F27 | Escapes for reserved characters | — | — | nice to have |
-| F28 | A literal `[[` outside a code span | — | — | nice to have |
-
-F22 and F23 are rejected by the source, not merely unbuilt — F23 because D2
-(F18) already covers diagrams and two diagram languages is one too many.
+Where the format *does* diverge from Obsidian is the part that matters most:
+F1–F6 explicitly do **not** copy Obsidian's link-text character restrictions or
+its shortest-unique-path resolution. The format takes the wiki tradition's
+syntax and rejects Obsidian's resolution semantics.
 
 F27 and F28 are the two real gaps, and they are the same gap seen from either
 end. There is no escape mechanism anywhere: the reserved set inside a target is

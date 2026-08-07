@@ -17,9 +17,12 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 6 # to be incremented when adding a new issue card
+  last_id: 7 # to be incremented when adding a new issue card
   items:
-    backlog: []
+    backlog:
+      - id: 7
+        title: "Conversion should name its output target"
+        file: "0007-conversion-target-dialect.md"
     todo: []
     doing: []
     done:

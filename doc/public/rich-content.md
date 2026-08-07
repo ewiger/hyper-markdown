@@ -85,7 +85,7 @@ same reason: they cost nothing and the format does not have to own them.
 
 The numbered list of every feature the format supports, with which extension
 provides it and where it stands, is the
-[format specification](../wiki/hmd-format-specification.hmd).
+[language specification](../wiki/hmd-lang-specification.hmd).
 
 [^1]: Footnotes come from the `footnotes` extension, and the four-space indent
     they use is exactly why the scanner does *not* mask indented blocks — doing

@@ -78,6 +78,11 @@ touching it? Sidecar frontmatter, a manifest, or nothing at all. Open.
 - Is erasure a build product only, or is round-tripping `hmd → md → hmd` a
   guarantee worth paying for? The lossy parts say no; the adoption story says
   it would be nice.
+- What does erasure emit? "Ordinary markdown" is not one target — plain markdown
+  and GFM disagree about tables, task lists, and strikethrough, and neither
+  expresses callouts or math. A third target, single-file **HTML**, expresses
+  everything and reads back as nothing. Tracked as
+  [issue 0007](../issues/0007-conversion-target-dialect.md).
 - Does conversion ever run destructively, or only ever as a diff a human
   accepts? An authoring loop wants it in place; a migration wants review.
 - Does a compiler framing want a `hmd build` command distinct from
