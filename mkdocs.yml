@@ -6,13 +6,14 @@ site_description: A strict, machine-checkable markdown dialect for project knowl
 # canonical URLs and `sitemap.xml` are wrong without it.
 site_url: https://ewiger.github.io/hyper-markdown/
 
-# The header's repository link and its star count. `edit_uri` points at
-# `feat/mvp` rather than `main` because that is the branch the book is written
-# on and the one the merge targets; an "edit this page" aimed at `main` would
-# open a file that does not exist there yet.
+# The header's repository link and its star count. `edit_uri` follows `main`,
+# which is where the book lives now that `feat/mvp` has merged. It pointed at
+# the feature branch for as long as `main` did not yet carry these files; an
+# "edit this page" is only useful if it opens a file that exists on the branch
+# it names, so this tracks whichever branch the site is built from.
 repo_url: https://github.com/ewiger/hyper-markdown
 repo_name: ewiger/hyper-markdown
-edit_uri: edit/feat/mvp/doc/
+edit_uri: edit/main/doc/
 
 copyright: MIT-licensed — hyper-markdown
 
