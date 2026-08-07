@@ -9,10 +9,11 @@ itself. A decision that needs discussion is named here as an open question and
 argued wherever it belongs; nothing else may hold a task list. Update the row in
 the same commit that changes the code.
 
-**Snapshot** (2026-08-07) — M5 done and published. `doc/` builds as a book with
-the wiki as a section of its nav, green under `mkdocs build --strict`, deployed
-to GitHub Pages from a workflow artifact. Nothing is known broken. What remains
-is three open questions blocking `drafted → accepted`, and one deferred decision
+**Snapshot** (2026-08-07) — M5 done, published, and branded. `doc/` builds as a
+book with the wiki as a section of its nav, green under `mkdocs build --strict`,
+deployed to GitHub Pages from a workflow artifact, and carrying the project's
+own mark rather than stock Material. Nothing is known broken. What remains is
+three open questions blocking `drafted → accepted`, and one deferred decision
 about which MkDocs successor to follow.
 
 Section references are to [HMD-0002](README.md) unless marked otherwise.
@@ -53,6 +54,7 @@ when a gate would catch its return, and every row below has one.
 | M5.18 | Callouts, math (MathJax), and D2 diagrams render; `diagram.py` | [0004](../../issues/0004-math-callouts-diagrams.md) | `tests/test_mkdocs.py` |
 | M5.19 | Strikethrough, tables, and task lists shown and gated | [0005](../../issues/0005-strikethrough-shown-as-its-own-source.md) | `<del>`, `<table`, task item in built HTML |
 | M5.20 | An escaped pipe inside a table code span kept its backslash, on the page whose job is to show what to type; cells rewritten as raw inline HTML | [0006](../../issues/0006-escaped-pipe-in-a-table-code-span.md) | `tests/test_docs.py` |
+| M5.21 | Site branding — the README's `⚡` as an SVG logo and favicon, amber-on-black palette, repository and social links, a hero on the cover | — | `tests/test_docs.py` |
 
 The standing lesson from 0003 and 0005: **a green build is not evidence of
 correct output.** 0003 was a green build with wrong output; 0005 was a green
@@ -95,6 +97,7 @@ Known, accepted, not being fixed now.
 | L6 | D2 fences need the `d2` binary; without it a fence degrades to a labelled placeholder and the build stays green | Deliberate — no `mkdocs-d2-plugin`, so a missing binary cannot fail a build. The cost is that an environment without `d2` ships placeholders silently |
 | L7 | `use_directory_urls: false` is a hard usage error, not a supported mode | A card and its folder note share one URL, so directory URLs are required rather than merely preferred (§1) |
 | L8 | Rendering to the site is one-way | Inherited from [HMD-0001 L1](../HMD-0001/STATUS.md#limitations) — erasure is a shipping format |
+| L9 | Branding is config and CSS only — no `theme.custom_dir`, no template partials | A `custom_dir` pins the site to Material 9's internal template structure, which is the thing L2's pin already has to be careful about; a theme override would have to be re-checked against every successor considered in Q4. The cost is that anything needing new markup — an announcement bar, a landing-page card grid — is not reachable by config alone. Material's own `grid cards` via `attr_list` + `md_in_html` is the escape hatch that stays within this limit |
 
 ### Open questions and blockers
 
@@ -164,6 +167,14 @@ mkdocs serve                                  # live, watching the namespace roo
   code span and never showed a table, so the free half of HMD-0001 §9 read as
   broken while `pymdownx.tilde` worked end to end. The extension list under test
   now matches the one the site ships.
+- 2026-08-07: the site got its own identity — the README's `⚡` shipped as
+  `logo.svg` and `favicon.svg`, both filled amber explicitly (Material
+  references the logo as `<img>`, and an external SVG inherits no color, so
+  `currentColor` renders it black on a black header), an amber-on-black
+  palette, nav tabs,
+  repository and social links, and a hero on the cover via `attr_list`. Config
+  and CSS only, no `custom_dir` — see L9. Gated on rendered HTML in
+  `tests/test_docs.py`, per the standing lesson above.
 - 2026-08-07: split out of the repo-root `STATUS.md`, which tracked both
   proposals at once. Progress is now tracked per proposal, and the to-do list is
   split into planned work, broken, limitations, and open questions.

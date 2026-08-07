@@ -132,9 +132,38 @@ The candidates and trade-offs are live state, so they live in the tracker as
 
 Nothing needs to be chosen while 1.6 keeps working. The reason it can wait is
 structural: MkDocs touches exactly one file. `parse`, `resolve`, `embed`,
-`urls`, and `lint` do not import it, and HMD-0002 §1–§4 are renderer-agnostic —
-only §5 and its Reference Implementation name MkDocs. A renderer swap is one
-file and `mkdocs.yml`, not a re-specification. The one decision that genuinely
+`urls`, and `lint` do not import it, and everything HMD-0002 specifies about
+URLs, nav order, and embed expansion is renderer-agnostic — only its rendering
+section and reference implementation name MkDocs. A renderer swap is one file
+and `mkdocs.yml`, not a re-specification. The one decision that genuinely
 leans on MkDocs is *MkDocs computes URLs; the plugin only names sources* above:
 a successor has to offer resolution **and** validation, or `urls.py` takes it
 over.
+
+## A proposal is a complete text, not a web of references
+
+Write the record so it can be read start to finish, once, by someone who has
+opened no other file. State plainly what the thing is and what its features are.
+
+Do **not** thread the prose with identifiers standing in for the claim itself:
+feature IDs (`F21`), question IDs (`Q7`), section refs (`§5.3`), sketch
+requirement numbers ("requirement 35"), or links to sibling proposals. Restate
+the constraint instead of citing where it lives. An identifier may follow a
+claim so a reader can locate the row; it may never *be* the claim. Every
+surviving pointer goes in one **See also** section at the end, plus footnotes if
+genuinely needed.
+
+The failure this prevents: a sentence like "This is P1 applied to queries, and
+it is why §1 and §4 are stated before F21 lands" is four lookups in three files
+and communicates nothing on its own. A page of that is a page of pointers.
+Requiring archeology to parse a sentence is the defect, regardless of whether
+each individual link is correct.
+
+Subsections are titled by **what they cover, not by number**. Numbered headings
+are what make `§5.3` citable, and a named heading survives an edit. Numbering
+was removed from `TEMPLATE.md` on 2026-08-07 for this reason; `HMD-0003` was
+rewritten the same day as the worked example.
+
+Trackers are exempt. A `STATUS.md` is a table of IDs by nature — that is its
+job, and its rows are read one at a time rather than as prose. The rule binds
+`README.md` records, and applies to `doc/wiki/` cards for the same reason.

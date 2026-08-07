@@ -15,6 +15,7 @@ it continues at **`HMD-0100`**, leaving `0020`–`0099` to the editor line.
 | --- | --- | --- | --- |
 | [HMD-0001](HMD-0001/README.md) | drafted | MVP — grammar, resolver, and `hmd lint` | [STATUS](HMD-0001/STATUS.md) |
 | [HMD-0002](HMD-0002/README.md) | drafted | MkDocs book-mode rendering | [STATUS](HMD-0002/STATUS.md) |
+| [HMD-0003](HMD-0003/README.md) | drafted | HQL — the Hyper Query Language (stub, no syntax) | [STATUS](HMD-0003/STATUS.md) |
 
 ## Progress is tracked per proposal
 

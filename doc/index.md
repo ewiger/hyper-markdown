@@ -1,4 +1,4 @@
-# Hyper-markdown
+# Hyper-markdown { .hmd-hero }
 
 **Markdown is JavaScript. Hyper-markdown is TypeScript.**
 

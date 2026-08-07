@@ -56,11 +56,11 @@ nobody has committed · `deferred` explicitly postponed to a later spec ·
 | F18 | D2 diagrams | ` ```d2 ` | D2 | `diagram.py` + the `d2` binary | shipped |
 | F19 | Heading permalinks | *(automatic)* | MkDocs / Sphinx | `toc` | shipped |
 | F20 | Strikethrough | `~~text~~` | GFM | `pymdownx.tilde` | shipped |
-| F21 | Inline properties | `key:: value` | Logseq | — | deferred |
+| F21 | Inline properties | `key:: value` | Logseq | — ([HMD-0003](../proposals/HMD-0003/README.md) §2) | deferred |
 | F22 | Highlights | `==text==` | Obsidian, CriticMarkup | — | nice to have |
 | F23 | Mermaid diagrams | ` ```mermaid ` | Mermaid | — | rejected |
-| F24 | Templates | — | Confluence, MediaWiki | — | deferred |
-| F25 | Query language | — | Obsidian Dataview, Confluence CQL | — | nice to have |
+| F24 | Templates | — | Confluence, MediaWiki | — ([HMD-0003](../proposals/HMD-0003/README.md) §5) | deferred |
+| F25 | HQL — query language | — | Obsidian Dataview, Confluence CQL, SQL | — ([HMD-0003](../proposals/HMD-0003/README.md)) | nice to have |
 | F26 | Backlinks and category pages | — | Wikipedia, Obsidian | — | nice to have |
 | F27 | Escapes for reserved characters | — | — | — | nice to have |
 | F28 | A literal `[[` outside a code span | — | — | — | nice to have |

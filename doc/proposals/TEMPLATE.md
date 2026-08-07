@@ -22,6 +22,15 @@ comments and any section that genuinely does not apply. House rules:
   - Put wire formats, formulas, and step algorithms in ```text fences.
   - State a rule, then justify it in the next sentence.
   - Link shared workflow/build/style docs; do not paste them in.
+  - A record is a COMPLETE TEXT. State plainly what the thing is and what it does.
+    Do not thread the prose with identifiers — feature IDs (F21), question IDs (Q7),
+    section refs (§5.3), sketch requirement numbers, or links to sibling proposals —
+    in place of saying the thing. Restate the constraint instead of citing where it
+    lives. An identifier may follow a claim so a reader can find the row; it may
+    never BE the claim. Collect surviving pointers into one "See also" section at
+    the end, plus footnotes if needed. A reader must never need archeology across
+    several files to parse a sentence. Trackers (STATUS.md) are exempt — their
+    tables are lists of IDs by nature.
 -->
 
 ## Companion notes
@@ -52,10 +61,12 @@ when relevant.
 - what this proposal explicitly does NOT do
 
 ## Specification
-Normative description of behavior and constants. Break into numbered subsections;
-open each with a one-line framing sentence, then state rules as bullets.
+Normative description of behavior and constants. Break into subsections titled by
+what they cover, not by number — a named heading survives an edit and reads on its
+own, while "§5.3" sends the reader to another file to find out what it meant. Open
+each with a one-line framing sentence, then state rules as bullets.
 
-### 1. <First rule area>
+### <First rule area>
 Framing sentence.
 
 - Rule stated with MUST / SHOULD / MAY, then its rationale.
@@ -66,7 +77,7 @@ Serialization layouts, formulas, and algorithms go in fences:
 field_a | field_b | field_c | field_d
 ```
 
-### 2. <Second rule area>
+### <Second rule area>
 Constants are pinned to exact values:
 
 - identifier: `<identifier>`
