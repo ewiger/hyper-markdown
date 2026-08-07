@@ -1,0 +1,46 @@
+# Kanban board — the index of doc/issues/.
+#
+# board.items holds the columns (swimlanes); top to bottom is the flow. Each
+# column is an ordered list of issue cards, highest priority first. Move a card
+# between columns as work progresses, and bump last_id when adding an issue.
+# When an issue is Done and no longer relevant, archive its file to
+# .grem/issues/archive/ and delete its card here.
+#
+# Convention: doc/wiki/kanban.hmd
+
+board:
+  title: "doc/issues/ Kanban board"
+  description: "The index of doc/issues/."
+  columns: [
+    { name: "backlog", description: "Issues that are not yet prioritized." },
+    { name: "todo", description: "Issues that are prioritized and ready to work on." },
+    { name: "doing", description: "Issues that are currently being worked on." },
+    { name: "done", description: "Issues that have been completed." }
+  ]
+  last_id: 7 # to be incremented when adding a new issue card
+  items:
+    backlog:
+      - id: 7
+        title: "Conversion should name its output target"
+        file: "0007-conversion-target-dialect.md"
+    todo: []
+    doing: []
+    done:
+      - id: 6
+        title: "Escaped pipe inside a table code span keeps its backslash"
+        file: "0006-escaped-pipe-in-a-table-code-span.md"
+      - id: 5
+        title: "Strikethrough renders as its own source"
+        file: "0005-strikethrough-shown-as-its-own-source.md"
+      - id: 4
+        title: "Math, callouts, and D2 diagrams"
+        file: "0004-math-callouts-diagrams.md"
+      - id: 3
+        title: "Pygments 2.20 silently breaks every code block"
+        file: "0003-pygments-220-breaks-code-blocks.md"
+      - id: 2
+        title: "Markdown links to .hmd files 404 on the site"
+        file: "0002-md-links-to-cards-404.md"
+      - id: 1
+        title: "Book and wiki in one site"
+        file: "0001-book-and-wiki-in-one-site.md"

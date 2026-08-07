@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned to the exact release, not to `@v9`. `astral-sh/setup-uv` ships
+      # `v9.0.0` but maintains no moving `v9` tag — its floating majors stop at
+      # `v7` — so the shorthand every other action accepts fails here with
+      # "unable to find version", before a single step runs. Check that a
+      # floating tag exists before shortening this.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install
+        run: |
+          uv venv
+          uv pip install -e ".[dev,mkdocs]"
+
+      - name: Test
+        run: uv run python -m pytest
+
+      # Dogfooding gates from HMD-0001 §10: both trees MUST lint clean. The
+      # roots are named explicitly so the gates do not depend on marker
+      # discovery, and the fixture is deliberately not run under --strict —
+      # it carries exactly one expected warning, the red link in glossary/.
+      - name: Lint doc/wiki
+        run: uv run hmd lint --root doc/wiki --strict
+
+      - name: Lint the example fixture
+        run: uv run hmd lint --root examples/small
+
+      # D2 renders through its own binary, taken from the published image so CI
+      # pins the same version everywhere rather than whatever an install script
+      # resolves on the day. Without it diagrams would still build — they
+      # degrade to a labelled placeholder — but the rendered path would go
+      # untested, which is the path that can break.
+      - name: Install d2
+        run: |
+          container=$(docker create terrastruct/d2:latest)
+          for candidate in /usr/local/bin/d2 /usr/bin/d2 /bin/d2 /d2; do
+            docker cp "$container:$candidate" /usr/local/bin/d2 2>/dev/null && break
+          done
+          docker rm "$container"
+          sudo chmod +x /usr/local/bin/d2
+          d2 --version
+
+      # The second consumer of the resolver (HMD-0002). A build that goes red
+      # here means the model works for lint but not for rendering.
+      - name: Build the wiki
+        run: uv run mkdocs build --strict
+
+  # The same build `release.yml` runs, minus the upload. Packaging breaks in
+  # ways the test matrix cannot see — an editable install resolves through
+  # `src/` and never exercises the entry points — and PyPI will not let a
+  # filename be replaced, so the place to find a bad wheel is on the pull
+  # request.
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Build
+        run: uv build
+
+      - name: Check the metadata
+        run: uvx twine check --strict dist/*
+
+      - name: Install the wheel and smoke-test it
+        run: |
+          uv venv /tmp/smoke
+          VIRTUAL_ENV=/tmp/smoke uv pip install "$(ls dist/*.whl)[mkdocs]"
+          cd /tmp
+          /tmp/smoke/bin/hmd --version
+          /tmp/smoke/bin/python -c "
+          from importlib.metadata import entry_points
+          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
+          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
+          print('mkdocs plugin entry point resolves')
+          "

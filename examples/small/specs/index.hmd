@@ -1,0 +1,14 @@
+---
+tags: [meta]
+---
+
+# Specs
+
+Domain specifications, one namespace each.
+
+- [[auth]] — authentication
+- [[billing]] — invoicing and payment
+
+Both are folder notes. Note that this card does **not** declare
+`use: no_autodiscovery`, so it does not impose that on its subtree; the billing
+namespace opts into it on its own in [[billing]].

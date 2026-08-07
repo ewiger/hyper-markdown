@@ -1,0 +1,16 @@
+---
+tags: [area/billing]
+use: [no_autodiscovery]
+---
+
+# Billing
+
+- [[invoices]]
+
+This card declares `use: [no_autodiscovery]`, and because `use` **inherits**,
+every card in this namespace resolves the same way: imports and the spine only,
+with no whole-tree sweep. The effect is that billing's dependencies are all
+visible in card headers rather than implied by the shape of the tree.
+
+The toggle overrides `.hmd/config.toml`, which enables autodiscovery for the
+rest of this project. Frontmatter always beats configuration.

@@ -1,0 +1,87 @@
+---
+tags: [area/process, status/canonical]
+---
+
+# Tracking
+
+Progress lives in **one place per proposal**: a `STATUS.md` sitting beside the
+proposal it tracks, at `doc/proposals/HMD-NNNN/STATUS.md`. There is no
+repository-wide task list. A repo-root `STATUS.md` that indexed every work point
+for every proposal at once was removed once it became clear what two overlapping
+trackers cost — a task could hide in either, and neither was wrong to omit it.
+
+A proposal owns its own state.
+
+## Decision versus state
+
+Each proposal folder holds two files, and the split between them is the whole
+convention:
+
+| File | Answers | Changes when |
+| --- | --- | --- |
+| `README.md` | What was decided, and why | The design changes |
+| `STATUS.md` | How far the code has got | The commits change |
+
+A record that carries a to-do list stops being a record, because every reader
+then has to work out which sentences are still true. Move the work point to the
+tracker and let the record describe the decision as though it were finished.
+
+## What a tracker holds
+
+**Done** first, so the file opens with what exists rather than what does not.
+Then a TODO split four ways, and the split matters more than it looks:
+
+- **Planned work** — specified, unblocked, not started.
+- **Broken** — known defects. A row leaves this table only when a gate would
+  catch the defect's return, not when someone believes it is fixed.
+- **Limitations** — known, accepted, not being fixed now. Each carries *why it
+  stands*, which is what stops it being rediscovered as a bug.
+- **Open questions and blockers** — what must be resolved before the proposal
+  moves from `drafted` to `accepted`.
+
+A defect and a limitation look identical in a bug report and are opposites in a
+tracker: one is a promise to fix, the other is a decision not to. Keeping them
+in separate tables forces the author to say which one they mean.
+
+Most trackers end with the gates that verify their Done rows, and a changelog of
+tracker edits — dated lines, newest last.
+
+## The rule that makes it work
+
+**Update the tracker in the same commit that changes the code.** A tracker
+updated afterwards describes a repository that no longer exists, and one updated
+in advance describes a repository that does not exist yet.
+
+Trackers are also the one place in this knowledge base where identifiers may
+carry the meaning — `M4.2`, `L6`, `Q3`. A tracker is a table of IDs by nature,
+and its rows are read one at a time rather than as prose. Everywhere else,
+including this card, a claim is restated rather than cited.
+
+## Where progress may not live
+
+Not in `doc/memory/`, which holds small real-time decisions and no state. Not in
+a wiki card, including this one. Not in a proposal's own `README.md`. A decision
+that needs discussion becomes an **open question** in the tracker and is argued
+wherever it belongs.
+
+Work that belongs to no proposal has nowhere to live — which is usually the
+signal that a decision has not been taken yet, rather than that the tracker is
+missing a row.
+
+## The board is not the tracker
+
+[[kanban]] indexes the numbered issues under `doc/issues/`: work currently in
+flight, one flat file each. The tracker answers *how far this proposal has got*;
+the board answers *what is being worked on right now*. An issue is usually the
+short-lived thing, and the tracker row it moves is the durable one.
+
+See [[hmd-feature-list]] for the same distinction applied to the format itself:
+that card tracks what the *format* has, a tracker tracks what one proposal's
+*implementation* has, and they answer different questions.
+
+## Place in the knowledge base
+
+The models under `doc/models/` declare what the system is; proposals record
+decisions; the board carries work in flight; trackers say how far each decision
+has been implemented. See [[hyper-markdown]] for the card format this convention
+is written in.

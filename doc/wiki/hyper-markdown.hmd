@@ -1,0 +1,48 @@
+# Hyper-markdown
+
+**Hyper-markdown** (`.hmd`) is this project's most generic and most-used
+knowledge format: plain Markdown extended with **wiki features**, above all
+`[[wikilinks]]` between cards. It is the default home for cross-linked, reusable
+explanations of a single idea, and every file under `doc/wiki/` is one such
+**card**. A `.hmd` file also reads fine as plain Markdown — the format is
+Markdown plus a wiki graph, nothing more exotic, with no external toolchain to
+satisfy.
+
+## A card is a node in a graph
+
+A card explains one concept and nothing else; its value is the links.
+Cross-reference other cards liberally with `[[slug]]` so a whole model emerges
+from small, connected cards rather than one long document. Keep it **DRY and
+bidirectional**: never restate what another card owns — link to it — and make
+each idea reachable from both directions.
+
+## Wiki features
+
+The wiki graph is **closed to `doc/wiki/`**: a `[[ ]]` link resolves only to a
+card in the wiki space, never to a file elsewhere in the repo.
+
+- **`[[slug]]`** links a concept to its card. The slug names a `.hmd` file
+  anywhere under `doc/wiki/` — subfolders included — by filename alone
+  (`[[kanban]]` → `doc/wiki/kanban.hmd`).
+- **`[[slug|display text]]`** links while showing different surface text, so the
+  sentence still reads naturally.
+- **Forward links are fine** — linking a concept that has no card yet marks it as
+  worth writing later; it is not an error.
+- **Anything outside `doc/wiki/`** — `src/`, `.grem/`, proposals, model specs —
+  uses ordinary relative Markdown links, never `[[ ]]`.
+
+## Writing a card
+
+The authoring procedure — naming, structure, and register — is owned by the
+`doc/hmd` documentation style, not restated here:
+[doc/hmd](../../.grem/styles/doc/hmd/prompt.md). Running
+`grem new --type doc --style hmd <source>` renders that style against a source
+document for an agent to apply.
+
+## Where it is used
+
+Every card in `doc/wiki/` is hyper-markdown, including the [[kanban]] board
+convention. It is one of the notations the project's design layer under
+`doc/models/` may be written in, alongside more formal specifications.
+
+See [[kanban]].

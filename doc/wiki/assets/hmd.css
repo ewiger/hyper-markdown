@@ -1,0 +1,86 @@
+/* A red link marks a page worth writing later, not a build failure. */
+.hmd-redlink {
+  color: var(--md-typeset-color, #b3261e);
+  border-bottom: 1px dashed currentColor;
+  opacity: 0.75;
+  cursor: help;
+}
+
+[data-md-color-scheme="default"] .hmd-redlink {
+  color: #b3261e;
+}
+
+[data-md-color-scheme="slate"] .hmd-redlink {
+  color: #f2b8b5;
+}
+
+/* A diagram that is merely not drawn is not a defect in the card. It is shown
+   with its source, labelled, rather than as a blank or an error. */
+.hmd-diagram img {
+  max-width: 100%;
+  height: auto;
+}
+
+.hmd-diagram--placeholder {
+  border-left: 3px solid var(--md-default-fg-color--lighter, #ccc);
+  padding-left: 0.8rem;
+}
+
+.hmd-diagram__note {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+  margin-bottom: 0.3rem;
+}
+
+/* The bolt's amber, as one variable rather than a literal repeated down the
+   file. Two values because the light scheme needs the darker end of the ramp
+   to stay legible on white, and the dark scheme the brighter end. */
+[data-md-color-scheme="default"] {
+  --hmd-bolt: #d98f00;
+}
+
+[data-md-color-scheme="slate"] {
+  --hmd-bolt: #ffc233;
+}
+
+/* Material sizes the logo for a wordmark; a single glyph next to text wants to
+   be a little larger to sit optically level with it. */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* The cover's opening line is a claim, not a paragraph — "Markdown is
+   JavaScript. Hyper-markdown is TypeScript." earns the size. The cover opts in
+   by tagging its own heading, so no chapter picks up a hero it did not ask
+   for. */
+.md-typeset h1.hmd-hero {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset h1.hmd-hero::before {
+  content: "⚡";
+  margin-right: 0.4rem;
+  /* The emoji is decoration beside a heading that already names the project;
+     announcing it would just read the mark twice. */
+  speak: none;
+}
+
+.md-typeset h1.hmd-hero + p {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  padding-bottom: 1.1rem;
+  border-bottom: 2px solid var(--hmd-bolt);
+  margin-bottom: 1.6rem;
+}
+
+/* Code is the most common element on this site, so it is where a brand color
+   is worth spending: a rule down the gutter, not a tint over the text. */
+.md-typeset pre > code {
+  border-left: 3px solid var(--hmd-bolt);
+}

@@ -1,0 +1,35 @@
+---
+tags: [area/billing, status/accepted]
+import:
+  - from /shared import *
+  - from ../auth import login as login-spec
+---
+
+# Invoices
+
+Inherits `use: [no_autodiscovery]` from [[index|the billing folder note]], so
+every name below resolves through an import or the spine — nothing is found by
+sweeping the tree.
+
+## Dependencies
+
+- `[[retry-policy]]` → `shared/retry-policy.hmd`, via the **wildcard import**
+  `/shared`. The directory joins this card's search path; it is not eagerly
+  bound, so a card added to `shared/` later becomes reachable here with no edit
+  to this header.
+- `[[login-spec]]` → `specs/auth/login.hmd`, via a **relative named import**.
+  `../auth` is resolved from this card's own directory.
+
+## Retries
+
+A failed charge is retried on the shared schedule:
+
+![[retry-policy#^backoff-formula]]
+
+Payment retries additionally stop at the invoice due date, whichever comes
+first. ^retry-deadline
+
+## Escalation
+
+A charge that exhausts its retry budget escalates to a re-authentication prompt,
+specified in [[login-spec#Flow]].

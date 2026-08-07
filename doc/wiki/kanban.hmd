@@ -1,0 +1,61 @@
+# Kanban board
+
+`doc/issues/` is the project's active-work layer: a lightweight **Kanban board**
+of numbered **issues** currently in flight. It is distinct from proposals under
+`doc/proposals/`, which record *decisions* rather than the work that carries them
+out. Each issue is one flat Markdown file named `NNNN-slug.md`
+(`0001-first-issue.md`); the folder stays flat, with no per-topic subfolders.
+
+## The index is `kanban.yaml`
+
+The board's index is `doc/issues/kanban.yaml`, not a README. It is a YAML `board`
+mapping: `title` and `description` name it, `columns` declares the swimlanes in
+flow order, `last_id` tracks the highest issue number assigned, and `items` maps
+each column to an ordered list of issue **cards**, highest priority first:
+
+```yaml
+board:
+  title: "doc/issues/ Kanban board"
+  description: "The index of doc/issues/."
+  columns: [
+    { name: "backlog", description: "Issues that are not yet prioritized." },
+    { name: "todo", description: "Prioritized and ready to work on." },
+    { name: "doing", description: "Currently being worked on." },
+    { name: "done", description: "Completed." }
+  ]
+  last_id: 1
+  items:
+    backlog: []
+    todo:
+      - id: "0001"
+        title: First issue
+        file: 0001-first-issue.md
+    doing: []
+    done: []
+```
+
+Each card carries `id`, `title`, and `file`; the `id` is quoted so leading zeros
+survive. A card's column mirrors the `Status:` line inside its issue file.
+
+## Columns
+
+Top to bottom is the flow of work:
+
+- **backlog** — captured, not yet scheduled.
+- **todo** — ready to pick up.
+- **doing** — in progress.
+- **done** — resolved; archive it.
+
+## Archiving
+
+When an issue is **done** and no longer relevant, move its file to
+`.grem/issues/archive/` and delete its card from `kanban.yaml`. That destination
+sits under the already-ignored `.grem/` control folder, so finished work leaves
+ordinary agent context without a separate ignore list.
+
+## Place in the knowledge base
+
+The design layer under `doc/models/` declares *what* the system is; proposals
+record *decisions*; the Kanban board tracks the *work in flight* that moves a
+model or proposal toward code under `src/`. See [[hyper-markdown]] for the card
+format this convention is written in.

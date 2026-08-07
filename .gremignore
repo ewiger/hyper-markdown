@@ -1,0 +1,16 @@
+# .gremignore — paths grem upgrade must never overwrite.
+#
+# These are project-owned: seeded once at init, then yours to evolve. grem
+# upgrade refreshes only the template-owned control layer and skips everything
+# listed here. Patterns are gitignore-style (globs, ** and trailing / allowed),
+# anchored at the project root. .gremignore itself is always protected.
+#
+# CLAUDE.md and AGENTS.md are deliberately NOT listed: they are template-owned
+# and refreshed on upgrade. Put your custom agent rules under doc/memory/.
+
+pyproject.toml
+README.md
+doc/proposals/README.md
+doc/issues/kanban.yaml
+src/**
+doc/memory/**

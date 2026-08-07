@@ -1,0 +1,22 @@
+---
+tags: [area/auth, status/accepted]
+---
+
+# Tokens
+
+The wire format and lifetime rules, shared by every domain that authenticates.
+The term itself is defined once in [[/glossary/token|the glossary]].
+
+## Rotation
+
+Tokens rotate every 24 hours, and a rotated token stays valid for a 60-second
+overlap so in-flight requests are not cut off. ^rotation-window
+
+## Revocation
+
+Revocation is immediate and is not subject to the overlap above. A revoked
+token fails closed at the edge, before any handler runs.
+
+Signature verification uses the current key set only; see
+[[retry-policy#Backoff]] for what a caller should do when the key set is
+temporarily unreachable.
