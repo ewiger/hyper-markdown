@@ -183,6 +183,15 @@ export class Store implements vscode.Disposable {
         this.workspace?.removeDocument(rel);
         this.changed.fire(null);
       }),
+      // Render from the unsaved buffer: saving is never a precondition
+      // (VSX-013). This belongs to the store rather than to a preview because
+      // every open preview would otherwise write the same buffer into the
+      // index on every keystroke, and each write fans a change event back to
+      // all of them.
+      vscode.workspace.onDidChangeTextDocument((event) => {
+        const rel = this.relFor(event.document.uri);
+        if (rel !== null) this.update(rel, event.document.getText());
+      }),
       vscode.workspace.onDidCloseTextDocument((document) => {
         const rel = this.relFor(document.uri);
         if (rel !== null) this.overrides.delete(rel);

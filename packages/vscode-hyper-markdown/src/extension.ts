@@ -1,48 +1,66 @@
 /**
  * Activation, commands, and disposables (HMD-0021 §1).
  *
- * Activation is `onLanguage:hmd`. A knowledge-base extension that costs startup
- * time in every window will be uninstalled by people who have one `.hmd` file.
+ * Activation is `workspaceContains` on any `.hmd` file, plus the language, so
+ * the bolt in the editor title bar is there before the first card is opened. A
+ * knowledge-base extension that costs startup time in every window will be
+ * uninstalled by people who have one `.hmd` file.
  */
 
 import * as vscode from "vscode";
 
 import { createCard } from "./commands/createCard.js";
 import { DiagnosticPublisher } from "./diagnostics.js";
-import { PreviewPanel } from "./preview/panel.js";
-import { PreviewViewProvider, VIEW_ID } from "./preview/view.js";
+import { PreviewPanel, VIEW_TYPE, type PanelState } from "./preview/panel.js";
 import { Store } from "./store.js";
+
+/** Gates the editor title-bar button: this workspace is a knowledge base. */
+const HAS_ROOT = "hyperMarkdown.hasRoot";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const store = new Store();
-  context.subscriptions.push(store);
-
-  const provider = new PreviewViewProvider(store, context.extensionUri);
-  context.subscriptions.push(
-    provider,
-    vscode.window.registerWebviewViewProvider(VIEW_ID, provider, {
-      webviewOptions: { retainContextWhenHidden: false },
-    }),
-  );
+  context.subscriptions.push(store, { dispose: () => PreviewPanel.disposeAll() });
 
   const diagnostics = new DiagnosticPublisher(store);
   context.subscriptions.push(diagnostics);
 
+  const publishHasRoot = (): void => {
+    void vscode.commands.executeCommand("setContext", HAS_ROOT, store.ready);
+  };
   context.subscriptions.push(
-    vscode.commands.registerCommand("hyperMarkdown.openPreview", async () => {
-      await provider.reveal();
+    store.onDidChange((rel) => {
+      if (rel === null) publishHasRoot();
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.window.registerWebviewPanelSerializer(VIEW_TYPE, {
+      async deserializeWebviewPanel(panel, state: unknown): Promise<void> {
+        PreviewPanel.restore(panel, store, context.extensionUri, panelState(state));
+      },
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("hyperMarkdown.openPreview", () => {
+      PreviewPanel.open(store, context.extensionUri, { column: vscode.ViewColumn.Active });
     }),
     vscode.commands.registerCommand("hyperMarkdown.openPreviewToSide", () => {
-      PreviewPanel.open(store, context.extensionUri);
+      PreviewPanel.open(store, context.extensionUri, {
+        column: vscode.ViewColumn.Beside,
+        preserveFocus: true,
+      });
     }),
     vscode.commands.registerCommand("hyperMarkdown.togglePin", () => {
-      const pinned = provider.togglePin();
-      if (pinned !== null) {
-        void vscode.window.setStatusBarMessage(
-          pinned ? "Hyper-Markdown: preview pinned" : "Hyper-Markdown: preview following",
-          2000,
-        );
+      const preview = PreviewPanel.active;
+      if (preview === undefined) {
+        void vscode.window.setStatusBarMessage("Hyper-Markdown: no preview tab is focused", 2000);
+        return;
       }
+      void vscode.window.setStatusBarMessage(
+        preview.togglePin() ? "Hyper-Markdown: preview pinned" : "Hyper-Markdown: preview following",
+        2000,
+      );
     }),
     vscode.commands.registerCommand("hyperMarkdown.refreshIndex", async () => {
       await store.rebuild();
@@ -76,6 +94,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       }`,
     );
   }
+  publishHasRoot();
+}
+
+/**
+ * Narrow the state a restored webview persisted for itself.
+ *
+ * It survived a window reload and a possible extension update, so it is
+ * untrusted for the same reason every other webview message is.
+ */
+function panelState(raw: unknown): PanelState | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const state = raw as Record<string, unknown>;
+  return {
+    card: typeof state["card"] === "string" ? state["card"] : null,
+    pinned: state["pinned"] === true,
+  };
 }
 
 export function deactivate(): void {

@@ -37,6 +37,7 @@ and the Python corpus runner are the next blocks.
 | E4 | Backlinks, breadcrumb, create-card, pin | **done** | `test/renderer.test.ts` |
 | E5 | Packaging | **done** | `npm run -w vscode-hyper-markdown package` |
 | E6 | Graph tab | **ready** | HMD-0021 §10 |
+| E7 | Editor-column surface, logo | **done** | `test/panel.test.ts` |
 
 ## Work points
 
@@ -86,6 +87,11 @@ and the Python corpus runner are the next blocks.
 | E5.1 | `.vscodeignore`, VSIX with no `node_modules` | §12 | done |
 | E5.2 | Integration suite under `@vscode/test-cli` | Test Plan | **blocked** — see below |
 | E6.1 | Graph tab under the §10 contract | §10 | ready |
+| E7.1 | Preview is an editor tab; view container removed | §3 | done |
+| E7.2 | `editor/title` button gated on `hyperMarkdown.hasRoot` | §3 | done |
+| E7.3 | Several panels, each pinned to its card, titled after it | §3 | done |
+| E7.4 | `WebviewPanelSerializer` restores card and pin | §3 | done |
+| E7.5 | The ⚡ as tab icon, title-bar icon, and gallery PNG | issue 0104 | done |
 
 ## Open
 
@@ -102,6 +108,5 @@ and the Python corpus runner are the next blocks.
   side runs it. Until Python runs it too, the contract is enforced in one
   direction only, and `test/parity.test.ts` is doing the real work by shelling
   out to `hmd lint`.
-- **V1 — secondary side bar.** VS Code's `contributes.viewsContainers` accepts
-  `activitybar` and `panel`. The container is contributed to the activity bar
-  and the user drags it to the secondary side bar once. See HMD-0021 §3.
+(V1, the secondary-side-bar question, is closed: E7 removed the view container
+rather than finding a place to put it.)

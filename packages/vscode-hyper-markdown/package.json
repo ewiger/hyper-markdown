@@ -4,6 +4,7 @@
   "description": "Live preview, embeds, backlinks, and diagnostics for hyper-markdown (.hmd) knowledge bases.",
   "version": "0.1.0",
   "license": "MIT",
+  "icon": "media/logo.png",
   "publisher": "hyper-markdown",
   "private": true,
   "repository": {
@@ -39,6 +40,11 @@
     },
     "virtualWorkspaces": true
   },
+  "activationEvents": [
+    "workspaceContains:**/*.hmd",
+    "workspaceContains:.hmd/config.toml",
+    "onWebviewPanel:hyperMarkdown.previewPanel"
+  ],
   "contributes": {
     "languages": [
       {
@@ -63,30 +69,12 @@
         }
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "hyperMarkdown",
-          "title": "Hyper-Markdown",
-          "icon": "media/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "hyperMarkdown": [
-        {
-          "type": "webview",
-          "id": "hyperMarkdown.preview",
-          "name": "Preview",
-          "contextualTitle": "Hyper-Markdown"
-        }
-      ]
-    },
     "commands": [
       {
         "command": "hyperMarkdown.openPreview",
-        "title": "Open Preview",
-        "category": "Hyper-Markdown"
+        "title": "Open Preview in This Column",
+        "category": "Hyper-Markdown",
+        "icon": "media/logo.svg"
       },
       {
         "command": "hyperMarkdown.openPreviewToSide",
@@ -115,12 +103,24 @@
     "menus": {
       "editor/title": [
         {
-          "command": "hyperMarkdown.openPreviewToSide",
-          "when": "editorLangId == hmd",
+          "command": "hyperMarkdown.openPreview",
+          "when": "hyperMarkdown.hasRoot",
           "group": "navigation"
         }
       ],
       "commandPalette": [
+        {
+          "command": "hyperMarkdown.openPreview",
+          "when": "hyperMarkdown.hasRoot"
+        },
+        {
+          "command": "hyperMarkdown.openPreviewToSide",
+          "when": "hyperMarkdown.hasRoot"
+        },
+        {
+          "command": "hyperMarkdown.togglePin",
+          "when": "hyperMarkdown.hasRoot"
+        },
         {
           "command": "hyperMarkdown.createCardFromLink",
           "when": "editorLangId == hmd"

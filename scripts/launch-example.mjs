@@ -65,6 +65,6 @@ child.on("error", (error) => {
 
 child.on("spawn", () => {
   console.log(`\nOpened the extension host on ${target}`);
-  console.log("Open a .hmd card to activate it, then click the Hyper-Markdown icon.");
+  console.log("Click the ⚡ at the top right of any editor group to open a preview tab.");
   child.unref();
 });

@@ -1,3 +1,5 @@
+<img src="media/logo.png" width="64" alt="">
+
 # Hyper-Markdown for VS Code
 
 Live preview for [hyper-markdown](https://github.com/ewiger/hyper-markdown)
@@ -40,18 +42,24 @@ and CI checks the two against a shared conformance corpus.
 
 ## Commands
 
-- **Hyper-Markdown: Open Preview** — focus the sidebar preview
-- **Hyper-Markdown: Open Preview to the Side** — the same preview as an editor tab
+- **Hyper-Markdown: Open Preview in This Column** — a preview tab in the editor
+group you are in
+- **Hyper-Markdown: Open Preview to the Side** — the same, in the group beside it
 - **Hyper-Markdown: Pin Preview to This Card** — stop following the active editor
 - **Hyper-Markdown: Create Missing Card** — write the card a red link points at
 - **Hyper-Markdown: Rebuild Index** — re-scan the namespace root
 
-## Where the view appears
+## Where the preview appears
 
-The extension contributes its view container to the activity bar. VS Code's
-manifest offers `activitybar` and `panel` as contribution points, so an
-extension cannot place a container in the secondary side bar by default — drag
-the Hyper-Markdown container there once and VS Code remembers it.
+The preview is an editor tab, not a side-bar view. Click the ⚡ at the top right
+of any editor group and a preview opens **in that group** — including when the
+neighbouring group is locked, which is where "open to the side" gives up and
+splits a third group instead.
+
+Open as many as you like. A preview opened while a card is active is pinned to
+that card and titled after it, so a column can hold several cards side by side;
+one opened from anything else follows the active editor until you pin it. Tabs
+come back on their own cards after a window reload.
 
 ## Known gaps
 

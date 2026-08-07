@@ -143,17 +143,35 @@ code --install-extension packages/vscode-hyper-markdown/vscode-hyper-markdown-0.
 Reload the window afterwards. The VSIX is ~440 KB — mostly KaTeX's fonts —
 and carries no `node_modules`.
 
+#### Regenerating the gallery icon
+
+`media/logo.svg` is the bolt, copied byte-for-byte from `feat/mvp`'s
+`doc/wiki/assets/logo.svg`. `vsce` will not accept an SVG for the manifest's
+`icon` field, so a PNG is committed beside it. It is generated once, not on
+every build — the CI runner has no guaranteed librsvg, and the source does not
+change:
+
+```bash
+cd packages/vscode-hyper-markdown
+sed 's/viewBox="0 0 24 24"/viewBox="-4 -4 32 32"/' media/logo.svg > /tmp/padded.svg
+rsvg-convert -w 128 -h 128 -b none /tmp/padded.svg -o media/logo.png
+```
+
+The widened `viewBox` is the padding: rendered from the original the bolt runs
+edge to edge, which reads as clipped at gallery size.
+
 #### What to exercise
 
 In order, against `examples/small`:
 
-1. **Open `specs/auth/login.hmd`.** The extension activates on the first `.hmd`
-   file. The **Hyper-Markdown icon appears in the activity bar** — two cards
-   with a link between them.
-2. **Move the view.** VS Code lets an extension contribute a view container to
-   the activity bar or the panel, not to the secondary side bar. Drag the icon
-   to the right-hand side bar once and VS Code remembers it. This is the answer
-   to open question V1 in HMD-0021 §3.
+1. **The ⚡ is in the editor title bar before you open anything.** The extension
+   activates on a workspace that contains `.hmd` files, so the button is there
+   on any editor, not only on a card. Open `specs/auth/login.hmd` and click it:
+   a preview tab opens **in that column**, titled `login`.
+2. **Split the window and lock the right group** (`View: Toggle Editor Group
+   Lock`), then click the ⚡ in the left group. The tab must land in the left
+   group. A third group appearing means something reverted to
+   `ViewColumn.Beside` — see HMD-0021 §3 and issue 0103.
 3. **Line 38, `![[token#^definition]]`.** It must render as a bordered card
    headed `glossary/token.hmd`, with a `▾` toggle and an "embed" badge — not as
    anonymous inline prose. Clicking the header opens the *embedded* card.

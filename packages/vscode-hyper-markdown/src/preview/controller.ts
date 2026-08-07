@@ -1,10 +1,10 @@
 /**
- * One preview, whether it lives in the sidebar or in an editor column
- * (HMD-0021 §3, §5.1, §6).
+ * One preview tab's behaviour (HMD-0021 §3, §5.1, §6).
  *
- * The view and the panel are two hosts for the same controller. Splitting them
- * into two implementations is how the two surfaces start disagreeing about what
- * a preview does.
+ * Several of these are alive at once — one per preview tab — so a controller
+ * owns only what is per-preview: which card it holds, whether it is pinned,
+ * and its scroll bookkeeping. Anything shared, including the index and the
+ * unsaved-buffer overrides, belongs to the `Store`.
  */
 
 import * as vscode from "vscode";
@@ -33,6 +33,10 @@ export class PreviewController implements vscode.Disposable {
   private lastAppliedScroll = 0;
   private readonly disposables: vscode.Disposable[] = [];
   private readonly refresh = debounce(REPARSE_DEBOUNCE_MS, () => this.send());
+  private readonly cardChanged = new vscode.EventEmitter<string | null>();
+
+  /** Fires when this preview moves to a different card. */
+  readonly onDidChangeCard = this.cardChanged.event;
 
   constructor(
     private readonly store: Store,
@@ -44,7 +48,6 @@ export class PreviewController implements vscode.Disposable {
         if (rel === null || rel === this.current) this.refresh();
       }),
       vscode.window.onDidChangeActiveTextEditor(() => this.follow()),
-      vscode.workspace.onDidChangeTextDocument((event) => this.onEdit(event)),
       vscode.window.onDidChangeTextEditorVisibleRanges((event) => this.onEditorScroll(event)),
     );
     this.follow();
@@ -53,6 +56,7 @@ export class PreviewController implements vscode.Disposable {
   dispose(): void {
     this.refresh.cancel();
     for (const d of this.disposables) d.dispose();
+    this.cardChanged.dispose();
   }
 
   get card(): string | null {
@@ -65,6 +69,18 @@ export class PreviewController implements vscode.Disposable {
     return this.pinned;
   }
 
+  /**
+   * Hold this preview on one card for good.
+   *
+   * `show` alone would not survive the next active-editor change, and a tab
+   * opened from a card is expected to keep showing that card.
+   */
+  pinTo(rel: string): void {
+    this.pinned = true;
+    this.setCard(rel);
+    this.send();
+  }
+
   setMode(mode: PreviewMode): void {
     this.mode = mode;
     this.send();
@@ -72,7 +88,7 @@ export class PreviewController implements vscode.Disposable {
 
   /** Point the preview at one card, regardless of the active editor. */
   show(rel: string): void {
-    this.current = rel;
+    this.setCard(rel);
     this.send();
   }
 
@@ -84,15 +100,14 @@ export class PreviewController implements vscode.Disposable {
     if (editor === undefined) return;
     const rel = this.store.relFor(editor.document.uri);
     if (rel === null) return;
-    this.current = rel;
+    this.setCard(rel);
     this.send();
   }
 
-  private onEdit(event: vscode.TextDocumentChangeEvent): void {
-    const rel = this.store.relFor(event.document.uri);
-    if (rel === null) return;
-    // Render from the unsaved buffer: saving is never a precondition (VSX-013).
-    this.store.update(rel, event.document.getText());
+  private setCard(rel: string | null): void {
+    if (this.current === rel) return;
+    this.current = rel;
+    this.cardChanged.fire(rel);
   }
 
   private onEditorScroll(event: vscode.TextEditorVisibleRangesChangeEvent): void {

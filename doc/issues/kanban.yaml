@@ -22,7 +22,7 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 102 # to be incremented when adding a new issue card
+  last_id: 104 # to be incremented when adding a new issue card
   items:
     backlog:
       - id: "0101"
@@ -32,6 +32,12 @@ board:
         title: "Diagrams render on a white surface in every theme"
         file: 0102-diagram-theme-surface.md
     todo:
+      - id: "0103"
+        title: "The preview is a side-bar view when it wants to be a tab in a column"
+        file: 0103-preview-lives-in-an-editor-column.md
+      - id: "0104"
+        title: "The extension has no logo, and the project already has one"
+        file: 0104-the-bolt-is-the-extension-logo.md
       - id: "0100"
         title: "A ??? callout snaps shut on every re-render"
         file: 0100-callout-open-state-lost.md

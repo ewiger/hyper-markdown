@@ -131,20 +131,34 @@ trailing ^id         entity.name.label.hmd
 
 ### 3. Surface
 
-- The extension contributes one view container holding one `WebviewView`. Its
-  default placement is the secondary side bar, falling back to the activity bar
-  where the API does not permit defaulting there — an open question that MUST
-  be resolved by a spike before this proposal is accepted (VSX-001).
+- The preview is a `WebviewPanel` — a tab in an editor group. The extension
+  MUST NOT contribute a view container, and there is no side-bar surface. An
+  extension cannot default a container to the secondary side bar, so a
+  side-bar preview can only be put in place by a drag the user repeats on
+  every machine; and a reading surface belongs in the same columns as the
+  things being read.
 - Preview modes are **tabs drawn inside the webview**, not sibling views. One
   webview means one IR delivery, one scroll-sync implementation, and one place
   where state lives; four views would mean four of each.
-- `hyperMarkdown.openPreviewToSide` opens a `WebviewPanel` in
-  `ViewColumn.Beside` running the **same** renderer module and the same
-  protocol. The panel and the view MUST NOT diverge into two implementations;
-  the only difference is which VS Code object hosts the HTML.
-- The preview follows the active `hmd` editor. `togglePin` freezes it on the
-  current card, and the frozen state MUST be visible in the UI — a preview that
+- `hyperMarkdown.openPreview` is contributed to `editor/title` under the
+  context key `hyperMarkdown.hasRoot`, so the button is present on every editor
+  group in a knowledge base and absent everywhere else. It MUST open in
+  `ViewColumn.Active`: `Beside` refuses to place a tab into a **locked**
+  neighbouring group and silently splits a third one instead, which is the
+  common case when the other column holds a conversational assistant.
+  `hyperMarkdown.openPreviewToSide` keeps `ViewColumn.Beside` for the
+  side-by-side reading it is named for.
+- Several previews MAY be open at once. A preview opened while a card is
+  active is **pinned to that card**; one opened otherwise follows the active
+  editor. Unpinned previews all show the same card by construction, so
+  pinning on open is what makes more than one of them worth having. Each tab
+  is titled after its card.
+- `togglePin` acts on the focused preview tab and freezes it on the current
+  card, and the frozen state MUST be visible in the UI — a preview that
   silently stops following looks like a bug.
+- The extension MUST register a `WebviewPanelSerializer` for the panel's view
+  type, restoring each tab's card and pinned state. A layout the user arranged
+  and VS Code redrew empty after a reload is indistinguishable from a crash.
 - The header shows the breadcrumb of namespace segments (VSX-005), each segment
   navigating to that namespace's folder note where one exists.
 
@@ -498,9 +512,6 @@ npm run -w vscode-hyper-markdown package
 
 ## Open Questions
 
-- Can an extension set its view container's **default** location to the
-  secondary side bar, or must the user move it there once? This is VSX-001's
-  fallback and the one spike that blocks acceptance of §3.
 - Should the preview render `.md` files found under the namespace root?
   HMD-0001 §4 makes them invisible to the resolver, but a user who opens one
   next to a card will read the empty preview as a failure.
@@ -522,3 +533,7 @@ npm run -w vscode-hyper-markdown package
 - 2026-08-06: §5.1 added — live editing against the unsaved buffer, keyed DOM
   patching, no-blank rendering, and diagnostics on a slower clock than the
   preview
+- 2026-08-08: §3 rewritten — the preview is an editor tab, the view container
+  is gone, several previews may be open at once, and panels are restored
+  across a reload. Retires the secondary-side-bar Open Question (VSX-001),
+  which the change makes moot rather than answers. See issue 0103.

@@ -60,6 +60,9 @@ window.addEventListener("message", (event: MessageEvent<HostMessage>) => {
       scrollSync = message.settings.scrollSync;
       mode = message.mode;
       document.body.classList.toggle("is-pinned", message.pinned);
+      // The host cannot see this; a restored panel is handed back only what
+      // the webview persisted for itself.
+      vscode.setState({ card: message.document.path, pinned: message.pinned });
       renderBreadcrumb(breadcrumb, message.document);
       patchBlocks(content, message.document.blocks, settings);
       anchors = collectAnchors(content);
