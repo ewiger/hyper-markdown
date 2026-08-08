@@ -140,7 +140,7 @@ in the editor for the same stated reason.
 use, which cannot complete in two seconds. That path alone takes a **20-second**
 ceiling. It is a property of the fallback, not of the format.
 
-The Python line implements these in `src/hyper_markdown/diagram.py`; the
+The Python line implements these in `tools/hmd/src/hyper_markdown/diagram.py`; the
 TypeScript line exports them from `@hyper-markdown/core`. Both MUST name the
 same numbers in the same units, so a change here is a change to two files.
 
@@ -197,7 +197,7 @@ SVG, which is a scripting context.
 - `mkdocs-d2-plugin` is not used: it fails a build when the binary is absent and
   inlines SVG as markup, and both are wrong here.
 - The `d2-diagrams` entry in
-  [`conformance-xfail.json`](../../../packages/hmd-core/conformance-xfail.json)
+  [`conformance-xfail.json`](../../../tools/hmd-ts-core/conformance-xfail.json)
   is removed: with both lines rendering the same way it is no longer a
   divergence.
 - The conformance corpus MUST NOT gain a case asserting diagram output. The
@@ -238,12 +238,12 @@ the order of §2 and reached only when no local `d2` exists.
 ## Reference Implementation
 
 ```text
-packages/hmd-core/src/
+tools/hmd-ts-core/src/
   ir.ts                      DiagramBlock, IR_VERSION 2
   render.ts                  fence detection, DiagramBlock construction
   diagram/fence.ts           languages, shared bounds, the cache key
   diagram/sha256.ts          the cache key's digest, sync and dependency-free
-packages/vscode-hyper-markdown/
+tools/hmd-vsc-ext/
   src/diagram/engine.ts      d2 then Docker, the LRU, the data: URI
   src/store.ts               attachDiagrams over an IR, including inside embeds
   media/render.ts            the image, or the source with its reason
@@ -266,7 +266,7 @@ Unit tests MUST include:
 
 ```bash
 npm run -w @hyper-markdown/core test
-npm run -w vscode-hyper-markdown test
+npm run -w hmd-vsc-ext test
 ```
 
 ## Open Questions

@@ -1,5 +1,20 @@
 # Project instructions
 
+Every tool lives in its own directory under `tools/`:
+
+- `tools/hmd/` — the Python line, published to PyPI as `hyper-markdown`. Owns
+  its own `pyproject.toml`; the repository root is a uv workspace root, not a
+  distribution. Build the wheel with `uv build --package hyper-markdown` —
+  a bare `uv build` at the root silently produces an empty `unknown-0.0.0`.
+- `tools/hmd-ts-core/` — `@hyper-markdown/core`, the TypeScript half of the
+  conformance contract. A second implementation, not extension code.
+- `tools/hmd-vsc-ext/` — the VS Code extension.
+
+`examples/` stays at the root, and the conformance corpus lives inside it at
+`examples/conformance/cases/`: fixture trees belong to every implementation,
+not to one. `tests/` at the root holds the repository's own guards; a tool's
+own tests live under the tool.
+
 Treat `doc/` as a modular knowledge base:
 
 - `doc/models/` declares the system through requirements, data, domain, and

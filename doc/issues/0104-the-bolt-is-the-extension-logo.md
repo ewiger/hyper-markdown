@@ -42,7 +42,7 @@ the stroke-based `icon.svg` survives only one. This is also why no light/dark
 pair is needed — amber carries against both editor backgrounds.
 
 **The duplicate across branches is deliberate.** `feat/mvp` owns
-`doc/wiki/assets/`, this branch owns `packages/`. Sharing the file would mean
+`doc/wiki/assets/`, this branch owns the TypeScript tools. Sharing the file would mean
 one of the streams reaching into the other's directory, which is the thing the
 disjoint-file-set discipline exists to prevent. The asset is 273 bytes and
 frozen; a copy is cheaper than a merge conflict.
@@ -52,7 +52,7 @@ frozen; a copy is cheaper than a merge conflict.
 - `media/logo.svg` is byte-identical to `feat/mvp`'s
   `doc/wiki/assets/logo.svg`, and `media/icon.svg` is gone.
 - The manifest carries `"icon": "media/logo.png"`, and
-  `npm run -w vscode-hyper-markdown package` builds a VSIX that accepts it.
+  `npm run -w hmd-vsc-ext package` builds a VSIX that accepts it.
 - A preview tab shows the bolt, and so does the editor title-bar button.
-- `doc/DEVELOPER.md` records the `rsvg-convert` invocation, so the PNG can be
-  regenerated without anyone having to reconstruct the padding.
+- `tools/hmd-vsc-ext/DEVELOP.md` records the `rsvg-convert` invocation, so the
+  PNG can be regenerated without anyone having to reconstruct the padding.

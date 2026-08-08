@@ -20,9 +20,9 @@ behind an injectable filesystem port, and a renderer emitting a **document IR**
 in which ordinary GFM content is opaque HTML and every hyper-markdown construct
 survives as a typed node carrying its source span. It retires principle P5
 (*one implementation*) and replaces it with a language-neutral conformance
-corpus at `conformance/`, a canonical-implementation rule naming Python as the
-reference, and an expected-failure ledger that makes divergence explicit and
-bounded. No language server, no editor API, and no new lint rule IDs.
+corpus at `examples/conformance/`, a canonical-implementation rule naming
+Python as the reference, and an expected-failure ledger that makes divergence
+explicit and bounded. No language server, no editor API, and no new lint rule IDs.
 
 ## Motivation
 
@@ -84,13 +84,13 @@ The repository gains a JavaScript half that never touches the Python half.
 
 ```text
 package.json                 npm workspaces root, private
-packages/hmd-core/           @hyper-markdown/core
-packages/vscode-hyper-markdown/   the extension (HMD-0021)
-packages/STATUS.md           implementation status, JS side
-conformance/cases/           the shared corpus (§10)
+tools/hmd-ts-core/           @hyper-markdown/core
+tools/hmd-vsc-ext/           the extension (HMD-0021)
+tools/STATUS.md              implementation status, JS side
+examples/conformance/cases/  the shared corpus (§10)
 ```
 
-- `packages/hmd-core` MUST NOT import `vscode`, and MUST NOT import
+- `tools/hmd-ts-core` MUST NOT import `vscode`, and MUST NOT import
   `node:fs`, `node:path`, or any other Node builtin. All filesystem access goes
   through the `WorkspaceHost` port of §6. This is what makes the package usable
   from a browser playground, from a web extension, and from an in-memory test
@@ -100,7 +100,7 @@ conformance/cases/           the shared corpus (§10)
 - Toolchain is pinned: **TypeScript 5.x**, **esbuild** for bundling, **vitest**
   for unit and corpus tests, **Node 20 or later** for development. `strict` is
   on in `tsconfig.json`, including `noUncheckedIndexedAccess`.
-- Nothing under `src/`, `tests/`, `doc/proposals/HMD-0001`, or
+- Nothing under `tools/hmd/`, `doc/proposals/HMD-0001`, or
   `doc/proposals/HMD-0002` is modified by work under this proposal. The Python
   and TypeScript halves are developed on separate branches and merged in both
   directions; keeping the file sets disjoint is what makes that cheap.
@@ -398,7 +398,7 @@ Expansion follows HMD-0001 §6 and shares its constants.
 
 This section replaces principle P5.
 
-**Canonicity.** The Python implementation under `src/hyper_markdown/` is
+**Canonicity.** The Python implementation under `tools/hmd/src/hyper_markdown/` is
 canonical. Where the two disagree on a case the corpus covers, Python defines
 the correct answer and TypeScript carries the bug. Canonicity is about
 arbitration, not quality: it exists so that "which one is right?" is never a
@@ -408,7 +408,7 @@ discussion.
 implementations' test trees:
 
 ```text
-conformance/
+examples/conformance/
   cases/<case-name>/
     tree/                 the input namespace, .hmd files and directories
     config.toml           optional; the case's .hmd/config.toml
@@ -421,7 +421,7 @@ conformance/
   Both are plain data, so neither implementation's object model leaks into the
   contract.
 - Each implementation MUST ship a runner that executes every case in
-  `conformance/cases/` and is part of its default test command.
+  `examples/conformance/cases/` and is part of its default test command.
 - This **supersedes** HMD-0001's Test Plan, which places the corpus at
   `tests/corpus/<case>/`. The corpus was unbuilt when this proposal was
   written, so the move costs nothing; a corpus living inside one
@@ -430,7 +430,7 @@ conformance/
 
 **The ledger.** Divergence is permitted, silence is not.
 
-- Known divergences live in `packages/hmd-core/conformance-xfail.json`, each
+- Known divergences live in `tools/hmd-ts-core/conformance-xfail.json`, each
   entry naming the case, the reason, and an issue reference.
 - A ledger entry that **passes** MUST fail the build. An expected failure that
   starts succeeding and is not removed is how a ledger rots into a lie.
@@ -463,10 +463,10 @@ project-level effects:
   once this proposal is accepted; the sketch's status as a v0.1 draft means the
   annotation is cheaper than a rewrite.
 - **The conformance corpus moves** from HMD-0001's `tests/corpus/` to
-  `conformance/cases/`, per §10. HMD-0001's Test Plan should be amended when it
-  is next revised.
-- **The Python implementation is unaffected.** No file under `src/`, `tests/`,
-  or the HMD-0001 and HMD-0002 proposal folders changes under this proposal,
+  `examples/conformance/cases/`, per §10. HMD-0001's Test Plan should be
+  amended when it is next revised.
+- **The Python implementation is unaffected.** No file under `tools/hmd/` or
+  the HMD-0001 and HMD-0002 proposal folders changes under this proposal,
   which is what lets the two branches merge in either direction without
   conflict.
 
@@ -494,7 +494,7 @@ and its output is injected into a webview.
 
 ## Deployment / Activation
 
-1. Scaffold the workspace root, `packages/hmd-core`, and CI for the JavaScript
+1. Scaffold the workspace root, `tools/hmd-ts-core`, and CI for the JavaScript
    half, with no behaviour beyond a passing empty test run.
 2. Land the parser front end (§3, §4, §5) with unit coverage, before any
    resolver work.
@@ -513,7 +513,7 @@ branch's M4/M5 work, since they touch disjoint files.
 ## Reference Implementation
 
 ```text
-packages/hmd-core/src/
+tools/hmd-ts-core/src/
   index.ts            public API surface
   host.ts             WorkspaceHost port and DirEntry
   config.ts           .hmd/config.toml, root discovery
@@ -530,7 +530,7 @@ packages/hmd-core/src/
   expand.ts           embed expansion, depth 16, cycle stack
   ir.ts               IR types, the builder, irVersion
   diagnostics.ts      HMD001–HMD016 construction and ordering
-packages/hmd-core/test/
+tools/hmd-ts-core/test/
   corpus.test.ts      the conformance runner
   conformance-xfail.json
 ```
@@ -605,3 +605,7 @@ npm run -w @hyper-markdown/core lint
 - 2026-08-06: §7 gains `Block.key` and the partial-input rule; live-on-type
   editing (VSX-013, VSX-018, VSX-019) promoted from a consequence of the
   architecture to a constraint the parser and IR are designed against
+- 2026-08-08: the corpus moves from `conformance/` to `examples/conformance/`,
+  under the layout HMD-0024 records. Only the path changes: the cases are the
+  same data, still outside both implementations' test trees, and every rule of
+  §10 stands

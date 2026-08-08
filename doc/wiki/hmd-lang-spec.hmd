@@ -13,7 +13,8 @@ nav:
 The two numbers are independent. The language is versioned apart from the tools
 that implement it: a `hyper-markdown` release on PyPI does not imply a new
 language version, and a language version does not wait for one. This number
-changes when the constructs below change, and nothing else moves it.
+changes when the constructs below change, and nothing else moves it. What each
+version changed is [the language's changelog](../../CHANGELOG.md).
 
 The baseline is named by version rather than as "markdown" because "markdown"
 names a family, not a standard, and a superset of an unnamed dialect specifies

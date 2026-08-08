@@ -160,10 +160,10 @@ detection, which the plugin inherits rather than reimplements.
 
 ## Reference Implementation
 
-- `src/hyper_markdown/embed.py` — expansion, cycle detection, depth limit
-- `src/hyper_markdown/render/flat.py` — the flat-markdown emitter
-- `src/hyper_markdown/mkdocs_plugin.py` — `on_files`, nav, `on_page_markdown`
-- `src/hyper_markdown/urls.py` — §1, the one place a URL is computed
+- `tools/hmd/src/hyper_markdown/embed.py` — expansion, cycle detection, depth limit
+- `tools/hmd/src/hyper_markdown/render/flat.py` — the flat-markdown emitter
+- `tools/hmd/src/hyper_markdown/mkdocs_plugin.py` — `on_files`, nav, `on_page_markdown`
+- `tools/hmd/src/hyper_markdown/urls.py` — §1, the one place a URL is computed
 - `pyproject.toml` — `[project.entry-points."mkdocs.plugins"]`
 
 No `render/markdown_ext.py`. Once §3 fixed expansion at `on_page_markdown`, a

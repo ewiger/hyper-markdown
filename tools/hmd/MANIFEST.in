@@ -1,0 +1,18 @@
+# What the source distribution carries beyond the package itself. README and
+# LICENSE arrive on their own, named by `readme` and `license-files`; the
+# changelog needs this line. All three are this tool's own files rather than
+# links into the repository root — see the note in `pyproject.toml`.
+#
+# `examples/` is deliberately absent. `hmd lint --root examples/small` working
+# straight out of an unpacked archive is the one property that would buy, and the
+# fixture is a repository fixture that both implementations lint: it lives at the
+# root, one copy, and a reader who wants to run it clones the repository, which
+# is what the README tells them to do.
+#
+# The test suite is excluded for a related reason, and `prune` is required to do
+# it: distutils' default sdist template sweeps in anything that looks like a test
+# directory. Gates are run from a checkout, not from an sdist, and
+# `tests/test_examples.py` lints `examples/small`, which is deliberately not in
+# the archive.
+include CHANGELOG.md
+prune tests

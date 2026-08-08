@@ -33,15 +33,24 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
+      # `uv sync` with no flags is the whole install. The repository root is a
+      # uv workspace root rather than a project, so it has no extras of its own
+      # for `--all-extras` to act on; the `dev` dependency group in the root
+      # `pyproject.toml` names `hyper-markdown[mkdocs,dev]` and uv installs that
+      # group by default.
+      #
       # `--locked` rather than a bare sync: it fails if `uv.lock` does not match
-      # `pyproject.toml` instead of quietly re-resolving, so a dependency change
+      # the workspace instead of quietly re-resolving, so a dependency change
       # has to arrive as a committed lockfile. That is the whole point of having
       # one — every run installs the versions a human approved, and an upgrade
       # is a diff someone can point at rather than whatever the index served
       # that morning.
       - name: Install
-        run: uv sync --locked --all-extras
+        run: uv sync --locked
 
+      # Both roots of the suite: `tools/hmd/tests`, the Python tool's own, and
+      # `tests/`, the repository guards that build the real site. `testpaths` in
+      # the root `pyproject.toml` names them, so this stays argument-free.
       - name: Test
         run: uv run python -m pytest
 
@@ -105,8 +114,7 @@ jobs:
       - name: Install
         run: |
           npm ci
-          uv venv
-          uv pip install -e ".[dev]"
+          uv sync --locked
 
       - name: Typecheck
         run: npm run typecheck
@@ -116,16 +124,26 @@ jobs:
 
       # Runs the shared corpus and the parity check that shells out to
       # `hmd lint`. A drift between the two implementations fails here.
+      #
+      # `HMD_REQUIRE_PARITY` turns the parity suite's "no Python, skip" branch
+      # into a failure. That branch is right on a contributor's machine and
+      # wrong here, where the job installs Python precisely so the canonical
+      # implementation can be asked: without this, anything that stops `hmd`
+      # from running — a moved project file, a broken install — retires the
+      # only cross-implementation gate the project has, and the job still
+      # reports green.
       - name: Test
         run: npm test
+        env:
+          HMD_REQUIRE_PARITY: "1"
 
       - name: Package the extension
-        run: npm run -w vscode-hyper-markdown package
+        run: npm run -w hmd-vsc-ext package
 
       - uses: actions/upload-artifact@v4
         with:
-          name: vscode-hyper-markdown
-          path: packages/vscode-hyper-markdown/*.vsix
+          name: hmd-vsc-ext
+          path: tools/hmd-vsc-ext/*.vsix
           if-no-files-found: error
 
   # The same build `release.yml` runs, minus the upload. Packaging breaks in
@@ -145,8 +163,11 @@ jobs:
           python-version: "3.13"
           enable-cache: true
 
+      # `--package`, never a bare `uv build`. The root is a workspace root with
+      # no `[project]` table, and a bare `uv build` there does not fail — it
+      # builds an empty `unknown-0.0.0` and reports success.
       - name: Build
-        run: uv build
+        run: uv build --package hyper-markdown
 
       - name: Check the metadata
         run: uvx twine check --strict dist/*

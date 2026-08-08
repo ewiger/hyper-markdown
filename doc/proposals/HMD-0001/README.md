@@ -119,7 +119,7 @@ block, or a fence opened inside a blockquote. This is accepted for the MVP
 because the construct set is small and the divergences are diagnosable; see
 Open Questions.
 
-**Status.** Implemented in `src/hyper_markdown/scan.py`, with the masking rules
+**Status.** Implemented in `tools/hmd/src/hyper_markdown/scan.py`, with the masking rules
 covered by `tests/test_scan.py`.
 
 ### 2. Grammar
@@ -662,7 +662,7 @@ they reuse M1–M2 wholesale and validate the model against a second consumer.
 ## Reference Implementation
 
 ```text
-src/hyper_markdown/
+tools/hmd/src/hyper_markdown/
   model.py            Span, Document, Heading, Block, Anchor, Link, Embed
   scan.py             masking + construct extraction
   parse.py            source bytes -> Document
@@ -801,7 +801,7 @@ excerpts versus block anchors (Q3), and the query grammar (Q6).
   name binding — resolution now probes the spine and then each imported origin
   with the same non-recursive step; precedence pinned as named import > spine >
   imported origin, giving the monotonicity property; HMD016 added
-- 2026-07-31: M1–M3 implemented under `src/hyper_markdown/` with 141 tests.
+- 2026-07-31: M1–M3 implemented under `tools/hmd/src/hyper_markdown/` with 141 tests.
   Two corrections forced by the implementation: indented code blocks are no
   longer masked (§1), because `admonition` and `footnotes` overload the
   four-space indent and masking it dropped real links from the fixture; and

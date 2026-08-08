@@ -8,8 +8,8 @@
     "node": ">=20"
   },
   "workspaces": [
-    "packages/hmd-core",
-    "packages/vscode-hyper-markdown"
+    "tools/hmd-ts-core",
+    "tools/hmd-vsc-ext"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

@@ -18,16 +18,18 @@ would collide on every merge.
 `feat/mvp` (worktree `../hyper-markdown-feat-mvp`) owns Python, MkDocs, and
 `HMD-0002`. `feat/vsc-ext` owns the TypeScript packages and `HMD-0020+`.
 `feat/mvp` is the merge target; both directions get merged periodically. Work
-stays in disjoint directories on purpose — `src/` and `tests/` are Python's,
-`packages/` and `conformance/` are TypeScript's — so the merges stay
-mechanical. `doc/proposals/README.md` is the one file both streams append to.
+stays in disjoint directories on purpose — `tools/hmd/` is Python's,
+`tools/hmd-ts-core/`, `tools/hmd-vsc-ext/`, and `examples/conformance/` are
+TypeScript's — so the merges stay mechanical. Those were `src/`, `tests/`, and
+`packages/` until the repository moved to a `tools/` layout; the disjointness is
+the point, not the names. `doc/proposals/README.md` is the one file both streams append to.
 
 ## Principle P5 is retired, deliberately
 
 The sketch's "one implementation — semantics live in Python" cannot survive the
 parsers in other languages the project expects, and a Rust implementation is a
 live possibility. Replaced by: Python is canonical, a language-neutral
-conformance corpus at `conformance/cases/` is the contract, and an
+conformance corpus at `examples/conformance/cases/` is the contract, and an
 expected-failure ledger makes divergence explicit. Slight drift is acceptable
 in the short term; silent drift is not.
 
@@ -51,7 +53,24 @@ raise squiggles.
 
 ## LSP is deferred without a decision
 
-Not "later in the plan" — genuinely open. If the feature set ever justifies a
-language server, the implementation language is its own question (TypeScript or
-Rust). The single constraint kept alive for it: every core entry point accepts
-document *text*, not only a path.
+Superseded on 2026-08-08 — kept because what it got wrong is instructive.
+
+It read: not "later in the plan" — genuinely open; if the feature set ever
+justifies a language server, the implementation language is its own question
+(TypeScript or Rust). The single constraint kept alive for it: every core entry
+point accepts document *text*, not only a path.
+
+The language is now decided, and it is neither candidate. The server will be
+Python on `pygls`, living with the canonical implementation, because a language
+server is a semantics server and the semantics are already there — a third
+place where resolution behaviour lives is a third thing that can disagree with
+the arbiter. The extension is unaffected and still requires no Python; the
+Python server exists to serve every *other* editor without a second port of the
+resolver being written. See [HMD-0024](../proposals/HMD-0024/README.md).
+
+The constraint the old note kept alive as a precaution is the part that
+survived, and it is now load-bearing: an unsaved buffer is a language server's
+ordinary input, so text ingestion is not a nicety. On the Python side it holds
+everywhere except the workspace index, which is the one layer that reads from
+disk — recorded as a limitation in
+[the HMD-0024 tracker](../proposals/HMD-0024/STATUS.md#limitations).

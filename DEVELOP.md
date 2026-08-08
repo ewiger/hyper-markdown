@@ -1,85 +1,49 @@
-# Developing hyper-markdown
+# Developing the hyper-markdown language and its website
 
-Everything a contributor needs that a reader does not: how to get the code
-running, what the gates are, how the documentation tree is organised, and how
-the site reaches the web. The book under [`doc/public/`](doc/public/) explains
-the *format*; this file explains the *repository*.
+This repository's root is the **language**: the numbered records that specify it,
+the models beside them, and [hyper-markdown.org](https://hyper-markdown.org/),
+which is what those records are published as. The software that implements the
+language lives under `tools/`, one directory per package, and each carries its own
+development guide.
 
-## Setup
+So this file covers the specification and the site. For a *tool* — its test loop,
+its dependencies, how it is built and released — go straight to its guide:
 
-```bash
-uv sync --locked --all-extras
-```
+| Tool | Its development guide |
+| --- | --- |
+| `tools/hmd/` | [tools/hmd/DEVELOP.md](tools/hmd/DEVELOP.md) — the Python loop, dependency policy, packaging, the PyPI release |
+| `tools/hmd-ts-core/` | [tools/hmd-ts-core/DEVELOP.md](tools/hmd-ts-core/DEVELOP.md) — build, the host port, the conformance ledger |
+| `tools/hmd-vsc-ext/` | [tools/hmd-vsc-ext/DEVELOP.md](tools/hmd-vsc-ext/DEVELOP.md) — the two bundles, the development host, the VSIX |
 
-That installs the exact versions in [`uv.lock`](uv.lock) — the ones CI and the
-published site are built from — and fails rather than re-resolving if the lock
-and [`pyproject.toml`](pyproject.toml) have drifted apart. To change a
-dependency, edit the ranges in `pyproject.toml`, run `uv lock`, and commit the
-resulting lockfile in the same change: an upgrade should be a diff somebody
-approved, not whatever the index happened to serve that morning.
+The book under [`doc/public/`](doc/public/) explains the format to a reader. This
+file explains how the format's record and its website are worked on.
 
-The `mkdocs` extra is optional for the library and required for the site. D2
-diagrams render through the [`d2`](https://d2lang.com) binary, which is not a
-Python dependency — install it separately, or don't: without it a diagram
-degrades to its labelled source rather than failing the build.
+## The four versions
 
-## The gates
+Four things version independently, and each has exactly one literal:
 
-CI runs four things ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)),
-across Python 3.11–3.14. Run them locally before pushing:
+| What | Where the version is declared | Its history |
+| --- | --- | --- |
+| **the language** | [`doc/wiki/hmd-lang-spec.hmd`](doc/wiki/hmd-lang-spec.hmd) — currently **0.1**, against CommonMark 0.31.2 | [`CHANGELOG.md`](CHANGELOG.md) |
+| `hyper-markdown` (PyPI) | `__version__` in [`tools/hmd/src/hyper_markdown/__init__.py`](tools/hmd/src/hyper_markdown/__init__.py) | [`tools/hmd/CHANGELOG.md`](tools/hmd/CHANGELOG.md) |
+| `@hyper-markdown/core` | `version` in [`tools/hmd-ts-core/package.json`](tools/hmd-ts-core/package.json) | [its changelog](tools/hmd-ts-core/CHANGELOG.md) |
+| `hmd-vsc-ext` | `version` in [`tools/hmd-vsc-ext/package.json`](tools/hmd-vsc-ext/package.json) | [its changelog](tools/hmd-vsc-ext/CHANGELOG.md) |
 
-```bash
-python -m pytest                          # the suite
-hmd lint --root doc/wiki --strict         # this repo's own wiki must be clean
-hmd lint --root examples/small            # the fixture: exactly one warning
-mkdocs build --strict                     # the second consumer of the resolver
-```
+**A tool release never implies a language version, and a language version never
+waits for one.** The language number moves when a construct changes and nothing
+else moves it; a `hyper-markdown` release on PyPI is an implementation shipping.
 
-A fifth job builds the distribution, checks its metadata the way PyPI will, and
-installs the wheel into a clean environment to confirm the `hmd` script and the
-MkDocs entry point exist. That last part is what an editable install can never
-tell you: `uv pip install -e` resolves through `src/`, so a package that would
-ship without its entry points still passes every test.
+The `0.x` caveat in the Python tool's changelog is easy to misread as a second
+format version. It is not. It says a *minor* release of that tool may be the one
+that implements a breaking language change — the change itself is the language's,
+and carries the language's number.
 
-```bash
-uv build && uvx twine check --strict dist/*
-```
+The language version is declared in prose, in the spec card's opening sentence,
+because that card *is* the specification and a number in a second file would be a
+number that can disagree with it. `tests/test_docs.py` reads it from there and
+fails if the root changelog has no section for it.
 
-The two `hmd lint` calls are dogfooding gates. The fixture is deliberately *not*
-run under `--strict` — it carries one expected warning, the red link in
-`glossary/` that demonstrates what an unwritten page looks like.
-
-`mkdocs build --strict` is a gate rather than a convenience: the plugin is the
-second consumer of the resolver, so a build that goes red means the model works
-for `lint` and not for rendering.
-
-**A green build is not evidence of correct output.** Two issues have now been
-green builds with wrong pages — `pygments` 2.20 silently stopped matching code
-fences, and strikethrough rendered as its own source. Both slipped because no
-test looked at rendered HTML. New rendering work asserts on the HTML, never on
-the configuration.
-
-The wheel smoke test is the one job deliberately left unlocked. It resolves
-fresh against the ranges in `pyproject.toml`, because its whole purpose is to
-exercise what a stranger gets from `pip install`, and a bad bound is invisible
-to a run that installs from the lock.
-
-## Layout
-
-```text
-src/hyper_markdown/     the library — parse, resolve, embed, urls, lint, render
-  mkdocs_plugin.py      the only file that imports MkDocs
-tests/                  pytest; test_docs.py gates this repo's own prose
-examples/small/         a runnable fixture wiki, exercised by the suite
-doc/                    the documentation tree — also the site's docs_dir
-mkdocs.yml              the site
-```
-
-The library's independence from MkDocs is deliberate and worth preserving:
-`parse`, `resolve`, `embed`, `urls`, and `lint` do not import it, so swapping the
-renderer is one file plus `mkdocs.yml` rather than a re-specification.
-
-## Working on the documentation
+## Working on the specification
 
 `doc/` is a modular knowledge base, and its parts have different jobs:
 
@@ -108,15 +72,6 @@ Three conventions that are easy to get wrong:
   resolved — they pass through as literal brackets. Show the constructs in code
   spans and let the wiki be the live demonstration.
 
-Preview both together:
-
-```bash
-mkdocs serve
-```
-
-The plugin watches the namespace root, which MkDocs would otherwise ignore — a
-`.hmd` edit that triggered no rebuild would leave the preview quietly stale.
-
 Proposal numbers are allocated in fixed ranges so two lines of work can reserve
 them without coordinating: `HMD-0002`–`HMD-0019` for the Python and MkDocs line,
 now merged and continuing on `main`; `HMD-0020`–`HMD-0099` for the editor and
@@ -124,12 +79,45 @@ TypeScript line on `feat/vsc-ext`; and `HMD-0100`+ when the first range is
 exhausted. Reserve the number in
 [`doc/proposals/README.md`](doc/proposals/README.md) before creating the folder.
 
-## Getting the site onto the web
+A change to the *language* is a change to
+[`doc/wiki/hmd-lang-spec.hmd`](doc/wiki/hmd-lang-spec.hmd), an entry in the root
+[`CHANGELOG.md`](CHANGELOG.md), and — where it needs argument rather than
+statement — a numbered record. It is not finished until the canonical
+implementation and the conformance corpus agree with it; that part is
+[the Python tool's guide](tools/hmd/DEVELOP.md).
 
-This site is published to GitHub Pages from a workflow rather than from a
-branch: CI runs `mkdocs build --strict` and hands `site/` straight to the Pages
-CDN as an artifact, so the rendered HTML never enters version control and there
-is no `gh-pages` branch to keep in sync. The workflow is
+## Publishing hyper-markdown.org
+
+The site is this repository's documentation tree built by the plugin the Python
+tool ships, which is the project walking its own talk: a specification that made
+the site unbuildable would be caught by its own publication.
+
+```bash
+uv sync --locked        # the site needs the Python tool and its `mkdocs` extra
+uv run mkdocs serve     # the book and the wiki together
+```
+
+The plugin watches the namespace root, which MkDocs would otherwise ignore — a
+`.hmd` edit that triggered no rebuild would leave the preview quietly stale.
+
+Two gates guard the site, and both are the *content's* rather than a tool's:
+
+```bash
+uv run hmd lint --root doc/wiki --strict   # this repo's own wiki must be clean
+uv run mkdocs build --strict               # what the deploy will run
+```
+
+**A green build is not evidence of correct output.** Two issues have now been
+green builds with wrong pages — Pygments 2.20 silently stopped matching code
+fences, and strikethrough rendered as its own source. Both slipped because no
+test looked at rendered HTML. That is why `tests/` holds guards that assert on
+the built site's markup rather than on `mkdocs.yml`, and why new rendering work
+does the same.
+
+Publication goes to GitHub Pages from a workflow rather than from a branch: CI
+runs `mkdocs build --strict` and hands `site/` straight to the Pages CDN as an
+artifact, so the rendered HTML never enters version control and there is no
+`gh-pages` branch to keep in sync. The workflow is
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml), and the repository
 must have **Settings → Pages → Source** set to *GitHub Actions* — with the older
 *Deploy from a branch* setting the workflow runs green and publishes nothing.
@@ -147,55 +135,77 @@ is the transient one where deploy queries for the artifact before the metadata
 has propagated and reports `Found 0 artifact(s)` moments after a successful
 upload.
 
-One pin is worth knowing about: the MkDocs name is being reused for a ground-up
-rewrite with no plugin system, no migration path, and a different config format.
-A hyper-markdown site *is* a MkDocs plugin, so that release would not degrade it
-— it would remove it. The dependency is therefore held at `mkdocs>=1.6,<2`
-rather than left open, and which successor to follow is an open question rather
-than a decided one.
+One dependency pin is worth knowing about here, because it is the site's
+existence rather than its polish: the MkDocs name is being reused for a
+ground-up rewrite with no plugin system. A hyper-markdown site *is* a MkDocs
+plugin, so that release would not degrade the site — it would remove the wiki
+from it. The dependency is held at `mkdocs>=1.6,<2` for that reason; the full
+reasoning and every other bound live in
+[the Python tool's guide](tools/hmd/DEVELOP.md#dependencies).
 
-The `pygments<2.20` ceiling that stood beside it is gone as of 0.1.1. The defect
-was never really Pygments': `pymdown-extensions` 10.21.2 fixes it, so the
-constraint is now a floor on that package instead — and it moved into the base
-dependencies, since `pymdownx.superfences` is loaded by `hmd render --to html`
-and not only by the site. Every bound carries its rationale inline in
-[`pyproject.toml`](pyproject.toml).
+## The repository layout
 
-## Cutting a release
+Every tool lives in its own directory under `tools/`, and the repository root
+carries only what is shared between them.
 
-Four steps, in this order:
+```text
+tools/hmd/                the Python tool, published as `hyper-markdown`
+  pyproject.toml          the distribution; also where dependency bounds live
+  src/hyper_markdown/     the library — parse, resolve, embed, urls, lint, render
+    mkdocs_plugin.py      the only file that imports MkDocs
+  tests/                  the tool's own suite
+tools/hmd-ts-core/        @hyper-markdown/core — the TypeScript implementation
+tools/hmd-vsc-ext/        the VS Code extension
+tools/STATUS.md           implementation status for the two TypeScript tools
+tests/                    repository guards: this repo's prose and its built site
+examples/small/           a runnable fixture wiki, exercised by both lines
+examples/cs-alg-sorting/  a larger fixture wiki, exercised by both lines
+examples/conformance/     the language-neutral corpus both implementations run
+doc/                      the documentation tree — also the site's docs_dir
+mkdocs.yml                the site
+pyproject.toml            uv workspace root and pytest config; not a distribution
+README.md                 the front page: what this is, and the three tools
+CHANGELOG.md              the language's history — not any tool's
+```
 
-1. Write the entry in [`CHANGELOG.md`](CHANGELOG.md) — promote `Unreleased` to
-   the new number and date it.
-2. Bump `__version__` in [`src/hyper_markdown/__init__.py`](src/hyper_markdown/__init__.py).
-   That is the only place a version literal exists; `pyproject.toml` derives its
-   own from it, and `tests/test_cli.py` fails if the two ever disagree or if the
-   changelog has no section for the number.
-3. Merge, with CI green.
-4. Tag `main` and push the tag:
+**Every tool carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, and
+`DEVELOP.md`, and none of them is a symlink.** The first three were symlinks into
+the repository root until 2026-08-08, which made the PyPI long description the
+monorepo's front page — a page that opened by explaining the format and closed by
+naming three tools, two of which cannot be `pip install`ed. Each file now belongs
+to the thing it describes, and the per-tool guide is authoritative for that tool's
+commands.
 
-   ```bash
-   git tag -a v0.1.0 -m "hyper-markdown 0.1.0"
-   git push origin v0.1.0
-   ```
+Two consequences worth knowing before editing a tool's front matter. A tool
+README is read on PyPI or the marketplace rather than on GitHub, so **its links
+must be absolute** — a relative link in a PyPI long description resolves against
+`pypi.org`. And a release cuts its notes from `tools/hmd/CHANGELOG.md`; the root
+[`CHANGELOG.md`](CHANGELOG.md) is the language's and nothing is released from it,
+while `tools/hmd/tests/test_cli.py` fails if the tool's changelog has no section
+for the current `__version__`.
 
-The tag is what publishes.
-[`.github/workflows/release.yml`](.github/workflows/release.yml) rebuilds from
-the tagged tree, refuses to continue if the tag and `__version__` disagree,
-uploads to PyPI, and cuts a GitHub release whose notes are that version's
-changelog section. Running the workflow by hand builds and verifies without
-publishing, or publishes to TestPyPI if you ask it to.
+The two test roots answer for different things. `tools/hmd/tests` is the tool's,
+and moves if the tool moves. `tests/` holds `test_docs.py`, which walks every
+tracked `*.md` and `*.hmd` in the checkout and guards the language version
+against the changelog, and `test_mkdocs.py`, which builds the real site from the
+root `mkdocs.yml` — repository guards that happen to be written in Python.
+`testpaths` in the root `pyproject.toml` names both, so a bare
+`python -m pytest` still runs everything.
 
-Two things must be configured outside the repository before the first publish,
-and neither can be done from a commit:
+The library's independence from MkDocs is deliberate and worth preserving:
+`parse`, `resolve`, `embed`, `urls`, and `lint` do not import it, so swapping the
+renderer is one file plus `mkdocs.yml` rather than a re-specification.
 
-- **A PyPI trusted publisher** for the project, pointing at owner `ewiger`,
-  repository `hyper-markdown`, workflow `release.yml`, environment `pypi`.
-  Publication authenticates by OIDC rather than with a stored API token, so
-  there is no secret to leak — and no upload at all until the publisher exists.
-  A missing one shows up as a `403` on an otherwise green run.
-- **The `pypi` environment** in the repository settings, which is worth an
-  approval rule: it is the last point at which a release can be stopped.
+## Everything, before you push
 
-Versions are semantic with the usual `0.x` caveat, stated in the changelog: the
-*format* may move between minor versions, not only the Python API.
+The site and the specification:
+
+```bash
+uv run python -m pytest                     # the tool's suite and this repo's guards
+uv run hmd lint --root doc/wiki --strict
+uv run mkdocs build --strict
+```
+
+Each tool's own gates are in its guide, and CI runs the two halves as independent
+jobs ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) so neither blocks
+the other's merge.

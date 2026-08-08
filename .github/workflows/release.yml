@@ -46,7 +46,7 @@ jobs:
           tagged="${GITHUB_REF_NAME#v}"
           packaged=$(uv run --no-project python -c "
           import pathlib, re
-          source = pathlib.Path('src/hyper_markdown/__init__.py').read_text()
+          source = pathlib.Path('tools/hmd/src/hyper_markdown/__init__.py').read_text()
           print(re.search(r'__version__ = \"([^\"]+)\"', source).group(1))
           ")
           echo "tag=$tagged packaged=$packaged"
@@ -55,8 +55,14 @@ jobs:
             exit 1
           fi
 
+      # `--package`, never a bare `uv build`. The repository root is a uv
+      # workspace root with no `[project]` table of its own, and a bare
+      # `uv build` there builds an empty `unknown-0.0.0` distribution and exits
+      # zero. On this path that artifact would pass `twine check` and travel as
+      # far as PyPI will take it, so the flag is what makes a layout mistake
+      # loud instead of publishable.
       - name: Build
-        run: uv build
+        run: uv build --package hyper-markdown
 
       # `twine check --strict` reads the metadata the way PyPI will, which is
       # the difference between finding a broken long description now and finding
@@ -147,8 +153,10 @@ jobs:
           name: dist
           path: dist/
 
-      # Notes come from CHANGELOG.md rather than from generated commit titles:
+      # Notes come from the changelog rather than from generated commit titles:
       # the changelog is the edited account, and the commit log is the raw one.
+      # `tools/hmd/CHANGELOG.md`, not the root one — a tag releases the Python
+      # tool, and the root file is only an index of the three tools' changelogs.
       - name: Cut the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -156,13 +164,13 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           python3 -c "
           import pathlib, re
-          text = pathlib.Path('CHANGELOG.md').read_text()
+          text = pathlib.Path('tools/hmd/CHANGELOG.md').read_text()
           section = re.search(
               r'^## \[$version\][^\n]*\n(.*?)(?=^## |\Z)', text, re.S | re.M
           )
           pathlib.Path('notes.md').write_text((section.group(1) if section else '').strip())
           " || true
-          [ -s notes.md ] || echo "See CHANGELOG.md for what changed." > notes.md
+          [ -s notes.md ] || echo "See tools/hmd/CHANGELOG.md for what changed." > notes.md
           gh release create "$GITHUB_REF_NAME" dist/* \
             --title "$GITHUB_REF_NAME" \
             --notes-file notes.md
