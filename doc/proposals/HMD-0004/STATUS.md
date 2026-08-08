@@ -62,8 +62,9 @@ Nothing. Nothing is built.
 
 | ID | Limitation | Why it stands |
 | --- | --- | --- |
-| L1 | The record specifies no binding mechanism | Deliberate — naming the concepts and the address form is cheap now; a binding syntax chosen under-informed is expensive to reverse. See Q1 |
-| L2 | HMD-0001 still calls a module a "namespace". `doc/public/namespaces.md` now defines module, namespace, and path separately and names the collision in the open, but it leads with the shipped wording rather than this record's | The collision is named, not fixed, in this record. Rewriting shipped spec text describing implemented behavior is a separate, later decision — see Q3 and W7 |
+| L1 | The record specifies no binding schema, only where a binding lives | Deliberate — naming the concepts, the address form, and the file is cheap now; a syntax chosen under-informed is expensive to reverse. See Q1 |
+| L2 | Four sentences in HMD-0001 and one in the repository `README.md` still say "namespace" where they mean a folder | The word is settled and the public chapter teaches it, so what remains is a copy-edit rather than a disagreement. HMD-0001 needs no spec change: its "namespace root" is correct as written under the settled vocabulary. Tracked as W6 |
+| L5 | An unbound prefix is not distinguishable from a typo today: `[[design:tokens]]` parses as an ordinary bare name and produces the HMD001 red-link warning | Nothing reads the prefix yet, so there is nothing to report a better diagnostic from. Whether a missing binding is eventually its own error is Q12 |
 | L3 | Remote namespaces have no fetch, cache, or trust story at all | The vision (many small `.hmd` projects linkable by name) needs one, but committing to a mechanism before a second real project exists to link to would be designing against a sample size of zero |
 | L4 | This may not be built inside the MVP line at all | HMD-0001 through HMD-0003 (grammar, rendering, queries) are more load-bearing for a single project's usefulness; namespaces beyond one tree only matter once there is more than one to link to |
 
