@@ -1,9 +1,7 @@
 # Hyper-markdown { .hmd-hero }
 
-Hyper-markdown (`.hmd`) is Markdown with a hypertext layer: links that resolve by
-name rather than by path, documents composed out of parts of other documents, and
-a toolchain that checks both instead of trusting them. Every `.md` file is
-already valid `.hmd`.
+Hyper-markdown (`.hmd`) is ordinary Markdown plus rich visuals plus wiki links
+into a knowledge graph. Every `.md` file is already valid `.hmd`.
 
 ## TL;DR
 
@@ -115,7 +113,8 @@ See [[tokens]] for the format, or pull one block in whole:
 A card may open with YAML frontmatter, where four keys mean something to the
 toolchain — `tags`, `use`, `import`, `nav` — and every other key belongs to the
 author. The whole language fits on one page and can be learned in one sitting:
-the [HMD Language Specification](wiki/hmd-lang-spec.hmd).
+the [HMD Tutorial](wiki/hmd-tutorial.hmd). What that page teaches, the
+[HMD Language Specification](wiki/hmd-lang-spec.hmd) states normatively.
 
 ## Features
 
@@ -137,33 +136,73 @@ graph. A missing target is a warning, because writing forward is how a wiki
 grows; an ambiguous or malformed one is an error, because that is the one thing
 the format refuses to guess at.
 
+There are three of them, one directory each under `tools/` in the repository,
+each carrying its own version, README, and changelog:
+
+* **[`hmd`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd)** —
+  the Python line, published to PyPI as
+  [`hyper-markdown`](https://pypi.org/project/hyper-markdown/): the CLI
+  (`lint`, `render`, `graph`), the library beneath it, and the MkDocs plugin
+  that builds this site. Canonical — where two implementations disagree, this
+  one defines the answer — and it will host the language server.
+
+* **[`hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core)**
+  — `@hyper-markdown/core`, a second implementation of the format in
+  TypeScript rather than extension code, answering to the same
+  [conformance corpus](https://github.com/ewiger/hyper-markdown/tree/main/examples/conformance)
+  the canonical tool does.
+
+* **[`hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext)**
+  — the VS Code extension, in development: live preview that keeps the embed
+  boundary visible, plus backlinks, red links, and diagnostics.
+
 Presentation is not part of the language. A card is plain text, so an editor,
 GitHub, or a chat window already shows it. The MkDocs plugin builds a tree of
 cards into a published site — this one, a hand-ordered book with a generated
-wiki inside it — and a VS Code extension is in development. The trade-offs
-between them are [Presentation](public/presentation.md).
+wiki inside it — and the extension renders one in the editor as it is typed.
+The trade-offs between them are [Presentation](public/presentation.md).
+
+![The VS Code extension previewing a card: source on the left, rendered card on
+the right, with resolved links, a table, a callout, and a d2
+diagram.](assets/hmd-vsc-ext-screenshot-1.png){ .hmd-shot }
+
+*The VS Code extension: the card's source on the left, the rendered card on the
+right, updated as it is typed.*{ .hmd-caption }
 
 ## Specification
 
-The normative text lives in numbered proposals, in the style of lightweight ADRs
-or RFCs. Two are implemented: [HMD-0001](proposals/HMD-0001/README.md) fixes the
-grammar, the deterministic resolver, and `hmd lint`;
-[HMD-0002](proposals/HMD-0002/README.md) maps a tree of cards onto a MkDocs site.
-Two are experimental and specify no mechanism:
-[HMD-0003](proposals/HMD-0003/README.md) reserves HQL and its constraints without
-choosing a syntax, and [HMD-0004](proposals/HMD-0004/README.md) reserves
-`namespace:path/to/card` for documents served by another namespace without
-defining how a namespace ID is bound.
+The normative text is one document, the
+[HMD Language Specification](wiki/hmd-lang-spec.hmd): what a card is, what each
+construct means, and what an implementation must do with it. It describes no
+particular program, and no program's behaviour overrides it.
 
-All four are `drafted`, and the format will move before 1.0. The index is
-[Specifications](proposals/README.md).
+It is stated against a named baseline — CommonMark 0.31.2 — because "markdown"
+names a family rather than a standard, and a superset of an unnamed dialect
+specifies nothing. And it is versioned apart from the tools that implement it: a
+release of `hmd` does not imply a new language version, and a language version
+does not wait for one. Where two implementations disagree about something the
+text leaves under-determined, the language-neutral conformance corpus decides.
+
+The language is at 0.1. The text is drafted, and it will move before 1.0.
+
+How it gets there is a separate process, and deliberately a formal one. A change
+is argued out first as a numbered technical proposal — `HMD-0001`, `HMD-0002`,
+and so on — in the style of RFCs and lightweight ADRs: a problem, the decision
+taken, the alternatives rejected, and a tracker of its own. Most of them are not
+about the language at all, and cover the tools and the presentation layer
+instead: how a bare name is resolved on disk, what the linter reports, how a tree
+of cards becomes a published site. They are working documents, kept for their
+motivation and their rejected alternatives, and where one disagrees with the
+specification the specification is right. The index is
+[Proposals](proposals/README.md).
 
 ## Vision
 
 Markdown became the default plain text, and never got the part HTML had on its
-first day — a link that means something, a page that is part of a web rather than
-a file in a folder. Almost none of the ideas here are new; what is being
-attempted is a coherent specification of them.
+first day — links that mean something because they point into a knowledge graph,
+and a page that is part of a web rather than a file in a folder. Almost none of
+the ideas here are new; what is being attempted is a coherent specification of
+them.
 
 The longer argument is that this should not stop at one repository: independently
 authored and independently served hyper-markdown, named across the gap, read from
@@ -173,7 +212,8 @@ still unbuilt, is [Vision](public/vision.md).
 ## Status
 
 Pre-release. The scanner, resolver, linter, embed expander, renderer, and MkDocs
-plugin are implemented and tested. The specifications are still `drafted`. The
+plugin are implemented and tested. The language specification is at 0.1 and will
+still move. The
 living example is [the wiki](wiki/README.md), generated from `.hmd` cards in this
 repository; the exhaustive inventory of every feature, where the idea came from,
 and what is deferred or turned down is

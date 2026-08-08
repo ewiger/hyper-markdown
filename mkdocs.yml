@@ -110,6 +110,12 @@ nav:
   - Features: public/features.md
   - Presentation: public/presentation.md
   - Vision: public/vision.md
+  # The tutorial comes first because it is the one that can be read cold; the
+  # specification behind it is normative and assumes you have. Both are listed
+  # here as well as inside the derived wiki section, and MkDocs keeps the title
+  # from a page's *first* appearance in the nav — so both entries have to stay
+  # above `Wiki` for these titles to be the ones that survive.
+  - Tutorial: wiki/hmd-tutorial.md
   - Language Specification: wiki/hmd-lang-spec.md
   - Wiki:
       - Overview: wiki/README.md

@@ -15,15 +15,39 @@ something you are shipping and wrong for something you are still editing, so
 conversion runs one way on purpose.
 
 **Presenting** is what a viewer does, and a viewer can keep more than a file
-carries. Three matter. Any plain-text surface — an editor, GitHub's file view,
-`less`, an AI chat — shows a card as it is, wikilinks and all, and that is the
-property the whole format exists to protect. The **MkDocs** plugin builds a tree
-of cards into a published site, a hand-ordered book with a generated wiki inside
-it, and erases the embed boundary the way conversion does. The **VS Code**
-extension under construction keeps that boundary, showing embedded content as
-visibly embedded with its source attached. Python stays canonical for semantics:
-the specification and its conformance corpus are the contract between surfaces,
-not a shared runtime.
+carries. Three matter. They differ in what they are willing to keep, and in what
+you have to install to get it:
+
+* **Any plain-text surface** — an editor, GitHub's file view, `less`, a
+  terminal, an AI chat. A card is text, so every one of them shows it as it is,
+  wikilinks and all. Nothing implements this and nothing has to, which is the
+  property the whole format exists to protect.
+
+* **The MkDocs plugin** —
+  [`tools/hmd`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd),
+  shipped inside the Python package
+  [`hyper-markdown`](https://pypi.org/project/hyper-markdown/) beside the
+  `hmd render` converter. It builds a tree of cards into a published site — a
+  hand-ordered book with a generated wiki inside it, this one — and erases the
+  embed boundary the way conversion does.
+
+* **The VS Code extension** —
+  [`tools/hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext),
+  on the TypeScript document model in
+  [`tools/hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core).
+  Under construction. It keeps that boundary, showing embedded content as
+  visibly embedded with its source attached.
+
+![The VS Code extension previewing a card: source on the left, rendered card on
+the right, with resolved links, a table, a callout, and a d2
+diagram.](../assets/hmd-vsc-ext-screenshot-1.png){ .hmd-shot }
+
+*The extension previewing a card: `[[complexity]]` on the left arrives as a real
+link on the right, a fenced `d2` block as a drawn diagram, and the card's
+backlinks sit one tab away.*{ .hmd-caption }
+
+Python stays canonical for semantics: the specification and its conformance
+corpus are the contract between surfaces, not a shared runtime.
 
 ## Tools and targets
 
@@ -157,9 +181,12 @@ For a site that is the correct answer.
 ### The editor — live preview
 
 The other viewer under construction is a VS Code extension, developed on the
-`feat/vsc-ext` branch: a TypeScript document model (HMD-0020), the extension and
-its preview surface (HMD-0021), and D2 rendering inside the webview's content
-security policy (HMD-0022).
+`feat/vsc-ext` branch: a TypeScript document model
+([`tools/hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core),
+HMD-0020), the extension and its preview surface
+([`tools/hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext),
+HMD-0021), and D2 rendering inside the webview's content security policy
+(HMD-0022).
 
 The load-bearing difference is the one MkDocs gives up. A preview **keeps** the
 embed boundary — it shows content that arrived from another card as visibly

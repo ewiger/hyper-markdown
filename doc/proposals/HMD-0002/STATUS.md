@@ -14,8 +14,10 @@ book with the wiki as a section of its nav, green under `mkdocs build --strict`,
 and serving at <https://ewiger.github.io/hyper-markdown/> from a workflow
 artifact, carrying the project's own mark rather than stock Material. Builds are
 reproducible from `uv.lock`. The top bar now leads with the language: a
-`Language Specification` tab, which is now that card's only listing, and the
-`HMD-NNNN` proposals unlisted but still published. Nothing is known broken. What remains is
+`Tutorial` tab and a `Language Specification` tab — the latter a normative text
+rewritten from scratch, the former the teaching page that used to carry its
+name — with the `HMD-NNNN` proposals unlisted but still published. Nothing is
+known broken. What remains is
 three open questions blocking `drafted → accepted`, and one deferred decision
 about which MkDocs successor to follow.
 
@@ -63,6 +65,8 @@ when a gate would catch its return, and every row below has one.
 | M5.21 | Site branding — the README's `⚡` as an SVG logo and favicon, amber-on-black palette, repository and social links, a hero on the cover | — | `tests/test_docs.py` |
 | M5.22 | The book's front chapters restructured: the cover carries the vision, `rich-content.md` → `features.md` (what a page can be, shown working), `publishing.md` → `presentation.md` (conversion targets, then viewers). Contributor material — the CI gates, the `doc/` conventions, and Pages deployment — left the book for `DEVELOP.md` at the repo root, referenced from the README | — | `mkdocs build --strict`, `tests/test_docs.py` |
 | M5.25 | The top bar leads with the language, not the tooling: the `Specifications` section — six rows of `HMD-NNNN` — is gone from the nav, replaced by one `Language Specification` tab pointing at the card. The proposals stay in the build under `not_in_nav` rather than `exclude_docs`, since the cover, every public chapter, and four cards link to them. `hmd-lang-specification.hmd` → `hmd-lang-spec.hmd`, retitled *HMD Language Specification*, and it now opens by naming its own version and its CommonMark baseline | — | `tests/test_docs.py` |
+| M5.26 | The tab named `Language Specification` now leads to one. The card that held that name taught the syntax rather than defining it, so it moved to `hmd-tutorial.hmd` (*Tutorial*, a new tab immediately before it) and `hmd-lang-spec.hmd` was rewritten from scratch as normative text: conformance and the CommonMark baseline, the lexical model, the grammar, heading anchors, the namespace, resolution with its `bind`/`resolve` algorithms, the four frontmatter keys, embed expansion, the `HMD001`–`HMD017` table, and what is reserved or absent in 0.1. Consolidated from HMD-0001 and HMD-0002, which revert to being records of motivation and rejected alternatives. The version declaration `tests/test_docs.py` reads stayed in the spec card, so the language still has exactly one | — | `tests/test_docs.py`, `mkdocs build --strict` |
+| M5.27 | The tutorial teaches from source rather than by demonstration. Its two inherited-syntax sections used to exercise each construct in the sentence that named it, so a reader saw the *result* and never the bytes; every construct now shows a fenced source block followed by its rendered result, with four-backtick fences where the source is itself a fence. Resolution is worked against a printed tree, each frontmatter key gets its own example, and both a warning and an ambiguity error are shown as `hmd lint` prints them | — | rendered HTML: 43 `<pre>` blocks, no red links |
 
 The standing lesson from 0003 and 0005: **a green build is not evidence of
 correct output.** 0003 was a green build with wrong output; 0005 was a green

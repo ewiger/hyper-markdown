@@ -81,9 +81,11 @@ rest of the tree to follow.
 
 ## Where the full picture lives
 
-- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) teaches
-  every construct, start to finish — read it once and you can write the
-  format.
+- [The HMD Tutorial](../wiki/hmd-tutorial.hmd) teaches every construct, start
+  to finish — read it once and you can write the format.
+- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) is the normative
+  text behind it: the grammar, the resolution algorithm, and the diagnostics,
+  stated exactly.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive
   inventory: every feature, what provides it, and where it stands — including
   what is deferred or deliberately absent, so nothing gets re-argued from

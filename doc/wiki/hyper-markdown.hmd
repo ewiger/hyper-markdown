@@ -38,8 +38,9 @@ card in the wiki space, never to a file elsewhere in the repo.
   uses ordinary relative Markdown links, never `[[ ]]`.
 
 Sections, single blocks, and embeds are addressable too, and imports can bind a
-name explicitly. Those are taught in full by [[hmd-lang-spec]]; this card covers
-only the conventions this repository writes by.
+name explicitly. Those are taught in full by [[hmd-tutorial]] and defined
+exactly by [[hmd-lang-spec]]; this card covers only the conventions this
+repository writes by.
 
 ## Writing a card
 

@@ -14,20 +14,23 @@ subfolders.
 
 1. [Hyper-markdown](hyper-markdown.hmd) — what a card is and why the knowledge
    base is a graph of them. Start here.
-2. [HMD Language Specification](hmd-lang-spec.hmd) — the syntax, taught
-   start to finish. Read it once and you can write hyper-markdown.
-3. [Feature list](hmd-feature-list.hmd) — every supported construct as a numbered
+2. [HMD Tutorial](hmd-tutorial.hmd) — the syntax, taught start to finish. Read
+   it once and you can write hyper-markdown.
+3. [HMD Language Specification](hmd-lang-spec.hmd) — the normative text behind
+   the tutorial: grammar, resolution, diagnostics, and what a conforming
+   implementation owes. Consult it when the answer has to be exact.
+4. [Feature list](hmd-feature-list.hmd) — every supported construct as a numbered
    row, each pointing at the text that specifies it. An index to consult, not a
    page to read through.
-4. [MD ↔ HMD interoperability](md-hmd-interop.hmd) — a sketch of converting
+5. [MD ↔ HMD interoperability](md-hmd-interop.hmd) — a sketch of converting
    between plain Markdown and hyper-markdown in both directions. Nothing here is
    decided yet.
 
 ## The process
 
-5. [Tracking](tracking.hmd) — where progress is recorded, and why there is one
+6. [Tracking](tracking.hmd) — where progress is recorded, and why there is one
    tracker per proposal rather than a repository-wide list.
-6. [Kanban board](kanban.hmd) — how `doc/issues/` indexes the work currently in
+7. [Kanban board](kanban.hmd) — how `doc/issues/` indexes the work currently in
    flight, and how that differs from a proposal.
 
 ## Writing a card

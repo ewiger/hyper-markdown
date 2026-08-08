@@ -79,6 +79,24 @@
   margin-bottom: 1.6rem;
 }
 
+/* A screenshot is a picture of another program, and an unframed one on a plain
+   page reads as part of this one. The border is what says "this is a window,
+   elsewhere"; the caption below it is set small so it reads as a label rather
+   than as the next paragraph. */
+.md-typeset img.hmd-shot {
+  width: 100%;
+  border: 1px solid var(--md-default-fg-color--lighter, #ccc);
+  border-radius: 4px;
+}
+
+.md-typeset em.hmd-caption {
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  font-style: normal;
+  opacity: 0.7;
+}
+
 /* Code is the most common element on this site, so it is where a brand color
    is worth spending: a rule down the gutter, not a tint over the text. */
 .md-typeset pre > code {

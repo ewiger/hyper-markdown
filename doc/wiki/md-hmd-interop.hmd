@@ -91,6 +91,7 @@ touching it? Sidecar frontmatter, a manifest, or nothing at all. Open.
 - Does a compiler framing want a `hmd build` command distinct from
   `hmd render`, the way `tsc` is distinct from a formatter?
 
-See [[hmd-lang-spec]] for the format itself, and
+See [[hmd-tutorial]] to learn the format and [[hmd-lang-spec]] for its
+normative definition, and
 [HMD-0002](../proposals/HMD-0002/README.md) for the erasure direction as it is
 actually being built — MkDocs output, one way only.
