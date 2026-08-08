@@ -59,7 +59,7 @@ Python corpus runner are the next blocks.
 | C3.2 | `WorkspaceHost` port; no Node builtins in `src/` | §1 | done |
 | C4.1 | `lint.ts` — all 16 rules, sorted, no new rule IDs | §9 | done |
 | C4.2 | `nav` mapping, visibility inheritance, HMD017 | HMD-0002 §2 | **blocked** — see below |
-| C5.1 | `conformance/cases/` generated from the canonical implementation | §10 | done |
+| C5.1 | `examples/conformance/cases/` generated from the canonical implementation | §10 | done |
 | C5.2 | `conformance-xfail.json`, ledger honoured, passing entry fails the build | §10 | done |
 | C5.3 | Python corpus runner | §10 | **ready** — belongs to the branch owning `tools/hmd/` |
 | C6.1 | `expand.ts` — page, `#Section`, `#^id`, depth 16, cycle stack | §8 | done |

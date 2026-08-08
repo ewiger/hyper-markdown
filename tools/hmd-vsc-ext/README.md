@@ -11,6 +11,10 @@ resolver, and renderer come from
 [`@hyper-markdown/core`](../hmd-ts-core/README.md), specified by
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
+The format itself — every construct, the resolution rules, the rule IDs — is
+documented at [hyper-markdown.org](https://hyper-markdown.org/). This page is
+about the extension.
+
 ## What it does
 
 - **Rendered preview**, updating from the unsaved buffer, scroll-synced with the
@@ -66,14 +70,46 @@ while you read elsewhere, click the 📌 in its title bar; the breadcrumb shows
 `pinned` while it is held. Tabs come back on their own cards after a window
 reload.
 
+## Install
+
+Not on the marketplace yet. Build the VSIX from a clone of the
+[monorepo](../../README.md) and install it:
+
+```bash
+npm install
+npm run -w hmd-vsc-ext package
+code --install-extension tools/hmd-vsc-ext/hmd-vsc-ext-0.1.0.vsix
+```
+
 ## Known gaps
 
-Tracked in [`conformance-xfail.json`](../hmd-ts-core/conformance-xfail.json):
-collapsible `???` details blocks, D2 diagrams, math, and `admonition` callouts
-render as plain markdown for now. Raw HTML in a card is escaped rather than
-passed through — a deliberate divergence from the MkDocs build, because a
-webview rendering workspace HTML is a script-injection surface.
+Every divergence from the canonical `hmd` CLI is ledgered with its reason in
+[`conformance-xfail.json`](../hmd-ts-core/conformance-xfail.json), and a ledgered
+entry that stops diverging fails the build. The ones worth knowing about while
+you write:
+
+- **Raw HTML in a card is escaped** rather than passed through. Deliberate, and
+  a divergence from the MkDocs build: a webview rendering HTML out of a
+  workspace is a script-injection surface reachable from any cloned repository.
+- **`HMD017` is never reported.** The publication model behind it —
+  `nav.visibility`, which the CLI inherits down a subtree and defaults to
+  private — is unported, so nothing here knows whether a card is published.
+- **A setext heading** (a title underlined with `=====`) gets a slug here and
+  none in the CLI, so `[[Card#Section]]` against one resolves in the preview and
+  not in a build. Write ATX headings.
+- **Math is typeset by KaTeX** rather than by the site's MathJax, and `~x~`
+  subscript is unsupported.
+- **The graph tab** is specified and not built yet.
+
+What has changed is in [CHANGELOG.md](CHANGELOG.md); work points are tracked in
+[`tools/STATUS.md`](../STATUS.md).
+
+## Working on it
+
+[DEVELOP.md](DEVELOP.md) is this extension's guide: the two bundles, the
+Extension Development Host and why it is a script rather than an F5
+configuration, what to walk through by hand, and how the VSIX is built.
 
 ## License
 
-MIT.
+MIT — see [LICENSE](LICENSE).

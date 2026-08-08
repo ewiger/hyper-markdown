@@ -1,7 +1,7 @@
 # Conformance corpus
 
 Language-neutral fixtures shared by every implementation of hyper-markdown.
-Specified by [HMD-0020](../doc/proposals/HMD-0020/README.md) §10.
+Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md) §10.
 
 This corpus is what replaces principle P5 (*one implementation*). Two
 implementations of one grammar drift silently unless something fails loudly;
@@ -9,7 +9,7 @@ this is the something.
 
 ## Canonicity
 
-The Python package under [`tools/hmd/src/hyper_markdown/`](../tools/hmd/src/hyper_markdown/) is
+The Python package under [`tools/hmd/src/hyper_markdown/`](../../tools/hmd/src/hyper_markdown/) is
 **canonical**. Where implementations disagree on a case this corpus covers,
 Python defines the correct answer and the other implementation carries the bug.
 Canonicity is about arbitration, not quality: it exists so that "which one is
@@ -22,7 +22,7 @@ resolutions — never written by hand.
 ## Layout
 
 ```text
-conformance/cases/<case-name>/
+examples/conformance/cases/<case-name>/
   tree/           the input namespace: .hmd files and directories
   config.toml     optional; the case's .hmd/config.toml
   expected.json   { diagnostics: [...], resolutions: [...] }
@@ -54,7 +54,7 @@ leaks into the contract.
 ## The ledger
 
 Divergence is permitted. Silence is not. Known differences live in
-[`tools/hmd-ts-core/conformance-xfail.json`](../tools/hmd-ts-core/conformance-xfail.json),
+[`tools/hmd-ts-core/conformance-xfail.json`](../../tools/hmd-ts-core/conformance-xfail.json),
 each naming the case, the reason, and where it is tracked. **A ledger entry
 that passes fails the build** — an expected failure that starts succeeding and
 is not removed is how a ledger rots into a lie.

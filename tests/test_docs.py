@@ -38,6 +38,12 @@ def _prose_sources() -> list[Path]:
     `git ls-files` alone lists only what is already committed, which makes a
     guard blind to the file being written — the case it most needs to catch.
     `--exclude-standard` keeps `.gitignore` honoured, so `site/` stays out.
+
+    The index also names files that are no longer on disk: a file moved with
+    `mv` rather than `git mv` stays cached at its old path until the deletion
+    is staged. Those are dropped, because a path with no bytes behind it has no
+    prose to check — reading it would turn every in-progress move into a
+    `FileNotFoundError` from a guard that is about content.
     """
     out = subprocess.run(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.md", "*.hmd"],
@@ -47,7 +53,8 @@ def _prose_sources() -> list[Path]:
         check=True,
     ).stdout.split()
     # .grem/ is dormant control data the project does not maintain.
-    return sorted({ROOT / p for p in out if not p.startswith(".grem/")})
+    paths = {ROOT / p for p in out if not p.startswith(".grem/")}
+    return sorted(p for p in paths if p.is_file())
 
 
 def _offending_lines(text: str):

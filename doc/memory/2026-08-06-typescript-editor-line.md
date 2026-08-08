@@ -19,7 +19,7 @@ would collide on every merge.
 `HMD-0002`. `feat/vsc-ext` owns the TypeScript packages and `HMD-0020+`.
 `feat/mvp` is the merge target; both directions get merged periodically. Work
 stays in disjoint directories on purpose — `tools/hmd/` is Python's,
-`tools/hmd-ts-core/`, `tools/hmd-vsc-ext/`, and `conformance/` are
+`tools/hmd-ts-core/`, `tools/hmd-vsc-ext/`, and `examples/conformance/` are
 TypeScript's — so the merges stay mechanical. Those were `src/`, `tests/`, and
 `packages/` until the repository moved to a `tools/` layout; the disjointness is
 the point, not the names. `doc/proposals/README.md` is the one file both streams append to.
@@ -29,7 +29,7 @@ the point, not the names. `doc/proposals/README.md` is the one file both streams
 The sketch's "one implementation — semantics live in Python" cannot survive the
 parsers in other languages the project expects, and a Rust implementation is a
 live possibility. Replaced by: Python is canonical, a language-neutral
-conformance corpus at `conformance/cases/` is the contract, and an
+conformance corpus at `examples/conformance/cases/` is the contract, and an
 expected-failure ledger makes divergence explicit. Slight drift is acceptable
 in the short term; silent drift is not.
 

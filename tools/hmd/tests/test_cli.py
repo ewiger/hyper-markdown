@@ -19,12 +19,11 @@ from typer.testing import CliRunner
 from hyper_markdown import __version__
 from hyper_markdown.cli import app
 
-#: `tools/hmd`, the project that builds the `hyper-markdown` distribution.
+#: `tools/hmd`, the project that builds the `hyper-markdown` distribution — and,
+#: since 2026-08-08, the owner of the changelog it releases from. The repository
+#: root keeps only an index of the three tools' changelogs, so a version section
+#: looked for there would never be found again.
 TOOL_ROOT = Path(__file__).resolve().parents[1]
-#: The repository, which owns the changelog the whole monorepo releases from.
-#: Named from `TOOL_ROOT` rather than counted out again, so the two cannot
-#: disagree about how deep the tool sits.
-REPO_ROOT = TOOL_ROOT.parents[1]
 
 runner = CliRunner()
 
@@ -59,9 +58,9 @@ def test_the_version_is_declared_once():
 
 def test_the_changelog_has_an_entry_for_the_current_version():
     """A bump without a changelog entry fails here rather than on the tag."""
-    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    changelog = (TOOL_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
 
     assert re.search(rf"^## \[{re.escape(__version__)}\]", changelog, re.M), (
-        f"CHANGELOG.md has no `## [{__version__}]` section. Releasing is a"
+        f"tools/hmd/CHANGELOG.md has no `## [{__version__}]` section. Releasing is a"
         " changelog entry, a version bump, and a tag — in that order."
     )

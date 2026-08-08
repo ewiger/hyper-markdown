@@ -54,5 +54,5 @@ frozen; a copy is cheaper than a merge conflict.
 - The manifest carries `"icon": "media/logo.png"`, and
   `npm run -w hmd-vsc-ext package` builds a VSIX that accepts it.
 - A preview tab shows the bolt, and so does the editor title-bar button.
-- `doc/DEVELOPER.md` records the `rsvg-convert` invocation, so the PNG can be
-  regenerated without anyone having to reconstruct the padding.
+- `tools/hmd-vsc-ext/DEVELOP.md` records the `rsvg-convert` invocation, so the
+  PNG can be regenerated without anyone having to reconstruct the padding.

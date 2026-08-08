@@ -10,9 +10,10 @@ Every tool lives in its own directory under `tools/`:
   conformance contract. A second implementation, not extension code.
 - `tools/hmd-vsc-ext/` — the VS Code extension.
 
-`conformance/cases/` and `examples/` stay at the root: both belong to every
-implementation, not to one. `tests/` at the root holds the repository's own
-guards; a tool's own tests live under the tool.
+`examples/` stays at the root, and the conformance corpus lives inside it at
+`examples/conformance/cases/`: fixture trees belong to every implementation,
+not to one. `tests/` at the root holds the repository's own guards; a tool's
+own tests live under the tool.
 
 Treat `doc/` as a modular knowledge base:
 

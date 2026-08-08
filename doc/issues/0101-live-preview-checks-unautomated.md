@@ -36,8 +36,8 @@ appears on the second keystroke.
   `tools/STATUS.md`, E5.2).
 - It covers each row above end to end: edit an unsaved buffer, assert what the
   preview holds.
-- `doc/DEVELOPER.md`'s manual walkthrough shrinks to the things a human should
-  still eyeball — layout, theming, whether it feels fast.
+- `tools/hmd-vsc-ext/DEVELOP.md`'s manual walkthrough shrinks to the things a
+  human should still eyeball — layout, theming, whether it feels fast.
 
 ## Depends on
 

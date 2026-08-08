@@ -4,8 +4,12 @@ Parser, resolver, and renderer for [hyper-markdown](https://github.com/ewiger/hy
 in TypeScript, with no Python and no editor API.
 
 Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md). The Python
-package under [`tools/hmd/src/hyper_markdown/`](../../tools/hmd/src/hyper_markdown/) is **canonical**:
-where the two disagree, Python is right and this one carries the bug.
+package under [`tools/hmd/`](../hmd/) is **canonical**: where the two disagree,
+Python is right and this one carries the bug.
+
+One of three tools in the [hyper-markdown monorepo](../../README.md); the format
+itself is documented at [hyper-markdown.org](https://hyper-markdown.org/). Not
+published to npm yet — the VS Code extension resolves it from the workspace.
 
 ## Use
 
@@ -58,12 +62,21 @@ makes scroll sync and click-through possible at all.
 
 ## Conformance
 
-`npm test` runs the shared corpus at [`conformance/`](../../conformance/) plus a
+`npm test` runs the shared corpus at
+[`examples/conformance/`](../../examples/conformance/) plus a
 parity check that shells out to `hmd lint` and requires byte-identical
 diagnostics on `examples/small` and `doc/wiki`. Known divergences are listed in
 [`conformance-xfail.json`](conformance-xfail.json); a ledgered case that starts
 passing fails the build.
 
+Work points are tracked in [`tools/STATUS.md`](../STATUS.md), and what has
+changed is in [CHANGELOG.md](CHANGELOG.md).
+
+## Working on it
+
+[DEVELOP.md](DEVELOP.md) is this package's guide — build, the two constraints
+that are easy to break, and how the ledger is kept honest.
+
 ## License
 
-MIT.
+MIT — see [LICENSE](LICENSE).

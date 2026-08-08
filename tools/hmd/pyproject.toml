@@ -15,13 +15,20 @@ name = "hyper-markdown"
 # from a checkout.
 dynamic = ["version"]
 description = "A strict, machine-checkable markdown dialect for project knowledge bases."
-# `readme`, `license-files`, and the `examples` tree of `MANIFEST.in` all name
-# files that live at the repository root and are shared with the rest of the
-# monorepo. setuptools refuses to read anything outside the project directory —
-# `readme = "../../README.md"` fails the build outright — so each one is a
-# symlink checked into git beside this file. The symlink is what keeps one
-# source of truth: the PyPI long description is the repository's own README,
-# not a copy of it that drifts.
+# `readme`, `license-files`, and the changelog in `MANIFEST.in` are this tool's
+# own files, checked in beside this one. They were symlinks into the repository
+# root until 2026-08-08, which made the PyPI long description the monorepo's
+# front page — a page that opened by explaining the format and closed by naming
+# three tools, two of which cannot be `pip install`ed. Every tool under `tools/`
+# now carries its own set, and this README is about the `hmd` command.
+#
+# Two rules that follow from a README being read on PyPI rather than on GitHub.
+# Its links MUST be absolute: a relative link in a long description resolves
+# against `pypi.org`, so the old symlinked README's links were dead on the page
+# most users see first. And it MUST NOT be re-pointed at the root by any means,
+# including a symlink — setuptools refuses to read outside the project directory
+# anyway (`readme = "../../README.md"` fails the build outright), so the only
+# other spelling was the one just removed.
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -106,7 +113,7 @@ dev = ["pytest>=8,<10"]
 Homepage = "https://ewiger.github.io/hyper-markdown/"
 Documentation = "https://ewiger.github.io/hyper-markdown/"
 Repository = "https://github.com/ewiger/hyper-markdown"
-Changelog = "https://github.com/ewiger/hyper-markdown/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/CHANGELOG.md"
 Issues = "https://github.com/ewiger/hyper-markdown/issues"
 
 [project.scripts]

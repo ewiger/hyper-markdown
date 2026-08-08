@@ -20,9 +20,9 @@ behind an injectable filesystem port, and a renderer emitting a **document IR**
 in which ordinary GFM content is opaque HTML and every hyper-markdown construct
 survives as a typed node carrying its source span. It retires principle P5
 (*one implementation*) and replaces it with a language-neutral conformance
-corpus at `conformance/`, a canonical-implementation rule naming Python as the
-reference, and an expected-failure ledger that makes divergence explicit and
-bounded. No language server, no editor API, and no new lint rule IDs.
+corpus at `examples/conformance/`, a canonical-implementation rule naming
+Python as the reference, and an expected-failure ledger that makes divergence
+explicit and bounded. No language server, no editor API, and no new lint rule IDs.
 
 ## Motivation
 
@@ -87,7 +87,7 @@ package.json                 npm workspaces root, private
 tools/hmd-ts-core/           @hyper-markdown/core
 tools/hmd-vsc-ext/           the extension (HMD-0021)
 tools/STATUS.md              implementation status, JS side
-conformance/cases/           the shared corpus (§10)
+examples/conformance/cases/  the shared corpus (§10)
 ```
 
 - `tools/hmd-ts-core` MUST NOT import `vscode`, and MUST NOT import
@@ -408,7 +408,7 @@ discussion.
 implementations' test trees:
 
 ```text
-conformance/
+examples/conformance/
   cases/<case-name>/
     tree/                 the input namespace, .hmd files and directories
     config.toml           optional; the case's .hmd/config.toml
@@ -421,7 +421,7 @@ conformance/
   Both are plain data, so neither implementation's object model leaks into the
   contract.
 - Each implementation MUST ship a runner that executes every case in
-  `conformance/cases/` and is part of its default test command.
+  `examples/conformance/cases/` and is part of its default test command.
 - This **supersedes** HMD-0001's Test Plan, which places the corpus at
   `tests/corpus/<case>/`. The corpus was unbuilt when this proposal was
   written, so the move costs nothing; a corpus living inside one
@@ -463,8 +463,8 @@ project-level effects:
   once this proposal is accepted; the sketch's status as a v0.1 draft means the
   annotation is cheaper than a rewrite.
 - **The conformance corpus moves** from HMD-0001's `tests/corpus/` to
-  `conformance/cases/`, per §10. HMD-0001's Test Plan should be amended when it
-  is next revised.
+  `examples/conformance/cases/`, per §10. HMD-0001's Test Plan should be
+  amended when it is next revised.
 - **The Python implementation is unaffected.** No file under `tools/hmd/` or
   the HMD-0001 and HMD-0002 proposal folders changes under this proposal,
   which is what lets the two branches merge in either direction without
@@ -605,3 +605,7 @@ npm run -w @hyper-markdown/core lint
 - 2026-08-06: §7 gains `Block.key` and the partial-input rule; live-on-type
   editing (VSX-013, VSX-018, VSX-019) promoted from a consequence of the
   architecture to a constraint the parser and IR are designed against
+- 2026-08-08: the corpus moves from `conformance/` to `examples/conformance/`,
+  under the layout HMD-0024 records. Only the path changes: the cases are the
+  same data, still outside both implementations' test trees, and every rule of
+  §10 stands

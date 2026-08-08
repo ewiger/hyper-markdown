@@ -2,20 +2,21 @@
  * Where the repository root is, found rather than counted.
  *
  * Both suites that need it — the conformance runner and the parity check —
- * read fixtures that live above this package: `conformance/cases/` and
- * `examples/`. The previous spelling was `resolve(here, "../../..")`, which is
- * correct only for one nesting depth and, when that depth changes, resolves to
- * some other real directory and reports "no cases found" or an empty tree
- * instead of erroring. That is the failure mode a move must not have, so the
- * root is located by the markers the callers actually depend on, and a
- * checkout that does not have them raises here with the search printed.
+ * read fixtures that live above this package: `examples/conformance/cases/`
+ * and the runnable trees beside it. The previous spelling was
+ * `resolve(here, "../../..")`, which is correct only for one nesting depth
+ * and, when that depth changes, resolves to some other real directory and
+ * reports "no cases found" or an empty tree instead of erroring. That is the
+ * failure mode a move must not have, so the root is located by the markers the
+ * callers actually depend on, and a checkout that does not have them raises
+ * here with the search printed.
  */
 
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const MARKERS = ["conformance/cases", "examples"];
+const MARKERS = ["examples/conformance/cases", "examples/small"];
 
 function findRepoRoot(start: string): string {
   const searched: string[] = [];

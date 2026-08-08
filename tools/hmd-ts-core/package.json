@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "Parser, resolver, and renderer for hyper-markdown (HMD-0020).",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ewiger/hyper-markdown.git",
+    "directory": "tools/hmd-ts-core"
+  },
+  "bugs": {
+    "url": "https://github.com/ewiger/hyper-markdown/issues"
+  },
+  "homepage": "https://hyper-markdown.org/",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +22,10 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "engines": {

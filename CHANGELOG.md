@@ -1,146 +1,145 @@
-# Changelog
+# Changelog — the hyper-markdown language
 
-Notable changes to hyper-markdown, newest first. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html) with the usual `0.x`
-caveat: **the format itself may change between minor versions.** Until `1.0`,
-treat a minor bump as potentially breaking for `.hmd` sources, not only for the
-Python API.
+The history of the **format and its design**: what the language gained, what it
+deliberately does not have, and which decisions were reversed. The root of this
+repository is the language — the numbered records under
+[`doc/proposals/`](doc/proposals/), the models beside them, and the site they are
+published as. The software that implements the language lives under `tools/`, and
+each package keeps its own history:
 
-## [Unreleased]
+| Package | Changelog | Released as |
+| --- | --- | --- |
+| [`tools/hmd/`](tools/hmd/) | [CHANGELOG.md](tools/hmd/CHANGELOG.md) | [`hyper-markdown`](https://pypi.org/project/hyper-markdown/) on PyPI, tagged `vX.Y.Z` |
+| [`tools/hmd-ts-core/`](tools/hmd-ts-core/) | [CHANGELOG.md](tools/hmd-ts-core/CHANGELOG.md) | `@hyper-markdown/core` — not published yet |
+| [`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/) | [CHANGELOG.md](tools/hmd-vsc-ext/CHANGELOG.md) | `hyper-markdown.hmd-vsc-ext` — not published yet |
 
-## [0.1.1] — 2026-08-08
+The dependency runs one way. A tool depends on the specification; the
+specification does not depend on a tool, and a decision recorded here is never
+"whatever the implementation happens to do". The exception is deliberate and is
+the project walking its own talk: this repository's documentation *is* a
+hyper-markdown wiki, published by the MkDocs plugin the Python tool ships, so a
+specification that made the site unbuildable would be caught by its own
+publication.
 
-A dependency-correctness release. No behaviour of the format, the CLI, or the
-plugin changed.
+**Sections are dated rather than numbered.** Every record is still `drafted` and
+the language has no released version of its own; until `1.0` the format's version
+rides on the canonical implementation, and a minor bump there may be breaking for
+`.hmd` sources. Progress is not tracked here — every proposal has a
+`STATUS.md` beside it, and that is the only place work is recorded.
 
-### Fixed
+## 2026-08-08
 
-- **`hmd render --to html` was unprotected against the Pygments 2.20 defect.**
-  `pymdownx.superfences` is loaded by the HTML renderer, so it is a *base*
-  dependency — but 0.1.0 carried its `pygments<2.20` guard in the `mkdocs`
-  extra. A plain `pip install hyper-markdown` could therefore resolve a
-  combination in which every fenced code block rendered as running text, with
-  nothing raised and no site involved.
-- **The README told a `pip install` user to lint `examples/small`**, which
-  travels in the repository and the source archive but not in the wheel. The
-  quickstart now lints your own tree, and points at a clone for the fixture.
-- **The card that teaches the format taught resolution wrongly.**
-  `doc/wiki/hyper-markdown.hmd` described a bare name as matching "by filename
-  alone", predating the spine walk. It now states the real order — beside the
-  card, then each folder above without recursion, nearest winning, a whole-tree
-  sweep only if that fails, and two matches in the sweep an error rather than a
-  tie-break.
+### Added
+
+- **Publication is a property of a card, and it is opt-in.** `nav.visibility`
+  decides whether a card reaches a built site at all: absent it, there is no page
+  and no URL. Visibility inherits the way `use` does — the card, then the nearest
+  ancestor folder note, then the default — so a folder note publishes its whole
+  subtree and a card inside opts out on its own. The default runs the strict way
+  because the two failure modes are not symmetric: a page that should have
+  shipped and did not is visible to its author on the next build, while one that
+  shipped and should not have is a leak nobody looks for.
+- **`HMD017`** — a published card linking to or embedding an unpublished one.
+  Expansion copies the target's bytes into the host page, so the guard cannot sit
+  after expansion: the embed case is exactly where an unchecked gate would have
+  published private prose inside a public card. A blocked embed degrades to the
+  same red link a blocked link gets.
 
 ### Changed
 
-- **`pygments<2.20` is gone; `pymdown-extensions>=10.21.2` replaces it.** The
-  defect was never Pygments' own: 10.21.2, published the same day as Pygments
-  2.20.0, restores fence matching. Bisected against 2.20.0 — 10.20.1 and 10.21
-  broken, 10.21.2, 10.21.3, and 11.0.1 correct. The constraint now sits in the
-  base dependencies, with the code that needs it.
-- **Every dependency range is capped at the next major**, the bound a dependency
-  is allowed to break its own contract at: `typer>=0.12,<1`, `pyyaml>=6,<7`,
-  `markdown>=3.6,<4`, `pymdown-extensions>=10.21.2,<12`, `pytest>=8,<10`. The
-  existing `mkdocs>=1.6,<2` and `mkdocs-material>=9,<10` are unchanged.
-- **`uv.lock` is committed**, and CI and the Pages deploy install with
-  `uv sync --locked` rather than resolving fresh on every run. The published
-  site is now built from the same versions the tests ran against, and a
-  dependency upgrade arrives as a reviewable diff. The wheel smoke test stays
-  deliberately unlocked, since its job is to exercise what `pip install` gives a
-  stranger.
+- **`nav` is a mapping, not an integer.** `nav: 10` becomes `nav: {order: 10}`.
+  Ordering was simply the dimension that existed first, and `visibility` arrived
+  the same day to prove the point — a scalar would have needed a second spelling
+  within hours. Widening the value once, before the key had users outside this
+  repository, is cheaper than carrying two forms forever. The old form is a
+  diagnostic rather than a silent default, because a card carrying it is asking to
+  be ordered and the quiet outcome — sorting last — is the failure its author
+  would not look for.
+- **The repository became a monorepo of tools**, one directory per shippable
+  unit, and the language server was decided: Python on `pygls`, living with the
+  canonical implementation, because a language server is a semantics server and a
+  third home for resolution behaviour is a third thing that can disagree with the
+  arbiter. The extension still requires no Python. One existing precaution became
+  load-bearing in the process: every entry point must accept a document's *text*,
+  since an unsaved buffer is a language server's ordinary input.
+  [HMD-0024](doc/proposals/HMD-0024/README.md)
 
-Contributor setup is now `uv sync --locked --all-extras`; see
-[DEVELOP.md](DEVELOP.md).
+## 2026-08-07
 
-## [0.1.0] — 2026-08-08
+### Added
 
-First public release. Everything below is new; there is nothing to compare it
-against.
+- **Diagrams are specified as content, not as a rendering flourish.** A `d2`
+  fence becomes its own block kind in the document model, cached by the hash of
+  its source, reaching a page as a `data:` URI. The renderer is a binary the
+  project depends on rather than a library it links: with no renderer present a
+  diagram degrades to its own labelled source, so a missing tool is never a
+  failed build. [HMD-0022](doc/proposals/HMD-0022/README.md)
+- **A name for computed content, and no syntax for it.** HQL — a card that
+  computes its content from the graph instead of listing it by hand — is reserved
+  with the constraints any grammar must satisfy and deliberately no grammar.
+  [HMD-0003](doc/proposals/HMD-0003/README.md)
+- **The hyper web, as a shape rather than a mechanism.** What a module is, what a
+  namespace is, and why the two are not the same thing; the form
+  `namespace:path/to/card` names a place to look up front, and what answers for
+  that name need not be local, static, or singular. No binding syntax and no wire
+  protocol. [HMD-0004](doc/proposals/HMD-0004/README.md)
 
-### The format
+### Changed
 
-- **Six owned constructs** on top of GitHub-flavored markdown: wikilinks,
-  aliased links, heading links, block anchors, block references, and the three
-  embed forms. Everything else is ordinary GFM.
-- **Deterministic resolution.** A bare name is resolved against explicit imports
-  first, then the *spine* — this folder, then each folder above it, probed
-  without recursion — then imported search paths, then a whole-tree sweep. A
-  name can never reach sideways into a sibling namespace without an import.
-- **Ambiguity is an error, not a tie-break.** If a name could mean two pages,
-  the build says so rather than picking one.
-- **Frontmatter** carries `tags`, `use`, `import`, and `nav`. Both import forms
-  are supported: named with an alias, and star, which contributes a search path.
-- **Folder notes.** `a/b/index.hmd` and `a/b.hmd` are two spellings of one page.
+- **A proposal is a complete text.** Records are written to be read start to
+  finish by someone who has opened no other file: no feature IDs, question IDs,
+  or section numbers standing in for the claim itself, and surviving pointers
+  collected in one *See also* section. Subsections are titled by what they cover,
+  which is also why heading numbers were removed — a numbered heading is what
+  makes `§5.3` citable, and a named one survives an edit.
 
-### The `hmd` command
+## 2026-08-06
 
-- `hmd lint` — parse, resolve, and report. Sixteen rules with stable IDs, text
-  or JSON output, `--strict` to count warnings as errors. Exit codes are pinned
-  for CI: `0` clean, `1` diagnostics, `2` usage error.
-- `hmd render PATH --to markdown|html` — expand embeds and rewrite resolved
-  links. Embed depth is capped at 16 (`HMD008`) and cycles are reported
-  (`HMD007`).
-- `hmd graph` — the resolved link graph as JSON.
-- `hmd info` — the resolved root and the discovery policy in force.
-- `hmd --version`.
-- Every command takes `--root` to override the namespace root, which otherwise
-  comes from the `wiki` setting in `.hmd/config.toml` and defaults to
-  `doc/wiki`. A `.hmd/` directory doubles as a project-root marker, so any
-  subtree can be self-contained.
+### Added
 
-### Publishing
+- **The format has a second implementation, and a contract between the two.**
+  Cards render live in an editor from a TypeScript implementation, with the
+  document model, its typed nodes, and the preview surface specified rather than
+  left to the client. [HMD-0020](doc/proposals/HMD-0020/README.md),
+  [HMD-0021](doc/proposals/HMD-0021/README.md)
+- **Book-mode rendering.** A tree of cards builds as a site: the output URL for a
+  card, the nav order, where embeds expand, and how a wiki sits *inside* a
+  hand-ordered book. `nav` joins the reserved frontmatter keys, which amends the
+  closed set the grammar had fixed. [HMD-0002](doc/proposals/HMD-0002/README.md)
 
-- A **MkDocs plugin**, registered through the `mkdocs.plugins` entry point and
-  installed with the `mkdocs` extra. It registers `.hmd` files as pages, derives
-  the nav from the namespace tree, expands embeds, and rewrites every wikilink
-  to a source-relative link that MkDocs resolves and validates itself.
-- A card at `a/b.hmd` serves at `a/b/`; cards sort by path, or by a `nav:`
-  integer in their frontmatter.
-- **A book with a wiki in it.** Point `docs_dir` at a documentation tree and the
-  plugin's `root` at the subtree that is a namespace. An authored `nav` is used
-  verbatim except where it names `hmd://wiki`, which is replaced by the derived
-  wiki section.
-- An unresolved link renders as a **red link** rather than failing the build, so
-  a wiki stays publishable while it is still being written.
-- `mkdocs serve` picks up `.hmd` edits — the plugin watches the namespace root,
-  which MkDocs would otherwise ignore.
-- Math, callouts, footnotes, and **D2 diagrams**. Diagrams render through the
-  `d2` binary, which is not a Python dependency: without it a diagram degrades
-  to its labelled source instead of failing the build. Rendered SVG reaches the
-  page as a `data:` URI.
+### Removed
 
-### Distribution
+- **"One implementation — semantics live in Python" is retired.** It could not
+  survive the parsers in other languages this project expects, and a Rust one is a
+  live possibility. What replaced it: Python is canonical, a language-neutral
+  conformance corpus is the contract, and an expected-failure ledger makes every
+  divergence explicit. Slight drift is acceptable in the short term; silent drift
+  is not.
+- **A flat-markdown intermediate was rejected** as the transport between the
+  implementation and a preview. Flattening destroys the embed boundary before the
+  UI ever sees it, and a hyper-markdown preview whose embeds render as anonymous
+  prose has given up the only thing it does that a markdown previewer cannot.
+  Erasure stays a *shipping* format: one-way, on purpose.
 
-- Published to PyPI as `hyper-markdown`; `pip install "hyper-markdown[mkdocs]"`
-  adds the site extra. Python 3.11 through 3.14.
-- Two dependency ceilings, both deliberate and both carrying their reasons
-  inline in `pyproject.toml`: `mkdocs>=1.6,<2`, because "MkDocs 2.0" is a
-  ground-up rewrite with no plugin system — under it every card would vanish
-  from the build rather than merely render worse — and `pygments<2.20`, which
-  silently stops `pymdownx.superfences` from matching fences at all, turning
-  every code block on every page into inline text while the build stays green.
+## 2026-07-31
 
-### Known limitations
+### Added
 
-Deliberate, and tracked per proposal under `doc/proposals/HMD-NNNN/STATUS.md`:
-
-- `hmd render --to markdown` is **one-way**. Erasure drops the embed boundary
-  and the provenance of every link; it is a build product, not an interchange
-  format.
-- Indented code blocks are not masked, so a `[[link]]` inside one is seen as a
-  link. `admonition` and `footnotes` both overload the four-space indent.
-- The scanner is a hand-written masker rather than a CommonMark block parser, so
-  divergence from CommonMark is possible and currently undetectable. A
-  conformance corpus is the planned way to expose it.
-- Links out of the namespace root are ordinary markdown links and are not
-  checked by `hmd lint`. MkDocs reports them at `info`.
-- There is no lint suppression syntax. A finding must be fixed or tolerated at
-  the call site.
-
-Both specifications — the format and the site — are still `drafted`. Expect the
-format to move before `1.0`.
-
-[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/ewiger/hyper-markdown/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/ewiger/hyper-markdown/releases/tag/v0.1.0
+- **The language.** Six constructs on top of GitHub-flavored markdown —
+  wikilinks, aliased links, heading links, block anchors, block references, and
+  the three embed forms — and nothing else owned. Every `.md` file is already a
+  valid `.hmd` file.
+- **Deterministic resolution in phases**: explicit imports, then the spine — this
+  folder, then each folder above it, probed without recursion — then imported
+  search paths, then one sweep of the whole tree, stopping at the first hit. A
+  bare name means *an import, or here, or a folder above me*, and can never reach
+  sideways into a sibling's namespace without being asked to. A folder is closer
+  to a module than to a directory.
+- **Ambiguity is an error, not a tie-break.** A name that could mean two pages
+  stops the build rather than picking one, because a link that silently changes
+  meaning is indistinguishable from one that did not.
+- **A compiler's severities.** A link to a page not yet written is a warning and
+  renders as a red link — writing forward is how a wiki grows — while an ambiguous
+  or malformed link is an error. Everything else about the prose is left alone.
+- **Rule IDs, `HMD001`–`HMD016`**, stable and citable, plus the exit codes a CI
+  job needs. [HMD-0001](doc/proposals/HMD-0001/README.md)

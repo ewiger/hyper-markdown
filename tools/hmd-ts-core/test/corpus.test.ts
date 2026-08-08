@@ -1,8 +1,9 @@
 /**
  * The conformance runner (HMD-0020 §10).
  *
- * Every case in `conformance/cases/` runs here. A case named in the ledger is
- * expected to fail; a ledger entry that *passes* fails the build, because an
+ * Every case in `examples/conformance/cases/` runs here. A case named in the
+ * ledger is expected to fail; a ledger entry that *passes* fails the build,
+ * because an
  * expected failure that starts succeeding and is not removed is how a ledger
  * rots into a lie.
  */
@@ -18,7 +19,7 @@ import { Workspace, DEFAULT_CONFIG } from "../src/workspace.js";
 import { NodeHost } from "./nodeHost.js";
 import { packageRoot, repoRoot } from "./repoRoot.js";
 
-const casesDir = resolve(repoRoot, "conformance/cases");
+const casesDir = resolve(repoRoot, "examples/conformance/cases");
 
 interface Expected {
   diagnostics: Array<Record<string, unknown>>;
