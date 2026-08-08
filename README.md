@@ -1,18 +1,18 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.svg" width="76" height="76" alt="">
-</p>
+<div align="center">
 
-<h1 align="center">hyper-markdown</h1>
+<img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.svg" width="76" height="76" alt="">
 
-<p align="center"><b>Build your own local wiki knowledge base</b></p>
+# hyper-markdown
 
-<p align="center">
-  <a href="https://pypi.org/project/hyper-markdown/"><img alt="PyPI" src="https://img.shields.io/pypi/v/hyper-markdown.svg"></a>
-  <a href="https://pypi.org/project/hyper-markdown/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/hyper-markdown.svg"></a>
-  <a href="https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://ewiger.github.io/hyper-markdown/"><img alt="Documentation" src="https://img.shields.io/badge/docs-ewiger.github.io-ffb300"></a>
-  <a href="https://github.com/ewiger/hyper-markdown/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
-</p>
+**Build your own local wiki knowledge base**
+
+[![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
+[![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
+[![CI](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-ewiger.github.io-ffb300)](https://ewiger.github.io/hyper-markdown/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ewiger/hyper-markdown/blob/main/LICENSE)
+
+</div>
 
 > **The simplicity of Markdown. The visual appeal of modern HTML.**
 
