@@ -1,0 +1,7 @@
+# Build artefacts. The VSIX is produced by CI and by `npm run package`.
+*.vsix
+media/webview.js
+media/webview.js.map
+
+# KaTeX assets, copied from node_modules by esbuild.mjs.
+media/katex/

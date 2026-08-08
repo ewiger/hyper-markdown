@@ -1,0 +1,32 @@
+{
+  "diagnostics": [
+    {
+      "column": 1,
+      "line": 1,
+      "message": "embed cycle: a.hmd -> b.hmd -> a.hmd",
+      "path": "a.hmd",
+      "rule": "HMD007",
+      "severity": "error"
+    },
+    {
+      "column": 1,
+      "line": 1,
+      "message": "embed cycle: b.hmd -> a.hmd -> b.hmd",
+      "path": "b.hmd",
+      "rule": "HMD007",
+      "severity": "error"
+    }
+  ],
+  "resolutions": [
+    {
+      "raw": "![[b]]",
+      "source": "a.hmd",
+      "target": "b.hmd"
+    },
+    {
+      "raw": "![[a]]",
+      "source": "b.hmd",
+      "target": "a.hmd"
+    }
+  ]
+}

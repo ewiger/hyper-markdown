@@ -1,0 +1,66 @@
+---
+tags: [topic/algorithms, kind/algorithm, property/stable, property/in-place]
+---
+
+# Bubble sort
+
+Walk the array comparing each adjacent pair, swapping them when they are out of
+order. Each full pass carries the largest remaining element to its final
+position — it *bubbles* to the end — so after $k$ passes the last $k$ elements
+are sorted.
+
+**Invariant.** After pass $k$, the final $k$ elements are in their sorted
+positions and are each at least as large as everything before them.
+
+## Flow
+
+```d2
+direction: down
+
+start: Start {shape: oval}
+outer: "for i in 0..n-1" {shape: hexagon}
+inner: "for j in 0..n-i-2" {shape: hexagon}
+compare: "a[j] > a[j+1]?" {shape: diamond}
+swap: "swap a[j], a[j+1]"
+mark: "swapped = true"
+check: "any swaps this pass?" {shape: diamond}
+done: Sorted {shape: oval}
+
+start -> outer
+outer -> inner
+inner -> compare
+compare -> swap: yes
+compare -> inner: no
+swap -> mark
+mark -> inner
+inner -> check: "pass complete"
+check -> outer: yes
+check -> done: "no — already sorted"
+```
+
+## Cost
+
+- **Best** $O(n)$ — one pass with no swaps, which the early-exit check detects.
+- **Average and worst** $O(n^2)$ — roughly $n^2/2$ comparisons and $n^2/4$ swaps.
+- **Space** $O(1)$. In-place, and [[stability|stable]].
+
+The swap count is what hurts. Bubble sort makes one swap per inversion, and a
+reversed array has $\binom{n}{2}$ of them:
+
+$$
+\text{swaps}_{\text{worst}} = \frac{n(n-1)}{2}
+$$
+
+!!! warning "Not a practical sort"
+
+    [[insertion-sort]] has the same asymptotic cost and the same invariant
+    shape, but does about half the writes, because it shifts a run once instead
+    of swapping repeatedly. Bubble sort survives as a teaching device, not as a
+    tool. If you reach for it in real code, reach for insertion sort instead.
+
+## Why it is stable
+
+A swap happens only when `a[j] > a[j+1]` — strictly greater. Equal neighbours
+are never exchanged, so equal elements keep their relative order.
+
+![[stability#^definition]]

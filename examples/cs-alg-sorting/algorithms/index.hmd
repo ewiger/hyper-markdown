@@ -1,0 +1,24 @@
+---
+tags: [topic/algorithms, kind/overview]
+---
+
+# Algorithms
+
+One card per sort. Each states the invariant it maintains, the flow it follows,
+and what its cost is made of.
+
+- [[bubble-sort]] — repeatedly swap adjacent inversions
+- [[insertion-sort]] — grow a sorted prefix, one element at a time
+- [[merge-sort]] — split, sort both halves, merge
+- [[quicksort]] — partition around a pivot, recurse on both sides
+- [[heapsort]] — build a heap, then extract the maximum repeatedly
+
+The cost model they are all measured against is [[complexity]], and the property
+that most often decides between them is [[stability]].
+
+## The two families
+
+The first two maintain a **sorted region** that grows by one element per pass.
+The last three **divide** the problem, which is what buys the $\log n$ factor:
+
+![[complexity#^lower-bound]]

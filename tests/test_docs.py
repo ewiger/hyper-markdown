@@ -21,8 +21,14 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# A code span whose body contains a backslash-escaped pipe.
-ESCAPED_PIPE_IN_CODE_SPAN = re.compile(r"`[^`\n]*\\\|[^`\n]*`")
+# A code span, and the escape the table forces. These are two patterns rather
+# than one because a single `[^`]*\|[^`]*` is free to start matching at a
+# *closing* backtick, which makes the gap between two spans look like the inside
+# of one: `` `a` \| `b` `` renders as a bare pipe and is not the defect. Pairing
+# the spans left to right the way markdown pairs them, then testing each body,
+# is what tells the two apart.
+CODE_SPAN = re.compile(r"`[^`\n]+`")
+ESCAPED_PIPE = re.compile(r"\\\|")
 FENCE = re.compile(r"^\s*(```|~~~)")
 
 
@@ -61,7 +67,7 @@ def _offending_lines(text: str):
             continue
         if in_fence or not line.lstrip().startswith("|"):
             continue
-        if ESCAPED_PIPE_IN_CODE_SPAN.search(line):
+        if any(ESCAPED_PIPE.search(span.group()) for span in CODE_SPAN.finditer(line)):
             yield lineno, line.strip()
 
 

@@ -1,0 +1,23 @@
+{
+  "diagnostics": [
+    {
+      "candidates": [
+        "a/tokens.hmd",
+        "b/tokens.hmd"
+      ],
+      "column": 5,
+      "line": 3,
+      "message": "[[tokens]] matches 2 pages; qualify it (candidates: a/tokens.hmd, b/tokens.hmd)",
+      "path": "c/here.hmd",
+      "rule": "HMD002",
+      "severity": "error"
+    }
+  ],
+  "resolutions": [
+    {
+      "raw": "[[tokens]]",
+      "source": "c/here.hmd",
+      "target": null
+    }
+  ]
+}

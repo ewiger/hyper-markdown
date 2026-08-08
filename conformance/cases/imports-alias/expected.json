@@ -1,0 +1,29 @@
+{
+  "diagnostics": [
+    {
+      "column": 63,
+      "line": 8,
+      "message": "shared/tokens.hmd has no block '^nope'",
+      "path": "specs/login.hmd",
+      "rule": "HMD005",
+      "severity": "error"
+    }
+  ],
+  "resolutions": [
+    {
+      "raw": "[[shared-tokens#Rotation]]",
+      "source": "specs/login.hmd",
+      "target": "shared/tokens.hmd"
+    },
+    {
+      "raw": "[[shared-tokens#^def]]",
+      "source": "specs/login.hmd",
+      "target": "shared/tokens.hmd"
+    },
+    {
+      "raw": "[[shared-tokens#^nope]]",
+      "source": "specs/login.hmd",
+      "target": "shared/tokens.hmd"
+    }
+  ]
+}

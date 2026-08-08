@@ -55,6 +55,9 @@ jobs:
       - name: Lint the example fixture
         run: uv run hmd lint --root examples/small
 
+      - name: Lint the sorting example
+        run: uv run hmd lint --root examples/cs-alg-sorting --strict
+
       # D2 renders through its own binary, taken from the published image so CI
       # pins the same version everywhere rather than whatever an install script
       # resolves on the day. Without it diagrams would still build — they
@@ -74,6 +77,56 @@ jobs:
       # here means the model works for lint but not for rendering.
       - name: Build the wiki
         run: uv run mkdocs build --strict
+
+  # The TypeScript line (HMD-0020, HMD-0021). It runs independently of the
+  # Python matrix so neither half can block the other's merge, and it installs
+  # Python anyway: the conformance gate below is only meaningful when it can
+  # ask the canonical implementation what the right answer is.
+  js:
+    name: typescript
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # Pinned exactly, for the reason spelled out in the `test` job above:
+      # there is no floating `v9` tag to fall back on.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install
+        run: |
+          npm ci
+          uv venv
+          uv pip install -e ".[dev]"
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # Runs the shared corpus and the parity check that shells out to
+      # `hmd lint`. A drift between the two implementations fails here.
+      - name: Test
+        run: npm test
+
+      - name: Package the extension
+        run: npm run -w vscode-hyper-markdown package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vscode-hyper-markdown
+          path: packages/vscode-hyper-markdown/*.vsix
+          if-no-files-found: error
 
   # The same build `release.yml` runs, minus the upload. Packaging breaks in
   # ways the test matrix cannot see — an editable install resolves through

@@ -1,0 +1,8 @@
+---
+import:
+  - from /shared import tokens as shared-tokens
+---
+
+# Login
+
+see [[shared-tokens#Rotation]] and [[shared-tokens#^def]] and [[shared-tokens#^nope]]

@@ -7,6 +7,11 @@
 # .grem/issues/archive/ and delete its card here.
 #
 # Convention: doc/wiki/kanban.hmd
+#
+# NUMBERING IS SPLIT BY STREAM. The Python and MkDocs line numbers from 1; the
+# TypeScript and editor line numbers from 100. The two develop on separate
+# branches and merge in both directions, and a shared counter would collide on
+# every merge. Proposals are split the same way at HMD-0020.
 
 board:
   title: "doc/issues/ Kanban board"
@@ -17,33 +22,56 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 8 # to be incremented when adding a new issue card
+  # One counter per stream, because the numbering is split (see the header):
+  # the Python line's next issue is 0009, the editor line's is 0107.
+  last_id: 106 # highest assigned overall; per stream — Python 8, editor 106
   items:
     backlog:
-      - id: 8
+      - id: "0008"
         title: "A public card linking to a private one needs a policy"
         file: "0008-private-card-link-policy.md"
-      - id: 7
+      - id: "0007"
         title: "Conversion should name its output target"
         file: "0007-conversion-target-dialect.md"
-    todo: []
+      - id: "0101"
+        title: "Live-editing behaviours are only checked by hand"
+        file: 0101-live-preview-checks-unautomated.md
+      - id: "0102"
+        title: "Diagrams render on a white surface in every theme"
+        file: 0102-diagram-theme-surface.md
+      - id: "0106"
+        title: "There is no way to search the wiki from the preview"
+        file: 0106-search-the-wiki-from-the-preview.md
+    todo:
+      - id: "0105"
+        title: "The preview freezes on the card it was opened over"
+        file: 0105-preview-does-not-follow-the-active-card.md
+      - id: "0100"
+        title: "A ??? callout snaps shut on every re-render"
+        file: 0100-callout-open-state-lost.md
     doing: []
     done:
-      - id: 6
+      - id: "0006"
         title: "Escaped pipe inside a table code span keeps its backslash"
         file: "0006-escaped-pipe-in-a-table-code-span.md"
-      - id: 5
+      - id: "0005"
         title: "Strikethrough renders as its own source"
         file: "0005-strikethrough-shown-as-its-own-source.md"
-      - id: 4
+      - id: "0004"
         title: "Math, callouts, and D2 diagrams"
         file: "0004-math-callouts-diagrams.md"
-      - id: 3
+      - id: "0003"
         title: "Pygments 2.20 silently breaks every code block"
         file: "0003-pygments-220-breaks-code-blocks.md"
-      - id: 2
+      - id: "0002"
         title: "Markdown links to .hmd files 404 on the site"
         file: "0002-md-links-to-cards-404.md"
-      - id: 1
+      - id: "0001"
         title: "Book and wiki in one site"
         file: "0001-book-and-wiki-in-one-site.md"
+      - id: "0103"
+        title: "The preview is a side-bar view when it wants to be a tab in a column"
+        file: 0103-preview-lives-in-an-editor-column.md
+      - id: "0104"
+        title: "The extension has no logo, and the project already has one"
+        file: 0104-the-bolt-is-the-extension-logo.md

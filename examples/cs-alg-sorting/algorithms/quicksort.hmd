@@ -1,0 +1,82 @@
+---
+tags: [topic/algorithms, kind/algorithm, property/in-place]
+---
+
+# Quicksort
+
+Choose a pivot, partition the array so that everything smaller sits left of it
+and everything larger sits right, then recurse into both sides. The pivot is in
+its final position after one partition, and no merge step is needed.
+
+**Invariant.** After partitioning, the pivot is where it belongs in the final
+order, and neither side ever needs to look at the other again.
+
+## Flow
+
+```d2
+direction: down
+
+start: "sort(a, lo, hi)" {shape: oval}
+base: "hi - lo < 2?" {shape: diamond}
+ret: return {shape: oval}
+choose: "choose a pivot"
+part: "partition around it"
+lhs: "sort(smaller side)"
+rhs: "sort(larger side)"
+done: "subarray sorted" {shape: oval}
+
+start -> base
+base -> ret: yes
+base -> choose: no
+choose -> part
+part -> lhs: "elements < pivot"
+part -> rhs: "elements > pivot"
+lhs -> done
+rhs -> done
+```
+
+## Cost
+
+- **Best and average** $\Theta(n\log n)$, with a smaller constant factor than
+  [[merge-sort]] because the partition is in place and cache-friendly.
+- **Worst** $\Theta(n^2)$, when every partition is maximally unbalanced.
+- **Space** $O(\log n)$ for the recursion stack, if the smaller side is recursed
+  into first.
+- **Not stable** — see [[stability]].
+
+A balanced split gives merge sort's recurrence. A maximally unbalanced one gives
+
+$$
+T(n) = T(n-1) + \Theta(n) = \Theta(n^2)
+$$
+
+!!! warning "The worst case used to be sorted input"
+
+    With a first-element or last-element pivot, an already-sorted array produces
+    exactly the unbalanced recurrence above. This is not a rare adversarial
+    case — sorted or nearly sorted input is extremely common, and it once made
+    quicksort quietly quadratic in production systems.
+
+## Pivot choice is the whole design
+
+- **First or last element** — simple, and quadratic on sorted input. Do not use.
+- **Median of three** — first, middle, last. Cheap, and defeats the sorted-input
+  case, but a crafted input can still force $O(n^2)$.
+- **Random** — an adversary cannot predict the split, so the $O(n^2)$ case
+  becomes vanishingly unlikely rather than merely uncommon.
+- **Median of medians** — a true $O(n)$ median gives a guaranteed
+  $\Theta(n\log n)$, at a constant factor high enough that nobody does it.
+
+??? note "Introsort: quicksort with a seatbelt"
+
+    C++'s `std::sort` runs quicksort but tracks recursion depth. Past roughly
+    $2\log_2 n$ it switches to [[heapsort]], which is $O(n\log n)$ in the worst
+    case, and below a small threshold it switches to [[insertion-sort]]. The
+    result keeps quicksort's average speed with heapsort's guarantee — three
+    algorithms on this page, cooperating.
+
+## Why it is not stable
+
+Partitioning swaps elements across long distances. Two equal elements can be
+exchanged when one is moved past the pivot, and nothing in the output records
+that their original order was lost.

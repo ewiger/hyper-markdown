@@ -1,0 +1,27 @@
+{
+  "name": "hyper-markdown-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "description": "npm workspaces root for the hyper-markdown TypeScript line (HMD-0020, HMD-0021).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "packages/hmd-core",
+    "packages/vscode-hyper-markdown"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "example": "node scripts/launch-example.mjs cs-alg-sorting",
+    "example:sorting": "node scripts/launch-example.mjs cs-alg-sorting",
+    "example:small": "node scripts/launch-example.mjs small",
+    "example:wiki": "node scripts/launch-example.mjs wiki"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

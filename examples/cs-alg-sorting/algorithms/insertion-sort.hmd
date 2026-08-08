@@ -1,0 +1,74 @@
+---
+tags: [topic/algorithms, kind/algorithm, property/stable, property/in-place]
+---
+
+# Insertion sort
+
+Grow a sorted prefix one element at a time. Take the first unsorted element,
+shift every larger element in the prefix one position right, and drop it into
+the gap — the way most people sort a hand of cards.
+
+**Invariant.** Before step $i$, the first $i$ elements are sorted among
+themselves, though not necessarily in final position.
+
+## Flow
+
+```d2
+direction: down
+
+start: Start {shape: oval}
+pick: "key = a[i]; j = i-1"
+test: "j >= 0 and a[j] > key?" {shape: diamond}
+shift: "a[j+1] = a[j]; j--"
+place: "a[j+1] = key"
+next: "i++" {shape: hexagon}
+done: Sorted {shape: oval}
+
+start -> next
+next -> pick: "i < n"
+pick -> test
+test -> shift: yes
+shift -> test
+test -> place: no
+place -> next
+next -> done: "i = n"
+```
+
+The inner loop shifts rather than swaps. That is the whole difference from
+[[bubble-sort]], and it halves the writes.
+
+## Cost
+
+- **Best** $O(n)$ — already sorted, so the inner test fails immediately every
+  time and the algorithm is a single scan.
+- **Average and worst** $O(n^2)$.
+- **Space** $O(1)$. In-place and stable.
+
+The exact comparison count is the number of **inversions** in the input plus
+$n-1$. For nearly sorted data that number is small, and this is the property
+that makes insertion sort genuinely useful:
+
+$$
+T(n) = \Theta(n + I) \quad \text{where } I = |\{(i,j) : i < j,\; a_i > a_j\}|
+$$
+
+!!! tip "Where it actually ships"
+
+    Every serious sort implementation switches to insertion sort on small
+    partitions — typically 16 to 32 elements. Below that size its low constant
+    factor beats [[merge-sort]] and [[quicksort]] outright, and the recursion
+    those two need costs more than the scan it saves. Timsort and introsort both
+    do this.
+
+??? note "Binary insertion sort"
+
+    The position for `key` can be found by binary search in $O(\log n)$
+    comparisons instead of $O(n)$. It reduces *comparisons* to $O(n\log n)$ but
+    leaves *shifts* at $O(n^2)$, so it only helps when comparing is much more
+    expensive than moving — comparing long strings, for instance. See
+    [[complexity#Counting what matters]].
+
+## Why it is stable
+
+`a[j] > key` is strict, so shifting stops at the first element equal to the key
+and the key lands *after* its equals.

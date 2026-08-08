@@ -1,0 +1,80 @@
+---
+tags: [topic/algorithms, kind/algorithm, property/in-place]
+---
+
+# Heapsort
+
+Rearrange the array into a **max-heap** — a complete binary tree, stored in the
+array itself, where every parent is at least as large as its children. Then
+repeatedly swap the root with the last unsorted element and repair the heap over
+the shrinking prefix.
+
+**Invariant.** The prefix is always a valid max-heap; the suffix is always the
+sorted tail of the final array.
+
+## Flow
+
+```d2
+direction: down
+
+start: Start {shape: oval}
+build: "build max-heap: sift down from n/2-1 to 0"
+loop: "end = n-1" {shape: hexagon}
+swap: "swap a[0] and a[end]"
+shrink: "end--"
+sift: "sift a[0] down through the heap"
+check: "end > 0?" {shape: diamond}
+done: Sorted {shape: oval}
+
+start -> build
+build -> loop
+loop -> swap
+swap -> shrink
+shrink -> sift
+sift -> check
+check -> swap: yes
+check -> done: no
+```
+
+## The array is the tree
+
+No pointers are needed. For the node at index $i$:
+
+$$
+\text{parent}(i) = \left\lfloor \frac{i-1}{2} \right\rfloor, \qquad
+\text{left}(i) = 2i+1, \qquad \text{right}(i) = 2i+2
+$$
+
+This is why heapsort is in-place: the heap and the array are the same memory.
+
+## Cost
+
+- **Best, average, worst** all $\Theta(n\log n)$. Like [[merge-sort]] and unlike
+  [[quicksort]], there is no bad input.
+- **Space** $O(1)$. The only sort here that is both in-place and $O(n\log n)$ in
+  the worst case.
+- **Not stable** — see [[stability]].
+
+!!! note "Building the heap is linear, not linearithmic"
+
+    Sifting down from the middle of the array to the front costs $O(n)$, not
+    $O(n\log n)$. Most nodes are near the bottom and sift a short distance; the
+    sum $\sum_{h} \frac{n}{2^{h+1}} \cdot h$ converges to $O(n)$. The
+    $n\log n$ comes entirely from the extraction phase.
+
+## Why it is slower than it looks
+
+Heapsort's asymptotic guarantee is the best on this page, and it is still
+usually slower than [[quicksort]] in practice. Sifting jumps between indices
+$i$, $2i+1$, and $2i+2$, which are far apart in memory once the array exceeds
+the cache. Quicksort's partition scans linearly and prefetches perfectly.
+
+This is [[complexity]]'s point about constants, in one example: two algorithms
+in the same class, differing by a factor of two or three because of where they
+touch memory.
+
+??? tip "Where heapsort is the right answer"
+
+    As introsort's fallback, guaranteeing quicksort cannot go quadratic — see
+    [[quicksort]]. And when memory is genuinely fixed: an embedded system with
+    no allocator can run heapsort and cannot run [[merge-sort]].

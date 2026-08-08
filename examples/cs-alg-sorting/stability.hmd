@@ -1,0 +1,71 @@
+---
+tags: [topic/algorithms, kind/reference]
+---
+
+# Stability
+
+## What it means
+
+A sort is **stable** when it preserves the relative order of elements that
+compare equal. Sort by one key, then by another, and a stable sort leaves the
+first key's order intact within each group of the second. ^definition
+
+Given records sorted by name, sorting by department with a stable sort leaves
+each department's names in alphabetical order. An unstable sort scrambles them,
+and nothing in its output says that it did.
+
+```d2
+direction: right
+
+before: "Sorted by name" {
+  a: "Ada — Eng"
+  b: "Bo — Eng"
+  c: "Cy — Ops"
+}
+
+stable: "Stable sort by dept" {
+  s1: "Ada — Eng"
+  s2: "Bo — Eng"
+  s3: "Cy — Ops"
+  style.stroke: "#2e7d32"
+}
+
+unstable: "Unstable sort by dept" {
+  u1: "Bo — Eng"
+  u2: "Ada — Eng"
+  u3: "Cy — Ops"
+  style.stroke: "#c62828"
+}
+
+before -> stable: "names still ordered"
+before -> unstable: "names scrambled"
+```
+
+## Which of the five are stable
+
+Stable: [[bubble-sort]], [[insertion-sort]], [[merge-sort]]. All three move an
+element past another only when they compare unequal.
+
+Unstable: [[quicksort]] and [[heapsort]]. Both swap distant elements, and a swap
+across a run of equal keys reorders them with nothing to record that it
+happened.
+
+!!! note "Instability is a choice, not an accident"
+
+    Quicksort's partition and heapsort's sift both gain their speed by moving
+    elements a long way in one step. That is the same property that loses
+    stability. You can make either stable by carrying an index as a tiebreaker,
+    at the cost of $O(n)$ extra memory — which is merge sort's cost, for merge
+    sort's guarantee, so at that point use [[merge-sort]].
+
+## When it matters
+
+- **Multi-key sorts.** Sort by the least significant key first, then the most
+  significant. This only works if every pass after the first is stable.
+- **Idempotent output.** Sorting an already-sorted list must not change it —
+  useful when the output is committed, diffed, or hashed.
+- **Attached data.** When equal keys carry different payloads, "equal" elements
+  are not interchangeable to the reader even though they are to the comparator.
+
+It does not matter when keys are unique, which is why it is easy to forget until
+a report changes order between two runs with no code change in between.

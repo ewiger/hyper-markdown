@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "out",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    // Resolve the core from its sources rather than through its package
+    // `types`, which points into `dist/`. `dist/` is generated and gitignored,
+    // so a package-resolved typecheck only works after a build has run — it
+    // passes on a developer's machine, where a stale `dist/` is lying around,
+    // and fails on any clean checkout. Typechecking should not depend on a
+    // build artifact of the thing being typechecked. Bundling is unaffected:
+    // esbuild still resolves the built package through the workspace link.
+    "paths": {
+      "@hyper-markdown/core": ["../hmd-core/src/index.ts"]
+    }
+  },
+  // The core's sources come in through `paths` above, so its ambient
+  // declarations for the untyped markdown-it plugins have to come with them —
+  // they are part of its program, not ours, and resolving it from source means
+  // inheriting what its own tsconfig `include` gave it.
+  "include": ["src", "media", "test", "../hmd-core/src/vendor.d.ts"]
+}
