@@ -1,10 +1,12 @@
 site_name: hyper-markdown
 site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
 
-# A GitHub project site, so the book is served from a subpath rather than the
-# domain root. The build does not need this — MkDocs emits relative links — but
-# canonical URLs and `sitemap.xml` are wrong without it.
-site_url: https://ewiger.github.io/hyper-markdown/
+# The site's own domain, served from GitHub Pages with a custom domain rather
+# than from the `ewiger.github.io/hyper-markdown/` project subpath it used
+# before. The build does not need this — MkDocs emits relative links — but
+# canonical URLs and `sitemap.xml` are wrong without it, and pointing them at
+# the old host would keep telling search engines the subpath is canonical.
+site_url: https://hyper-markdown.org/
 
 # The header's repository link and its star count. `edit_uri` follows `main`,
 # which is where the book lives now that `feat/mvp` has merged. It pointed at
@@ -104,16 +106,26 @@ nav:
   - Namespaces: public/namespaces.md
   - Features: public/features.md
   - Presentation: public/presentation.md
+  - Vision: public/vision.md
+  - Language Specification: wiki/hmd-lang-spec.md
   - Wiki:
       - Overview: wiki/README.md
       - hmd://wiki
-  - Specifications:
-      - proposals/README.md
-      - HMD-0001 — MVP: proposals/HMD-0001/README.md
-      - HMD-0001 examples: proposals/HMD-0001/examples.md
-      - HMD-0002 — MkDocs: proposals/HMD-0002/README.md
-      - HMD-0003 — HQL: proposals/HMD-0003/README.md
-      - HMD-0004 — The hyper web: proposals/HMD-0004/README.md
+ 
+# The numbered proposals are *internal* specifications: how the tools around the
+# format are built, not what the language is. They used to occupy a
+# "Specifications" tab, where they answered a question nobody visiting
+# hyper-markdown.org was asking, and pushed the language's own specification out
+# of sight.
+#
+# They stay in the build rather than being excluded, because the cover, every
+# public chapter, and four wiki cards link to them with ordinary relative links.
+# Excluding them would turn eighteen working links into 404s that
+# `validation.links.not_found: info` below would not even report. Unlisted and
+# reachable is the state that costs nothing; `not_in_nav` is how MkDocs is told
+# the omission is deliberate, so it stops offering to add them.
+not_in_nav: |
+  proposals/
 
 # `generator: false` drops Material's own footer credit so the copyright above
 # is the only line there — the footer is small enough that two claims on it

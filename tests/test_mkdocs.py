@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import yaml
@@ -15,6 +16,12 @@ mkdocs_config = pytest.importorskip("mkdocs.config")
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = REPO_ROOT / "examples" / "small"
+
+#: Publication is opt-in (HMD-0002 §2). Prefixed to a card it publishes that
+#: card; prefixed to a folder note it publishes the whole subtree, since
+#: `nav.visibility` inherits.
+PUBLIC = "---\nnav:\n  visibility: public\n---\n\n"
+PRIVATE = "---\nnav:\n  visibility: private\n---\n\n"
 
 
 # -- §1 URL policy -------------------------------------------------------
@@ -129,24 +136,37 @@ def test_page_urls_are_directory_urls_only(tmp_path):
 # -- §2 nav --------------------------------------------------------------
 
 
-def test_nav_orders_by_the_nav_key_then_by_path(tmp_path):
+def test_nav_orders_by_the_nav_order_key_then_by_path(tmp_path):
     docs = tmp_path / "docs"
     (docs / "sub").mkdir(parents=True)
-    (docs / "index.hmd").write_text("# Home\n", encoding="utf-8")
-    (docs / "aaa.hmd").write_text("---\nnav: 20\n---\n\n# Aaa\n", encoding="utf-8")
-    (docs / "zzz.hmd").write_text("---\nnav: 10\n---\n\n# Zzz\n", encoding="utf-8")
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
+    (docs / "aaa.hmd").write_text("---\nnav:\n  order: 20\n---\n\n# Aaa\n", encoding="utf-8")
+    (docs / "zzz.hmd").write_text("---\nnav:\n  order: 10\n---\n\n# Zzz\n", encoding="utf-8")
     (docs / "mmm.hmd").write_text("# Mmm\n", encoding="utf-8")
 
     site = build(tmp_path, docs)
     html = (site / "index.html").read_text()
-    # `nav: 10` sorts ahead of `nav: 20`, and both ahead of the unkeyed card.
+    # `order: 10` sorts ahead of `order: 20`, and both ahead of the unkeyed card.
     assert html.index(">Zzz<") < html.index(">Aaa<") < html.index(">Mmm<")
+
+
+def test_a_scalar_nav_does_not_order_a_card(tmp_path):
+    """The pre-mapping spelling. It is reported by lint; here it simply carries
+    no order, so the card falls back to path (HMD-0002 §2)."""
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
+    (docs / "zzz.hmd").write_text("---\nnav: 10\n---\n\n# Zzz\n", encoding="utf-8")
+    (docs / "aaa.hmd").write_text("---\nnav:\n  order: 20\n---\n\n# Aaa\n", encoding="utf-8")
+
+    html = (build(tmp_path, docs) / "index.html").read_text()
+    assert html.index(">Aaa<") < html.index(">Zzz<")
 
 
 def test_a_card_title_comes_from_its_first_heading(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
-    (docs / "index.hmd").write_text("# Home\n", encoding="utf-8")
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
     (docs / "some-card.hmd").write_text("# A Proper Title\n", encoding="utf-8")
 
     html = (build(tmp_path, docs) / "index.html").read_text()
@@ -156,7 +176,7 @@ def test_a_card_title_comes_from_its_first_heading(tmp_path):
 def test_an_explicit_nav_wins(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
-    (docs / "index.hmd").write_text("# Home\n", encoding="utf-8")
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
     (docs / "hidden.hmd").write_text("# Hidden\n", encoding="utf-8")
 
     site = build(tmp_path, docs, nav=[{"Home": "index.md"}])
@@ -166,13 +186,89 @@ def test_an_explicit_nav_wins(tmp_path):
     assert (site / "hidden" / "index.html").is_file()
 
 
+# -- §2 visibility -------------------------------------------------------
+
+
+def test_publication_is_opt_in(tmp_path):
+    """A card with no `nav.visibility` and no ancestor that sets one gets no
+    page and no URL — not merely a missing nav entry.
+
+    The home here is plain markdown on purpose: a *public* root folder note
+    would publish the whole tree under it, which is what inheritance is for.
+    """
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.md").write_text("# Home\n", encoding="utf-8")
+    (docs / "open.hmd").write_text(PUBLIC + "# Open\n", encoding="utf-8")
+    (docs / "quiet.hmd").write_text("# Quiet\n", encoding="utf-8")
+
+    site = build(tmp_path, docs)
+    assert (site / "open" / "index.html").is_file()
+    assert not (site / "quiet").exists()
+    assert "Quiet" not in (site / "index.html").read_text()
+
+
+def test_a_public_folder_note_publishes_its_whole_subtree(tmp_path):
+    """The other half of opt-in, and the one that surprises: saying `public`
+    once at the root is a decision about every card below it."""
+    docs = tmp_path / "docs"
+    (docs / "deep").mkdir(parents=True)
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
+    (docs / "deep" / "card.hmd").write_text("# Card\n", encoding="utf-8")
+
+    assert (build(tmp_path, docs) / "deep" / "card" / "index.html").is_file()
+
+
+def test_visibility_inherits_from_a_folder_note(tmp_path):
+    """A folder is the unit an author publishes; a card may still opt out."""
+    docs = tmp_path / "docs"
+    (docs / "open").mkdir(parents=True)
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n", encoding="utf-8")
+    (docs / "open" / "index.hmd").write_text(PUBLIC + "# Open\n", encoding="utf-8")
+    (docs / "open" / "child.hmd").write_text("# Child\n", encoding="utf-8")
+    (docs / "open" / "secret.hmd").write_text(
+        "---\nnav:\n  visibility: private\n---\n\n# Secret\n", encoding="utf-8"
+    )
+
+    site = build(tmp_path, docs)
+    assert (site / "open" / "child" / "index.html").is_file()
+    assert not (site / "open" / "secret").exists()
+
+
+def test_a_link_to_an_unpublished_card_is_a_red_link(tmp_path):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n\n[[quiet]]\n", encoding="utf-8")
+    (docs / "quiet.hmd").write_text(PRIVATE + "# Quiet\n", encoding="utf-8")
+
+    html = (build(tmp_path, docs) / "index.html").read_text()
+    assert 'class="hmd-redlink"' in html
+    assert "is not published" in html
+    assert 'href="../quiet/"' not in html
+
+
+def test_an_embed_of_an_unpublished_card_does_not_inline_it(tmp_path):
+    """The leak the gate exists to stop: expansion would copy the target's
+    bytes into a page that ships."""
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n\n![[quiet]]\n", encoding="utf-8")
+    (docs / "quiet.hmd").write_text(
+        PRIVATE + "# Quiet\n\nthe confidential sentence\n", encoding="utf-8"
+    )
+
+    html = (build(tmp_path, docs) / "index.html").read_text()
+    assert "the confidential sentence" not in html
+    assert 'class="hmd-redlink"' in html
+
+
 # -- §4 plain markdown ---------------------------------------------------
 
 
 def test_plain_markdown_builds_alongside_cards(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
-    (docs / "index.hmd").write_text("# Home\n\n[[plain]]\n", encoding="utf-8")
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n\n[[plain]]\n", encoding="utf-8")
     (docs / "plain.md").write_text("# Plain\n\nordinary markdown\n", encoding="utf-8")
 
     site = build(tmp_path, docs)
@@ -210,8 +306,10 @@ def _book_and_wiki(tmp_path: Path) -> Path:
     docs = tmp_path / "docs"
     (docs / "wiki").mkdir(parents=True)
     (docs / "index.md").write_text("# Book\n\n[the wiki](wiki/one.md)\n", encoding="utf-8")
-    (docs / "wiki" / "one.hmd").write_text("# One\n\n[[two]]\n", encoding="utf-8")
-    (docs / "wiki" / "two.hmd").write_text("# Two\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n\n[[two]]\n", encoding="utf-8")
+    (docs / "wiki" / "two.hmd").write_text(
+        PUBLIC + "# Two\n", encoding="utf-8")
     return docs
 
 
@@ -229,7 +327,8 @@ def test_the_namespace_may_be_a_subtree_of_the_site(tmp_path):
 def test_a_book_page_is_not_a_link_target(tmp_path):
     """The book is outside the namespace, so a card cannot wikilink into it."""
     docs = _book_and_wiki(tmp_path)
-    (docs / "wiki" / "one.hmd").write_text("# One\n\n[[index]]\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n\n[[index]]\n", encoding="utf-8")
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     assert 'class="hmd-redlink"' in (site / "wiki" / "one" / "index.html").read_text()
 
@@ -245,6 +344,28 @@ def test_the_placeholder_splices_the_wiki_into_an_authored_nav(tmp_path):
     html = (site / "index.html").read_text()
     assert "Wiki" in html and ">One<" in html and ">Two<" in html
     assert "hmd://wiki" not in html
+
+
+def test_a_card_the_book_places_is_not_derived_again(tmp_path):
+    """A card promoted into the book keeps that placement and does not come
+    back inside the spliced section — MkDocs gives a page one parent, so a
+    page listed twice renders the wrong section as its own (HMD-0002 §2)."""
+    docs = _book_and_wiki(tmp_path)
+    site = build(
+        tmp_path,
+        docs,
+        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        nav=[{"Home": "index.md"}, {"One": "wiki/one.md"}, {"Wiki": ["hmd://wiki"]}],
+    )
+    html = (site / "wiki" / "two" / "index.html").read_text()
+
+    # One nav entry, not two. `rel="prev"` is pagination rather than placement,
+    # and this asserts on the rendered nav rather than on `config.nav`.
+    entries = [
+        tag for tag in re.findall(r'<a\b[^>]*href="\.\./one/"[^>]*>', html) if "rel=" not in tag
+    ]
+    assert len(entries) == 1
+    assert ">Wiki<" in html
 
 
 def test_an_authored_nav_without_the_placeholder_is_left_alone(tmp_path):
@@ -270,7 +391,8 @@ def test_a_markdown_link_to_a_card_reaches_its_page(tmp_path):
     docs = tmp_path / "docs"
     (docs / "wiki").mkdir(parents=True)
     (docs / "index.md").write_text("# Book\n\n[card](wiki/one.hmd)\n", encoding="utf-8")
-    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n", encoding="utf-8")
 
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     html = (site / "index.html").read_text()
@@ -284,7 +406,8 @@ def test_a_card_path_inside_a_fence_is_left_alone(tmp_path):
     (docs / "index.md").write_text(
         "# Book\n\n```\nsee [card](wiki/one.hmd)\n```\n", encoding="utf-8"
     )
-    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n", encoding="utf-8")
 
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     assert "wiki/one.hmd" in (site / "index.html").read_text()
@@ -294,7 +417,8 @@ def test_a_link_to_a_missing_hmd_file_is_untouched(tmp_path):
     docs = tmp_path / "docs"
     (docs / "wiki").mkdir(parents=True)
     (docs / "index.md").write_text("# Book\n\n[gone](wiki/nope.hmd)\n", encoding="utf-8")
-    (docs / "wiki" / "one.hmd").write_text("# One\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n", encoding="utf-8")
 
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     assert "wiki/nope.hmd" in (site / "index.html").read_text()
@@ -305,8 +429,10 @@ def test_a_card_can_also_link_to_a_card_by_path(tmp_path):
     docs = tmp_path / "docs"
     (docs / "wiki").mkdir(parents=True)
     (docs / "index.md").write_text("# Book\n", encoding="utf-8")
-    (docs / "wiki" / "one.hmd").write_text("# One\n\n[two](two.hmd)\n", encoding="utf-8")
-    (docs / "wiki" / "two.hmd").write_text("# Two\n", encoding="utf-8")
+    (docs / "wiki" / "one.hmd").write_text(
+        PUBLIC + "# One\n\n[two](two.hmd)\n", encoding="utf-8")
+    (docs / "wiki" / "two.hmd").write_text(
+        PUBLIC + "# Two\n", encoding="utf-8")
 
     site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
     assert 'href="../two/"' in (site / "wiki" / "one" / "index.html").read_text()
@@ -323,7 +449,7 @@ def test_fenced_code_survives_the_build(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
     (docs / "index.hmd").write_text(
-        "# Home\n\n```yaml\nkey: value\n```\n", encoding="utf-8"
+        PUBLIC + "# Home\n\n```yaml\nkey: value\n```\n", encoding="utf-8"
     )
 
     site = build(
@@ -345,7 +471,7 @@ def _rich_docs(tmp_path: Path) -> Path:
     docs = tmp_path / "docs"
     docs.mkdir()
     (docs / "index.hmd").write_text(
-        "# Home\n\n"
+        PUBLIC + "# Home\n\n"
         '!!! note "Heads up"\n\n    a callout body\n\n'
         "Inline $x^2$ and display:\n\n$$\nE = mc^2\n$$\n\n"
         "```d2\na -> b\n```\n\n"
@@ -377,7 +503,7 @@ def test_the_free_syntax_survives_the_build(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
     (docs / "index.hmd").write_text(
-        "# Home\n\n"
+        PUBLIC + "# Home\n\n"
         "plain ~~struck~~ text\n\n"
         "| a | b |\n| --- | --- |\n| 1 | 2 |\n\n"
         "- [x] done\n- [ ] todo\n",
@@ -422,7 +548,7 @@ def test_an_embedded_diagram_renders_in_the_host_page(tmp_path):
     renders like one written here."""
     docs = tmp_path / "docs"
     docs.mkdir()
-    (docs / "index.hmd").write_text("# Home\n\n![[chart]]\n", encoding="utf-8")
+    (docs / "index.hmd").write_text(PUBLIC + "# Home\n\n![[chart]]\n", encoding="utf-8")
     (docs / "chart.hmd").write_text("# Chart\n\n```d2\na -> b\n```\n", encoding="utf-8")
 
     site = build(tmp_path, docs, markdown_extensions=_rich_extensions())

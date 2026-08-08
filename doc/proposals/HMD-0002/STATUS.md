@@ -13,7 +13,9 @@ the same commit that changes the code.
 book with the wiki as a section of its nav, green under `mkdocs build --strict`,
 and serving at <https://ewiger.github.io/hyper-markdown/> from a workflow
 artifact, carrying the project's own mark rather than stock Material. Builds are
-reproducible from `uv.lock`. Nothing is known broken. What remains is
+reproducible from `uv.lock`. The top bar now leads with the language: a
+`Language Specification` tab, which is now that card's only listing, and the
+`HMD-NNNN` proposals unlisted but still published. Nothing is known broken. What remains is
 three open questions blocking `drafted → accepted`, and one deferred decision
 about which MkDocs successor to follow.
 
@@ -28,7 +30,7 @@ embeds, so it could not exist before the expander did.
 | ID | Work point | Spec |
 | --- | --- | --- |
 | M5.1 | `urls.py` — `a/b.hmd` → `a/b/`, folder notes collapse, source-relative hrefs | §1 |
-| M5.2 | Nav derivation, default order, the `nav` frontmatter key (HMD013 on malformed) | §2 |
+| M5.2 | Nav derivation, default order, the `nav` frontmatter key — a mapping, `order` its only key so far (HMD013 on a scalar `nav`, an unknown key inside it, or a non-integer `order`) | §2 |
 | M5.3 | `mkdocs_plugin.py` — `on_files` registration of `.hmd` | §5 |
 | M5.4 | Expansion and link rewriting at `on_page_markdown` — no `markdown_ext.py` | §3 |
 | M5.5 | Red links render as `<a class="hmd-redlink">`, build stays green | §4 |
@@ -41,6 +43,8 @@ embeds, so it could not exist before the expander did.
 | M5.12 | Integration test: build succeeds, `.hmd` pages present, red links carry the class | Test Plan |
 | M5.13 | Namespace root may be a subtree of `docs_dir`; cards serve under its prefix | §2 |
 | M5.14 | `hmd://wiki` nav placeholder splices the derived section into an authored nav | §2 |
+| M5.26 | The derived section leaves out every page the authored nav already places, so a promoted card is listed once | §2 |
+| M5.24 | `nav.visibility` gates publication — opt-in, defaulting to private; an unpublished card is not registered at all; inherits from folder notes; HMD017 warns when a published card links to or embeds an unpublished one, and an embed of one is not expanded | §2 |
 
 ### Issues resolved against the built site
 
@@ -58,6 +62,7 @@ when a gate would catch its return, and every row below has one.
 | M5.20 | An escaped pipe inside a table code span kept its backslash, on the page whose job is to show what to type; cells rewritten as raw inline HTML | [0006](../../issues/0006-escaped-pipe-in-a-table-code-span.md) | `tests/test_docs.py` |
 | M5.21 | Site branding — the README's `⚡` as an SVG logo and favicon, amber-on-black palette, repository and social links, a hero on the cover | — | `tests/test_docs.py` |
 | M5.22 | The book's front chapters restructured: the cover carries the vision, `rich-content.md` → `features.md` (what a page can be, shown working), `publishing.md` → `presentation.md` (conversion targets, then viewers). Contributor material — the CI gates, the `doc/` conventions, and Pages deployment — left the book for `DEVELOP.md` at the repo root, referenced from the README | — | `mkdocs build --strict`, `tests/test_docs.py` |
+| M5.25 | The top bar leads with the language, not the tooling: the `Specifications` section — six rows of `HMD-NNNN` — is gone from the nav, replaced by one `Language Specification` tab pointing at the card. The proposals stay in the build under `not_in_nav` rather than `exclude_docs`, since the cover, every public chapter, and four cards link to them. `hmd-lang-specification.hmd` → `hmd-lang-spec.hmd`, retitled *HMD Language Specification*, and it now opens by naming its own version and its CommonMark baseline | — | `tests/test_docs.py` |
 
 The standing lesson from 0003 and 0005: **a green build is not evidence of
 correct output.** 0003 was a green build with wrong output; 0005 was a green
@@ -101,6 +106,7 @@ Known, accepted, not being fixed now.
 | L7 | `use_directory_urls: false` is a hard usage error, not a supported mode | A card and its folder note share one URL, so directory URLs are required rather than merely preferred (§1) |
 | L8 | Rendering to the site is one-way | Inherited from [HMD-0001 L1](../HMD-0001/STATUS.md#limitations) — erasure is a shipping format |
 | L9 | Branding is config and CSS only — no `theme.custom_dir`, no template partials | A `custom_dir` pins the site to Material 9's internal template structure, which is the thing L2's pin already has to be careful about; a theme override would have to be re-checked against every successor considered in Q4. The cost is that anything needing new markup — an announcement bar, a landing-page card grid — is not reachable by config alone. Material's own `grid cards` via `attr_list` + `md_in_html` is the escape hatch that stays within this limit |
+| L10 | ~~A card listed in the authored nav **and** in the derived wiki section is one page in two places, and only the **first** listing's title is used~~ — **lifted 2026-08-08 (M5.26)** | The duplication is gone rather than ordered around: the derived section now skips whatever the authored nav has placed, so no page is listed twice and no title is discarded. What the constraint was hiding was worse than a lost title — with one `parent` per page, `Language Specification` rendered its own URL with the wiki section open beneath a second copy of itself. The rejected fix was a per-card opt-out flag; deriving the leftovers needs no flag and no ordering rule |
 
 ### Open questions and blockers
 
@@ -110,7 +116,7 @@ is the blocker they hold up. Q4 blocks nothing today and is deferred on purpose.
 | ID | Question |
 | --- | --- |
 | Q1 | Does the plugin own `mkdocs.yml`'s extension list, or only document it? |
-| Q2 | Should `nav` inherit down a subtree the way `use` does, so a folder can order itself relative to its siblings in one place? |
+| Q2 | Should `nav.order` inherit down a subtree the way `use` does, so a folder can order itself relative to its siblings in one place? `nav.visibility` now does, which is half an answer: the two keys inheriting differently is either a defensible split — placement is per card, publication is per folder — or an inconsistency to remove |
 | Q3 | Is a red link with no `href` right, or should it link to a "create this page" target once one exists? |
 | Q4 | Which MkDocs 1.x successor to follow — **ProperDocs**, **Zensical**, or an own `hmd build`? |
 | Q5 | §2 adds `nav` to the reserved frontmatter keys, which [HMD-0001](../HMD-0001/README.md) §5.3 pins as a *closed* set of `tags`, `use`, `import`. Is that amendment accepted, or does the fallback stand — derived order only, plus an explicit `nav:` in `mkdocs.yml`? |
@@ -187,6 +193,10 @@ mkdocs serve                                  # live, watching the namespace roo
   came with it: a failed Pages run must be re-dispatched, never re-run, because
   a re-run adds a second `github-pages` artifact and `deploy-pages` then refuses
   the run permanently.
+- 2026-08-08: M5.26 — the nav derived only what the authored nav had not already
+  placed. `Language Specification` was a tab *and* a wiki entry, so its own page
+  showed it twice, indented under a section it had been promoted out of. L10,
+  which had made that an ordering constraint, is lifted.
 - 2026-08-08: issue 0003 resolved upstream. `pygments<2.20` lifted in favour of
   `pymdown-extensions>=10.21.2` in the **base** dependencies — the old ceiling
   sat in the `mkdocs` extra while `superfences` is loaded by

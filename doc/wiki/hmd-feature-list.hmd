@@ -1,5 +1,8 @@
 ---
 tags: [area/format, status/canonical]
+nav:
+  order: 30
+  visibility: public
 ---
 
 # Feature list
@@ -45,7 +48,7 @@ nobody has committed · `deferred` explicitly postponed to a later spec ·
 | F7 | Tags | `tags: [area/auth]` | Jekyll frontmatter, GitHub | the format, HMD-0001 §5.3 | shipped |
 | F8 | Per-card toggles | `use: [no_autodiscovery]` | — | the format, HMD-0001 §5.3 | shipped |
 | F9 | Explicit imports | `import: [from /shared import *]` | Python's `import` | the format, HMD-0001 §5.3 | shipped |
-| F10 | Nav position | `nav: 10` | MkDocs `nav:` | the format, [HMD-0002](../proposals/HMD-0002/README.md) §2 | shipped |
+| F10 | Nav position | `nav:` / `order: 10` | MkDocs `nav:` | the format, [HMD-0002](../proposals/HMD-0002/README.md) §2 | shipped |
 | F11 | Callouts | `!!! note` | reStructuredText admonitions | `admonition` | shipped |
 | F12 | Collapsible callouts | `??? tip` | reStructuredText admonitions | `pymdownx.details` | shipped |
 | F13 | Fenced code | ` ```lang ` | GFM | `pymdownx.superfences` | shipped |
@@ -64,6 +67,7 @@ nobody has committed · `deferred` explicitly postponed to a later spec ·
 | F26 | Backlinks and category pages | — | Wikipedia, Obsidian | — | nice to have |
 | F27 | Escapes for reserved characters | — | — | — | nice to have |
 | F28 | A literal `[[` outside a code span | — | — | — | nice to have |
+| F29 | Publication gate | `nav:` / `visibility: public` | MediaWiki namespaces, Notion page sharing | the format, [HMD-0002](../proposals/HMD-0002/README.md) §2 | shipped |
 
 F6 is any of F1–F5 with a `!` in front, so it multiplies the table rather than
 adding a new construct. Expansion is textual, does not shift heading levels,
@@ -169,7 +173,8 @@ tracked against Layer 2 by its own proposals.
 | # | Feature | Layer 1 — MkDocs | Layer 2 — preview |
 | --- | --- | --- | --- |
 | F6 | Embed | expanded, boundary erased | expanded, boundary kept |
-| F10 | `nav:` | orders the site nav | no meaning |
+| F10 | `nav.order` | orders the site nav | no meaning |
+| F29 | `nav.visibility` | decides whether a page exists at all | no meaning — the editor shows every card |
 | F18 | D2 diagrams | `data:` URI `<img>` | `data:` URI under the webview CSP |
 | F26 | Backlinks | out of scope | the natural home for it |
 

@@ -9,7 +9,7 @@
 [![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
 [![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
 [![CI](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml)
-[![Documentation](https://img.shields.io/badge/docs-ewiger.github.io-ffb300)](https://ewiger.github.io/hyper-markdown/)
+[![Documentation](https://img.shields.io/badge/docs-ewiger.github.io-ffb300)](https://hyper-markdown.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ewiger/hyper-markdown/blob/main/LICENSE)
 
 </div>
@@ -57,8 +57,8 @@ than restating it:
 ![[token#^definition]]
 ```
 
-That is close to the whole surface. Six constructs are the dialect's own —
-wikilinks, aliased links, heading links, block anchors, block references, and
+That is close to the whole surface. Six constructs are what hyper-markdown adds
+— wikilinks, aliased links, heading links, block anchors, block references, and
 the three embed forms — and everything else on the page is ordinary
 GitHub-flavored markdown. Four frontmatter keys mean something to the toolchain:
 `tags`, `use`, `import`, and `nav`. Every other key is yours, and nothing will
@@ -310,7 +310,7 @@ Start with the book, published at
 - [Features](doc/public/features.md) — what a page can be, shown working
 - [Namespaces](doc/public/namespaces.md) — how a name becomes a page
 - [Presentation](doc/public/presentation.md) — one card, many formats and viewers
-- [The hyper-markdown language](doc/wiki/hmd-lang-specification.hmd) — every
+- [The HMD Language Specification](doc/wiki/hmd-lang-spec.hmd) — every
   construct, start to finish; read it once and you can write the format
 
 The normative records live under [`doc/proposals/`](doc/proposals/).

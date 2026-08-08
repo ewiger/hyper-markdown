@@ -48,6 +48,7 @@ shape is visible, not as a commitment.
 | W4 | Resolver support for `namespace:` targets in `hmd lint` and `hmd render` | W1, W2 |
 | W5 | HQL cross-namespace import, resolving HMD-0003's Q5 | W1 |
 | W6 | Decide whether HMD-0001 and `doc/public/namespaces.md` are ever amended from "namespace" to "module" | Q3 |
+| W7 | Second pass over the *Module, namespace, path* section of `doc/public/namespaces.md`. It now teaches all three words and names the collision, but it was written against a vocabulary Q3 has not settled, so which term the chapter leads with is provisional | Q3 |
 
 ### Broken
 
@@ -58,7 +59,7 @@ Nothing. Nothing is built.
 | ID | Limitation | Why it stands |
 | --- | --- | --- |
 | L1 | The record specifies no binding mechanism | Deliberate — naming the concepts and the address form is cheap now; a binding syntax chosen under-informed is expensive to reverse. See Q1 |
-| L2 | Two documents (HMD-0001, `doc/public/namespaces.md`) still call a module a "namespace" | The collision is named, not fixed, in this record. Rewriting shipped spec text describing implemented behavior is a separate, later decision — see Q3 |
+| L2 | HMD-0001 still calls a module a "namespace". `doc/public/namespaces.md` now defines module, namespace, and path separately and names the collision in the open, but it leads with the shipped wording rather than this record's | The collision is named, not fixed, in this record. Rewriting shipped spec text describing implemented behavior is a separate, later decision — see Q3 and W7 |
 | L3 | Remote namespaces have no fetch, cache, or trust story at all | The vision (many small `.hmd` projects linkable by name) needs one, but committing to a mechanism before a second real project exists to link to would be designing against a sample size of zero |
 | L4 | This may not be built inside the MVP line at all | HMD-0001 through HMD-0003 (grammar, rendering, queries) are more load-bearing for a single project's usefulness; namespaces beyond one tree only matter once there is more than one to link to |
 
@@ -92,3 +93,7 @@ None. There is nothing to run.
 - 2026-08-07: drafted alongside [the record](README.md). Stub — the
   module/namespace split and the `namespace:path` address form reserved,
   binding mechanism undesigned, no code.
+- 2026-08-08: W7 added and L2 narrowed. `doc/public/namespaces.md` gained a
+  section defining module, namespace, and path apart from each other, stating
+  that `namespace:path` is reserved rather than implemented, and pointing at Q3
+  for which vocabulary eventually wins. No mechanism changed.

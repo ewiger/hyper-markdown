@@ -1,5 +1,32 @@
 # Presentation
 
+## TL;DR
+
+Presentation is not part of the language. A card is one source file; what a
+reader sees depends on which tool renders it, and no tool's behaviour is
+normative for the format.
+
+**Converting** gives you a file. `hmd render --to markdown` inlines every embed
+and turns every resolved name into an ordinary relative link; `--to html` gives a
+self-contained page with callouts, mathematics, diagrams, and footnotes intact.
+Both are **erasure** — the boundary between a card and the content it embedded is
+gone from the output, and so is the provenance of every link. That is right for
+something you are shipping and wrong for something you are still editing, so
+conversion runs one way on purpose.
+
+**Presenting** is what a viewer does, and a viewer can keep more than a file
+carries. Three matter. Any plain-text surface — an editor, GitHub's file view,
+`less`, an AI chat — shows a card as it is, wikilinks and all, and that is the
+property the whole format exists to protect. The **MkDocs** plugin builds a tree
+of cards into a published site, a hand-ordered book with a generated wiki inside
+it, and erases the embed boundary the way conversion does. The **VS Code**
+extension under construction keeps that boundary, showing embedded content as
+visibly embedded with its source attached. Python stays canonical for semantics:
+the specification and its conformance corpus are the contract between surfaces,
+not a shared runtime.
+
+## Tools and targets
+
 A card is one file, and one file goes many places. Point the converter at a card
 and it comes back as another single file — one in, one out, nothing bundled:
 
@@ -85,9 +112,17 @@ nav is used verbatim; omit `nav` entirely and the whole nav is derived.
 **URLs.** A card at `wiki/a/b.hmd` serves at `/wiki/a/b/`. A folder note at
 `wiki/a/b/index.hmd` serves at that same URL — two names for one page, one URL,
 which is why directory URLs are required rather than merely preferred. Cards
-sort by path, or by a `nav:` integer in their frontmatter: keyed cards first,
-ascending, the rest in path order, so adding `nav:` to one card does not
+sort by path, or by an `order` under the `nav` key in their frontmatter: keyed
+cards first, ascending, the rest in path order, so ordering one card does not
 reshuffle its siblings.
+
+**What gets published.** Not every card, and not by default. A card ships only
+if `nav.visibility` resolves to `public`; absent, it is private and the build
+gives it no page and no address at all. The key inherits like `use`, so `public`
+on a folder's `index.hmd` publishes that subtree and a card inside it can opt
+back out. This is what lets one tree hold both the wiki you publish and the notes
+you do not: a published card pointing at an unpublished one renders a red link
+and a warning, and embedding one does not inline its text.
 
 **What the build does.** It registers every `.hmd` file, which MkDocs would
 otherwise not see; expands embeds *before* Markdown runs, so the table of

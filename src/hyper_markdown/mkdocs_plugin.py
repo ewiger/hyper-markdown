@@ -81,6 +81,12 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         self.prefix = _prefix(docs_dir, self.workspace.root)
 
         for path in self.workspace.pages():
+            # Publication is opt-in (§2). An unpublished card is not registered
+            # at all: no file, no URL, nothing about it in `site/`. Skipping it
+            # here is what makes that true everywhere downstream — nav derives
+            # from `self.sources`, and link rewriting from `self.destinations`.
+            if not self.workspace.is_public(path):
+                continue
             dest = self._dest(path)
             self.sources[dest] = path
             self.destinations[path] = dest
@@ -95,11 +101,17 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         if not self.config.build_nav:
             return files
 
-        derived = self._nav()
         # An authored nav wins, except where it asks for the wiki by name. That
         # is the whole integration: a book keeps its own order and says where
-        # the generated section belongs.
-        config.nav = _splice(config.nav, derived) if config.nav else derived
+        # the generated section belongs. A card the book already placed is not
+        # derived a second time — MkDocs gives a page one `parent`, so a card
+        # promoted into the book *and* listed in the wiki renders twice with
+        # the wrong section expanded on its own page.
+        if not config.nav:
+            config.nav = self._nav()
+            return files
+
+        config.nav = _splice(config.nav, self._nav(claimed=_claimed(config.nav)))
         return files
 
     def _dest(self, path: Path) -> str:
@@ -109,16 +121,20 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
 
     # -- §2 nav ----------------------------------------------------------
 
-    def _nav(self) -> list:
+    def _nav(self, claimed: frozenset[str] = frozenset()) -> list:
         """Derive the nav from the namespace tree.
 
-        Ordering is `nav:` first, ascending, then root-relative path — which is
+        Ordering is `nav.order` first, ascending, then root-relative path —
         deterministic and independent of filesystem iteration order (P1).
+        `claimed` names the pages an authored nav has already placed; they are
+        left out, because a placement made by hand is still a placement.
         """
         assert self.workspace is not None
         tree: dict = {}
 
         for dest, path in sorted(self.sources.items()):
+            if dest in claimed:
+                continue
             parts = urls.parts_for(self.workspace.root, path)
             node = tree
             for part in parts[:-1] if parts else ():
@@ -136,9 +152,9 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
         return path.stem == urls.INDEX_STEM and path.parent != self.workspace.root
 
     def _order(self, dest: str) -> tuple[int, int, str]:
-        """`nav:` first, ascending; then path. Absent `nav` sorts last."""
-        nav = self.workspace.documents[self.sources[dest]].card.nav
-        return (1, 0, dest) if nav is None else (0, nav, dest)
+        """`nav.order` first, ascending; then path. Absent order sorts last."""
+        order = self.workspace.documents[self.sources[dest]].card.nav.order
+        return (1, 0, dest) if order is None else (0, order, dest)
 
     def _nav_items(self, node: dict) -> list:
         items: list = []
@@ -186,12 +202,22 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
                 # A red link keeps the build green and marks a page worth
                 # writing later; lint tracks it as HMD001.
                 return f'<a class="hmd-redlink" title="{link.target} does not resolve">{text}</a>'
+            if not self.workspace.is_public(target):
+                # The target resolves but was never published, so there is no
+                # page to point at. Same red link, different reason — and a
+                # distinct title, because "unwritten" and "not for this site"
+                # are different problems for whoever reads it. HMD017.
+                return (
+                    f'<a class="hmd-redlink" title="{link.target} is not published">{text}</a>'
+                )
             href = urls.href_for(root, source, target)
             if link.fragment is not None and link.fragment_kind == "heading":
                 href = f"{href}#{slug_for(link.fragment, set())}"
             return f"[{text}]({href})"
 
-        expanded = expand(self.workspace, source, rewrite=rewrite).text
+        expanded = expand(
+            self.workspace, source, rewrite=rewrite, can_embed=self.workspace.is_public
+        ).text
         return self._diagrams(self._link_to_cards(expanded, page.file.src_uri))
 
     def _diagrams(self, markdown: str) -> str:
@@ -293,6 +319,18 @@ def _splice(node, derived: list):
             for key, value in node.items()
         }
     return node
+
+
+def _claimed(node) -> frozenset[str]:
+    """Every source path an authored nav names, at any depth.
+
+    The placeholder is not one of them: it stands for the section about to be
+    spliced in, not for a page.
+    """
+    if isinstance(node, str):
+        return frozenset() if node == NAV_PLACEHOLDER else frozenset({posixpath.normpath(node)})
+    values = node.values() if isinstance(node, dict) else node if isinstance(node, list) else ()
+    return frozenset().union(*(_claimed(value) for value in values)) if values else frozenset()
 
 
 def _titlecase(stem: str) -> str:

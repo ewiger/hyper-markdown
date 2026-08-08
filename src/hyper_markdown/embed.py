@@ -25,6 +25,12 @@ from .resolve import Outcome, Workspace
 #: did not. Returning the replacement text; `link.raw` leaves it untouched.
 Rewrite = Callable[[Link, Path | None], str]
 
+#: Called with a resolved embed target; False leaves the embed unexpanded, as if
+#: it were an ordinary link. The expander asks rather than decides — publication
+#: is the caller's policy, and a `hmd render` of a card you named yourself is not
+#: the same situation as a site build (HMD-0002 §2).
+CanEmbed = Callable[[Path], bool]
+
 #: Maximum embed expansion depth (HMD-0001 §6). Deep enough for legitimate
 #: composition, shallow enough to bound work on adversarial input. Defined once
 #: here and imported elsewhere, so the template engine reuses it rather than
@@ -38,7 +44,12 @@ class Expansion:
     diagnostics: list[Diagnostic] = field(default_factory=list)
 
 
-def expand(workspace: Workspace, path: Path, rewrite: Rewrite | None = None) -> Expansion:
+def expand(
+    workspace: Workspace,
+    path: Path,
+    rewrite: Rewrite | None = None,
+    can_embed: CanEmbed | None = None,
+) -> Expansion:
     """Expand every embed in `path`, recursively, returning its body text.
 
     `rewrite` is applied to ordinary links in the same walk. Doing both at once
@@ -46,12 +57,15 @@ def expand(workspace: Workspace, path: Path, rewrite: Rewrite | None = None) -> 
     from the card it was written in, while the text it becomes belongs to the
     page being rendered. Rewriting the flattened output afterwards would have
     lost which card each link came from.
+
+    `can_embed` may veto a target. A vetoed embed degrades to `rewrite`, so it
+    lands wherever the caller sends an ordinary link to that page.
     """
     document = workspace.documents[path]
     result = Expansion(text="")
     start, end = body_region(document)
     result.text = _region(
-        workspace, document, start, end, [(path, None)], result.diagnostics, rewrite
+        workspace, document, start, end, [(path, None)], result.diagnostics, rewrite, can_embed
     )
     return result
 
@@ -126,6 +140,7 @@ def _region(
     stack: list[tuple[Path, str | None]],
     diagnostics: list[Diagnostic],
     rewrite: Rewrite | None,
+    can_embed: CanEmbed | None = None,
 ) -> str:
     """Copy `document.text[start:end]`, substituting the links inside it."""
     out: list[str] = []
@@ -135,7 +150,7 @@ def _region(
         if not (start <= link.span.start < end):
             continue
         if link.is_embed:
-            replacement = _embed(workspace, document, link, stack, diagnostics, rewrite)
+            replacement = _embed(workspace, document, link, stack, diagnostics, rewrite, can_embed)
         elif rewrite is not None:
             result = workspace.resolve(document.path, link.page_ref)
             target = result.path if result.outcome is Outcome.RESOLVED else None
@@ -157,11 +172,17 @@ def _embed(
     stack: list[tuple[Path, str | None]],
     diagnostics: list[Diagnostic],
     rewrite: Rewrite | None,
+    can_embed: CanEmbed | None = None,
 ) -> str:
     """Expand one embed, or return it verbatim with a diagnostic."""
     result = workspace.resolve(document.path, link.page_ref)
     if result.outcome is not Outcome.RESOLVED or result.path is None:
         return link.raw  # HMD001/HMD002/HMD003, already reported by lint
+
+    # Vetoed: inlining would copy the target's bytes into this page, which is
+    # the one outcome a publication gate must not allow. Reported as HMD017.
+    if can_embed is not None and not can_embed(result.path):
+        return rewrite(link, result.path) if rewrite is not None else link.raw
 
     target = workspace.documents.get(result.path)
     if target is None:
@@ -187,7 +208,9 @@ def _embed(
 
     stack.append(key)
     try:
-        expanded = _region(workspace, target, region[0], region[1], stack, diagnostics, rewrite)
+        expanded = _region(
+            workspace, target, region[0], region[1], stack, diagnostics, rewrite, can_embed
+        )
     finally:
         stack.pop()
     return expanded.strip()

@@ -29,6 +29,7 @@ SEVERITY = {
     "HMD014": ERROR,
     "HMD015": ERROR,
     "HMD016": WARNING,
+    "HMD017": WARNING,
 }
 
 
@@ -135,6 +136,17 @@ def _links(workspace: Workspace, document: Document):
 
         for diagnostic in _fragment(workspace, document, link, result.path, rel):
             yield diagnostic
+
+        # HMD017 — a published card reaching into one that is not published.
+        # Only from a public card: private cards referring to each other is the
+        # ordinary case, and warning about it would bury the real finding.
+        if workspace.is_public(document.path) and not workspace.is_public(result.path):
+            kind = "embeds" if link.is_embed else "links to"
+            yield _at(
+                document, rel, "HMD017", span.line, span.column,
+                f"{link.raw} {kind} {workspace.rel(result.path)}, which is not "
+                f"published; it renders as a red link",
+            )
 
         if result.shadowed:
             shadowed = tuple(workspace.rel(p) for p in result.shadowed if p)

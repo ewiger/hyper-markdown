@@ -570,6 +570,7 @@ comments and CI configuration will reference them.
 | HMD014 | error | Malformed `import` statement |
 | HMD015 | error | Import `ref` does not resolve, or two named imports bind the same local name |
 | HMD016 | warning | A bare name matched two imported search paths; the earlier declaration won |
+| HMD017 | warning | A published card links to or embeds one that is not published ([HMD-0002](../HMD-0002/README.md) §2) |
 
 - `--strict` MUST promote every warning to an error. It MUST NOT change which
   diagnostics are produced, only how they are counted — a strict run and a
@@ -671,7 +672,7 @@ src/hyper_markdown/
   config.py           .hmd/config.toml, root discovery (§4, §5.3)
   embed.py            expansion, cycle detection, depth limit
   graph.py            Graph assembly and JSON serialization
-  lint/rules.py       HMD001..HMD016
+  lint/rules.py       HMD001..HMD017
   lint/report.py      text and JSON reporters
   render/markdown_ext.py   Python-Markdown extension
   render/flat.py           flat-markdown emitter

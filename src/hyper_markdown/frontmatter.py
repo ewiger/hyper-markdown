@@ -11,9 +11,12 @@ from __future__ import annotations
 import yaml
 
 from .imports import ImportError_, parse_statement
-from .model import CardConfig, ImportStmt
+from .model import VISIBILITIES, CardConfig, ImportStmt, NavConfig
 
 RESERVED_KEYS = frozenset({"tags", "use", "import", "nav"})
+
+#: Keys recognized inside the `nav` mapping.
+NAV_KEYS = frozenset({"order", "visibility"})
 
 #: Features nameable in `use`. Prefixing `no_` disables, as in vim's `set no…`.
 KNOWN_FEATURES = frozenset({"autodiscovery"})
@@ -76,13 +79,52 @@ def parse_card_config(data: dict) -> tuple[CardConfig, list[tuple[str, str]]]:
     return CardConfig(tags=tags, use=use, imports=imports, nav=nav), problems
 
 
-def _parse_nav(value, problems) -> int | None:
-    """`nav` orders a card within its directory (HMD-0002 §2)."""
+def _parse_nav(value, problems) -> NavConfig:
+    """`nav` places a card in a published site (HMD-0002 §2).
+
+    A mapping, so the key has room to grow. `nav: 10` was the earlier spelling
+    and is now a defect — named as such rather than accepted quietly, since a
+    card carrying it means to be ordered and would otherwise sort last.
+    """
+    if value is None:
+        return NavConfig()
+    if not isinstance(value, dict):
+        hint = " — write `nav:` with an `order:` under it" if isinstance(value, int) else ""
+        problems.append(("HMD013", f"`nav` must be a mapping, got {type(value).__name__}{hint}"))
+        return NavConfig()
+
+    for key in sorted(set(value) - NAV_KEYS):
+        known = ", ".join(sorted(NAV_KEYS))
+        problems.append(("HMD013", f"unknown key {key!r} in `nav` (known: {known})"))
+
+    return NavConfig(
+        order=_parse_nav_order(value.get("order"), problems),
+        visibility=_parse_visibility(value.get("visibility"), problems),
+    )
+
+
+def _parse_nav_order(value, problems) -> int | None:
     if value is None:
         return None
-    # `True` is an int in Python, and `nav: yes` is a mistake worth naming.
+    # `True` is an int in Python, and `order: yes` is a mistake worth naming.
     if isinstance(value, bool) or not isinstance(value, int):
-        problems.append(("HMD013", f"`nav` must be an integer, got {value!r}"))
+        problems.append(("HMD013", f"`nav.order` must be an integer, got {value!r}"))
+        return None
+    return value
+
+
+def _parse_visibility(value, problems) -> str | None:
+    """`nav.visibility` gates publication (HMD-0002 §2).
+
+    None means inherit, not public. Getting this wrong publishes a card nobody
+    meant to publish, so an unrecognized value is rejected rather than coerced.
+    """
+    if value is None:
+        return None
+    # `visibility: no` is YAML for False, and reads as if it meant something.
+    if not isinstance(value, str) or value not in VISIBILITIES:
+        known = ", ".join(sorted(VISIBILITIES))
+        problems.append(("HMD013", f"`nav.visibility` must be one of {known}; got {value!r}"))
         return None
     return value
 
