@@ -1,0 +1,22 @@
+# Served at https://hyper-markdown.org/robots.txt. MkDocs copies any non-page
+# file in `docs_dir` to the site root untouched, so this file is the whole
+# mechanism — there is no plugin and no build step behind it.
+#
+# The sitemap is not generated here and does not need to be. MkDocs writes
+# `sitemap.xml` and `sitemap.xml.gz` on every build, from `site_url` and the
+# pages it just rendered; a third-party sitemap plugin would be a second, worse
+# copy of something core already does. What core does *not* do is tell anyone
+# the file exists. A crawler has exactly two ways to learn that: the `Sitemap:`
+# directive below, which any of them will read on first contact, and a manual
+# submission in Google Search Console, which is an account rather than a file
+# and covers one search engine.
+#
+# The directive takes an absolute URL — a relative path is ignored rather than
+# resolved — so this line necessarily repeats `site_url` from `mkdocs.yml`.
+# `tests/test_docs.py` builds the real site and fails if the two ever disagree,
+# which is the only way a stale hostname here would otherwise be noticed.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://hyper-markdown.org/sitemap.xml

@@ -343,3 +343,35 @@ The consequence that is easy to misread: the Python tool's `0.x` caveat is not a
 second format version. It says a minor release of that tool may be the one that
 implements a breaking language change — the change belongs to the language and
 carries the language's number.
+
+## The sitemap is core; what was missing is `robots.txt`
+
+There is no sitemap plugin and there is not going to be one. MkDocs ships
+`templates/sitemap.xml` and writes `sitemap.xml` and `sitemap.xml.gz` on every
+build, from `site_url` and the pages it just rendered. A plugin would be a
+second, worse copy of that — and the obvious candidate, `mkdocs-sitemap`, does
+not exist on PyPI at all, so reaching for one costs a failed install before it
+costs anything else.
+
+Generating the file was never the gap. *Announcing* it was: nothing on the site
+said where the sitemap lived, and a crawler has two ways to find out — the
+`Sitemap:` directive in `robots.txt`, which every crawler reads unprompted, and
+a manual submission in Google Search Console, which is an account rather than a
+file and covers one engine. `doc/robots.txt` is now the first of those; MkDocs
+copies it to the site root as an ordinary static file, so there is no machinery
+behind it.
+
+The directive takes an absolute URL, which means it repeats `site_url` and can
+go stale on a domain move with nothing failing. `tests/test_docs.py` ties the
+two together, and asserts the same thing about the sitemap itself — every
+`<loc>` has to start with `site_url`. That guard is aimed at a specific silent
+failure: drop `site_url` and the build stays green under `--strict`, every page
+renders, and the sitemap degrades to relative paths no crawler can resolve. The
+site does not look wrong; it stops being indexable.
+
+What is deliberately **not** decided here is whether the numbered proposals
+should be indexed. They are `not_in_nav` but published, so they are in the
+sitemap — ten of twenty-two URLs at the time of writing, all of them internal
+tool specifications competing with the language's own specification for the
+same queries. Keeping them out of search is a different decision from keeping
+them out of the nav, and it needs an argument rather than a default.

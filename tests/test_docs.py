@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -259,3 +260,69 @@ def test_the_site_names_its_repository(built_home):
     # `extra.generator: false` leaves the project's own copyright alone in the
     # footer.
     assert "Made with" not in built_home
+
+
+# -- being found ---------------------------------------------------------
+#
+# Two files a search engine reads before it reads a page. Both are asserted
+# against the *built* site for the reason issues 0003 and 0005 established: a
+# setting that is merely present in `mkdocs.yml` is not evidence that anything
+# reached the output.
+
+
+def _site_url() -> str:
+    config = yaml.safe_load((ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
+    return config["site_url"]
+
+
+def test_the_sitemap_lists_the_site_by_absolute_url(built_site: Path):
+    """MkDocs emits `sitemap.xml` itself, from `site_url`.
+
+    Which is the whole reason this is a guard and not a plugin — but it fails
+    quietly in a specific way. Drop `site_url` and the build stays green under
+    `--strict`, every page still renders, and the sitemap degrades to bare paths
+    that no crawler can resolve. Nothing on the site looks wrong; it just stops
+    being indexable. So the assertion is on the scheme and host of every `<loc>`,
+    not on the file existing.
+    """
+    sitemap = built_site / "sitemap.xml"
+    assert sitemap.is_file(), "MkDocs published no sitemap"
+
+    site_url = _site_url()
+    locs = re.findall(r"<loc>(.*?)</loc>", sitemap.read_text(encoding="utf-8"))
+    assert locs, "the sitemap is empty"
+    offenders = [loc for loc in locs if not loc.startswith(site_url)]
+    assert not offenders, (
+        f"{len(offenders)} sitemap entries are not under {site_url}, starting with"
+        f" {offenders[0]!r} — `site_url` is unset or has drifted"
+    )
+
+    # The two pages the site exists to be found by. A published card that stops
+    # reaching the sitemap is invisible to search while looking perfectly fine.
+    for page in ("wiki/hmd-tutorial/", "wiki/hmd-lang-spec/"):
+        assert f"{site_url}{page}" in locs, f"{page} is missing from the sitemap"
+
+
+def test_robots_txt_hands_a_crawler_the_sitemap(built_site: Path):
+    """`doc/robots.txt` is copied to the site root as a static file.
+
+    The `Sitemap:` directive has to carry an absolute URL, so it repeats
+    `site_url` and can go stale on a domain move without anything failing —
+    a crawler would fetch the old host, get nothing, and index whatever it could
+    find by following links instead. Tying the two together here is what makes
+    that a red test rather than a slow decline in coverage.
+    """
+    robots = built_site / "robots.txt"
+    assert robots.is_file(), (
+        "robots.txt did not reach the site root; MkDocs copies it from `doc/`,"
+        " so check it has not been caught by `exclude_docs`"
+    )
+
+    text = robots.read_text(encoding="utf-8")
+    assert f"Sitemap: {_site_url()}sitemap.xml" in text, (
+        "robots.txt names a different sitemap URL than `site_url` in mkdocs.yml"
+    )
+    # A stray `Disallow: /` here would deindex the entire site, silently.
+    assert not re.search(r"^\s*Disallow:\s*/\s*$", text, re.M), (
+        "robots.txt disallows the whole site"
+    )
