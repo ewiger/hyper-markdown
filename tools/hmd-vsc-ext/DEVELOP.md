@@ -183,6 +183,18 @@ rsvg-convert -w 128 -h 128 -b none /tmp/padded.svg -o media/logo.png
 The widened `viewBox` is the padding: rendered from the original the bolt runs
 edge to edge, which reads as clipped at gallery size.
 
+The same restriction reaches the README: `vsce package` fails outright on any
+`<img>` pointing at an SVG, remote URL included, so the masthead image in
+`README.md` is `doc/wiki/assets/logo.png` — the unpadded bolt, committed beside
+the SVG and regenerated the same way:
+
+```bash
+rsvg-convert -w 256 -h 256 -b none doc/wiki/assets/logo.svg -o doc/wiki/assets/logo.png
+```
+
+Command icons in `package.json` are unaffected; VS Code accepts SVG there, which
+is why `media/logo.svg` still ships.
+
 ## Before you open a pull request
 
 ```bash
