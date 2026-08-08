@@ -114,3 +114,8 @@ editor. That is the bet, and it is genuinely unfinished: what a namespace is,
 and how far an ID-to-server binding can go, is sketched rather than built in
 [HMD-0004](../proposals/HMD-0004/README.md). The rules as they stand today are
 [Namespaces](namespaces.md).
+
+!!! tip "Read next"
+
+    [The HMD Tutorial](../wiki/hmd-tutorial.hmd) — the part that exists today,
+    taught start to finish. It takes one sitting.

@@ -199,3 +199,8 @@ Python stays canonical for the semantics. A second parser that resolved a name
 differently from the command line would be worse than no second parser, so the
 specification and its conformance corpus are the contract between the two
 surfaces rather than a shared runtime.
+
+!!! tip "Read next"
+
+    [The HMD Tutorial](../wiki/hmd-tutorial.hmd) — what goes into the card
+    before any of this happens to it, taught start to finish in one sitting.

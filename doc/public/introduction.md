@@ -81,8 +81,6 @@ rest of the tree to follow.
 
 ## Where the full picture lives
 
-- [The HMD Tutorial](../wiki/hmd-tutorial.hmd) teaches every construct, start
-  to finish — read it once and you can write the format.
 - [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) is the normative
   text behind it: the grammar, the resolution algorithm, and the diagnostics,
   stated exactly.
@@ -94,3 +92,9 @@ rest of the tree to follow.
   that `.hmd` stands to `.md` as TypeScript stands to JavaScript.
 - [HMD-0001](../proposals/HMD-0001/README.md) is the normative specification
   behind all of the above.
+
+!!! tip "Read next"
+
+    [The HMD Tutorial](../wiki/hmd-tutorial.hmd) — every construct sketched on
+    this page, taught properly and in order. Read it once and you can write the
+    format.

@@ -199,13 +199,21 @@ full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
 
 ## Go deeper
 
-- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) teaches
-  every construct start to finish. Read it once and you can write the format.
+- [The HMD Tutorial](../wiki/hmd-tutorial.hmd) teaches every construct start to
+  finish. Read it once and you can write the format.
+- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) is the normative
+  text behind it: the grammar, the resolution algorithm, and the diagnostics,
+  stated exactly.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive inventory —
   every feature, where the idea came from, and what is deferred, planned, or
   deliberately turned down.
 - [Presentation](presentation.md) is what happens to a card afterwards: the
   formats it converts into and the viewers that show it.
+
+!!! tip "Read next"
+
+    [The HMD Tutorial](../wiki/hmd-tutorial.hmd) — everything shown working on
+    this page, taught in order, in one sitting.
 
 [^1]: Like this one. Footnotes, callouts, and everything else on this page come
     from the wider markdown world rather than from hyper-markdown itself — the

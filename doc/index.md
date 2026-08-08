@@ -3,6 +3,11 @@
 Hyper-markdown (`.hmd`) is ordinary Markdown plus rich visuals plus wiki links
 into a knowledge graph. Every `.md` file is already valid `.hmd`.
 
+!!! tip "Want to see it in action?"
+
+    [The HMD Tutorial](wiki/hmd-tutorial.hmd) is the whole language in one
+    sitting — every construct, with its source shown beside what it renders.
+
 ## TL;DR
 
 ```d2

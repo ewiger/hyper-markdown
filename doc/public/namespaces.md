@@ -299,3 +299,9 @@ it today.
   behind every mechanism sketched above.
 - [Features](features.md) and [Vision](vision.md) — what this buys an author
   today, and where the many-trees idea is heading.
+
+!!! tip "Read next"
+
+    [The HMD Tutorial](../wiki/hmd-tutorial.hmd) — resolution is one chapter of
+    it. The rest of the language is taught the same way, and the whole thing
+    takes one sitting.
