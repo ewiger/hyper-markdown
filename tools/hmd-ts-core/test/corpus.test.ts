@@ -8,8 +8,7 @@
  */
 
 import { readFile, readdir } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -17,8 +16,8 @@ import { check } from "../src/lint.js";
 import { parseConfigToml } from "../src/config.js";
 import { Workspace, DEFAULT_CONFIG } from "../src/workspace.js";
 import { NodeHost } from "./nodeHost.js";
+import { packageRoot, repoRoot } from "./repoRoot.js";
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const casesDir = resolve(repoRoot, "conformance/cases");
 
 interface Expected {
@@ -26,8 +25,11 @@ interface Expected {
   resolutions: Array<{ source: string; raw: string; target: string | null }>;
 }
 
+// The ledger belongs to this package, so it is named relative to this package
+// rather than through the repository root — moving the package must not be
+// able to leave the path behind.
 const ledger = JSON.parse(
-  await readFile(resolve(repoRoot, "packages/hmd-core/conformance-xfail.json"), "utf8"),
+  await readFile(resolve(packageRoot, "conformance-xfail.json"), "utf8"),
 ) as { cases: Array<{ id: string; reason: string }> };
 
 const expectedToFail = new Set(ledger.cases.map((entry) => entry.id));

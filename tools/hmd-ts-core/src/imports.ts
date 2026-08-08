@@ -1,6 +1,6 @@
 /**
  * The `from <ref> import <names>` mini-grammar (HMD-0001 §5.3) — a port of
- * `src/hyper_markdown/imports.py`.
+ * `tools/hmd/src/hyper_markdown/imports.py`.
  */
 
 import type { ImportStmt } from "./model.js";

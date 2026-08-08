@@ -38,11 +38,13 @@ jobs:
           enable-cache: true
 
       # From the lockfile, so the published site is built from the same versions
-      # the tests ran against. A deploy that resolved freshly could differ from
+      # the tests ran against. No `--extra`: the root is a uv workspace root
+      # rather than a project, and its `dev` group already asks for
+      # `hyper-markdown[mkdocs,dev]`, which is the same resolution CI installs. A deploy that resolved freshly could differ from
       # a green CI run on nothing but an upstream release, which is how issue
       # 0003 reached the site in the first place.
       - name: Install
-        run: uv sync --locked --extra mkdocs
+        run: uv sync --locked
 
       # Diagrams degrade to a labelled placeholder without this, which would
       # publish quietly wrong pages rather than failing — so the deploy needs

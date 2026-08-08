@@ -33,7 +33,7 @@ appears on the second keystroke.
 ## Done when
 
 - The integration suite is unparked and running in CI (see
-  `packages/STATUS.md`, E5.2).
+  `tools/STATUS.md`, E5.2).
 - It covers each row above end to end: edit an unsaved buffer, assert what the
   preview holds.
 - `doc/DEVELOPER.md`'s manual walkthrough shrinks to the things a human should

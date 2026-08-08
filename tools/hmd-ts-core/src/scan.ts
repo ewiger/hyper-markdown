@@ -1,5 +1,5 @@
 /**
- * Masking scanner (HMD-0001 §1, §2) — a port of `src/hyper_markdown/scan.py`.
+ * Masking scanner (HMD-0001 §1, §2) — a port of `tools/hmd/src/hyper_markdown/scan.py`.
  *
  * The scanner does not parse CommonMark. It masks the regions where markup must
  * not be interpreted, then extracts constructs from what is left. Masking

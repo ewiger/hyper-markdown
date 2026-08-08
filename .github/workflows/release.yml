@@ -46,7 +46,7 @@ jobs:
           tagged="${GITHUB_REF_NAME#v}"
           packaged=$(uv run --no-project python -c "
           import pathlib, re
-          source = pathlib.Path('src/hyper_markdown/__init__.py').read_text()
+          source = pathlib.Path('tools/hmd/src/hyper_markdown/__init__.py').read_text()
           print(re.search(r'__version__ = \"([^\"]+)\"', source).group(1))
           ")
           echo "tag=$tagged packaged=$packaged"
@@ -55,8 +55,14 @@ jobs:
             exit 1
           fi
 
+      # `--package`, never a bare `uv build`. The repository root is a uv
+      # workspace root with no `[project]` table of its own, and a bare
+      # `uv build` there builds an empty `unknown-0.0.0` distribution and exits
+      # zero. On this path that artifact would pass `twine check` and travel as
+      # far as PyPI will take it, so the flag is what makes a layout mistake
+      # loud instead of publishable.
       - name: Build
-        run: uv build
+        run: uv build --package hyper-markdown
 
       # `twine check --strict` reads the metadata the way PyPI will, which is
       # the difference between finding a broken long description now and finding

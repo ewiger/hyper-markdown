@@ -4,7 +4,7 @@ Parser, resolver, and renderer for [hyper-markdown](https://github.com/ewiger/hy
 in TypeScript, with no Python and no editor API.
 
 Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md). The Python
-package under [`src/hyper_markdown/`](../../src/hyper_markdown/) is **canonical**:
+package under [`tools/hmd/src/hyper_markdown/`](../../tools/hmd/src/hyper_markdown/) is **canonical**:
 where the two disagree, Python is right and this one carries the bug.
 
 ## Use

@@ -18,7 +18,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const extensionPath = join(repoRoot, "packages", "vscode-hyper-markdown");
+const extensionPath = join(repoRoot, "tools", "hmd-vsc-ext");
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--print");

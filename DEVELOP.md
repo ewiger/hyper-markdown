@@ -8,15 +8,22 @@ the *format*; this file explains the *repository*.
 ## Setup
 
 ```bash
-uv sync --locked --all-extras
+uv sync --locked
 ```
 
 That installs the exact versions in [`uv.lock`](uv.lock) — the ones CI and the
 published site are built from — and fails rather than re-resolving if the lock
-and [`pyproject.toml`](pyproject.toml) have drifted apart. To change a
-dependency, edit the ranges in `pyproject.toml`, run `uv lock`, and commit the
-resulting lockfile in the same change: an upgrade should be a diff somebody
-approved, not whatever the index happened to serve that morning.
+and the tools it locks have drifted apart. To change a dependency, edit the
+ranges in [`tools/hmd/pyproject.toml`](tools/hmd/pyproject.toml), run `uv lock`,
+and commit the resulting lockfile in the same change: an upgrade should be a
+diff somebody approved, not whatever the index happened to serve that morning.
+
+The repository root is a **uv workspace root**, not a project. The root
+[`pyproject.toml`](pyproject.toml) carries the workspace, the pytest
+configuration, and a `dev` group asking for `hyper-markdown[mkdocs,dev]`; the
+distribution itself is declared in `tools/hmd/`. One `.venv` and one `uv.lock`
+serve the whole checkout, so `uv run hmd`, `uv run mkdocs`, and
+`uv run python -m pytest` all work from the root with no arguments.
 
 The `mkdocs` extra is optional for the library and required for the site. D2
 diagrams render through the [`d2`](https://d2lang.com) binary, which is not a
@@ -32,18 +39,24 @@ across Python 3.11–3.14. Run them locally before pushing:
 python -m pytest                          # the suite
 hmd lint --root doc/wiki --strict         # this repo's own wiki must be clean
 hmd lint --root examples/small            # the fixture: exactly one warning
+hmd lint --root examples/cs-alg-sorting --strict
 mkdocs build --strict                     # the second consumer of the resolver
 ```
 
 A fifth job builds the distribution, checks its metadata the way PyPI will, and
 installs the wheel into a clean environment to confirm the `hmd` script and the
 MkDocs entry point exist. That last part is what an editable install can never
-tell you: `uv pip install -e` resolves through `src/`, so a package that would
-ship without its entry points still passes every test.
+tell you: an editable install resolves through `tools/hmd/src/`, so a package
+that would ship without its entry points still passes every test.
 
 ```bash
-uv build && uvx twine check --strict dist/*
+uv build --package hyper-markdown && uvx twine check --strict dist/*
 ```
+
+`--package` is not optional. A bare `uv build` at a workspace root with no
+`[project]` table builds an empty `unknown-0.0.0` distribution and exits zero,
+which on the release path is a wrong artifact that passes every check after
+it.
 
 The two `hmd lint` calls are dogfooding gates. The fixture is deliberately *not*
 run under `--strict` — it carries one expected warning, the red link in
@@ -60,20 +73,45 @@ test looked at rendered HTML. New rendering work asserts on the HTML, never on
 the configuration.
 
 The wheel smoke test is the one job deliberately left unlocked. It resolves
-fresh against the ranges in `pyproject.toml`, because its whole purpose is to
+fresh against the ranges in `tools/hmd/pyproject.toml`, because its whole
+purpose is to
 exercise what a stranger gets from `pip install`, and a bad bound is invisible
 to a run that installs from the lock.
 
 ## Layout
 
+Every tool lives in its own directory under `tools/`, and the repository root
+carries only what is shared between them.
+
 ```text
-src/hyper_markdown/     the library — parse, resolve, embed, urls, lint, render
-  mkdocs_plugin.py      the only file that imports MkDocs
-tests/                  pytest; test_docs.py gates this repo's own prose
-examples/small/         a runnable fixture wiki, exercised by the suite
+tools/hmd/              the Python tool, published as `hyper-markdown`
+  pyproject.toml        the distribution; also where dependency bounds live
+  src/hyper_markdown/   the library — parse, resolve, embed, urls, lint, render
+    mkdocs_plugin.py    the only file that imports MkDocs
+  tests/                the tool's own suite
+tools/hmd-ts-core/      @hyper-markdown/core — the TypeScript implementation
+tools/hmd-vsc-ext/      the VS Code extension
+tools/STATUS.md         implementation status for the two TypeScript tools
+tests/                  repository guards: this repo's prose and its built site
+conformance/cases/      the language-neutral corpus both implementations run
+examples/small/         a runnable fixture wiki, exercised by both lines
 doc/                    the documentation tree — also the site's docs_dir
 mkdocs.yml              the site
+pyproject.toml          uv workspace root and pytest config; not a distribution
 ```
+
+`tools/hmd` also carries four symlinks — `README.md`, `LICENSE`,
+`CHANGELOG.md`, and `examples` — pointing at the repository root. setuptools
+refuses to read a file outside the project directory, so this is what lets the
+distribution keep the repository's own README as its PyPI long description, and
+keep shipping the fixture in the sdist, without a second copy of either.
+
+The two test roots answer for different things. `tools/hmd/tests` is the tool's,
+and moves if the tool moves. `tests/` holds `test_docs.py`, which walks every
+tracked `*.md` and `*.hmd` in the checkout, and `test_mkdocs.py`, which builds
+the real site from the root `mkdocs.yml` — repository guards that happen to be
+written in Python. `testpaths` in the root `pyproject.toml` names both, so a
+bare `python -m pytest` still runs everything.
 
 The library's independence from MkDocs is deliberate and worth preserving:
 `parse`, `resolve`, `embed`, `urls`, and `lint` do not import it, so swapping the
@@ -159,7 +197,7 @@ was never really Pygments': `pymdown-extensions` 10.21.2 fixes it, so the
 constraint is now a floor on that package instead — and it moved into the base
 dependencies, since `pymdownx.superfences` is loaded by `hmd render --to html`
 and not only by the site. Every bound carries its rationale inline in
-[`pyproject.toml`](pyproject.toml).
+[`tools/hmd/pyproject.toml`](tools/hmd/pyproject.toml).
 
 ## Cutting a release
 
@@ -167,10 +205,11 @@ Four steps, in this order:
 
 1. Write the entry in [`CHANGELOG.md`](CHANGELOG.md) — promote `Unreleased` to
    the new number and date it.
-2. Bump `__version__` in [`src/hyper_markdown/__init__.py`](src/hyper_markdown/__init__.py).
-   That is the only place a version literal exists; `pyproject.toml` derives its
-   own from it, and `tests/test_cli.py` fails if the two ever disagree or if the
-   changelog has no section for the number.
+2. Bump `__version__` in
+   [`tools/hmd/src/hyper_markdown/__init__.py`](tools/hmd/src/hyper_markdown/__init__.py).
+   That is the only place a version literal exists; `tools/hmd/pyproject.toml`
+   derives its own from it, and `tools/hmd/tests/test_cli.py` fails if the two
+   ever disagree or if the changelog has no section for the number.
 3. Merge, with CI green.
 4. Tag `main` and push the tag:
 

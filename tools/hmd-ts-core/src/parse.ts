@@ -1,6 +1,6 @@
 /**
  * Source text -> `ParsedDocument` (HMD-0001 §1, §2, §3) — a port of
- * `src/hyper_markdown/parse.py`.
+ * `tools/hmd/src/hyper_markdown/parse.py`.
  *
  * Parsing never throws on partial input (HMD-0020 §7). A buffer caught
  * mid-keystroke is the ordinary input here, not an error case: an unterminated

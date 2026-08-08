@@ -5,9 +5,13 @@ Where the implementation stands against
 [HMD-0021](../doc/proposals/HMD-0021/README.md). One row per work point; update
 the row in the same commit that changes the code.
 
-The Python line keeps its own [`STATUS.md`](../STATUS.md) on the `feat/mvp`
-branch. The two are deliberately separate files so the branches merge without
-touching each other.
+It sits at `tools/` rather than inside either tool because the milestones
+interleave across both of them: the `C` rows are
+[`tools/hmd-ts-core`](hmd-ts-core/) and the `E` rows are
+[`tools/hmd-vsc-ext`](hmd-vsc-ext/). The Python tool, `tools/hmd`, is not
+tracked here — it tracks per proposal, in `doc/proposals/HMD-NNNN/STATUS.md`,
+which is the repository's normal convention and the one this file is the
+standing exception to.
 
 **Legend** — `done` shipped and gated by a test · `wip` in progress ·
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
@@ -33,11 +37,11 @@ Python corpus runner are the next blocks.
 | C5 | Conformance corpus and ledger | **done** | `test/corpus.test.ts` |
 | C6 | IR, expansion, markdown-it renderer | **done** | `test/render.test.ts` |
 | C7 | Callouts, math, D2 diagrams | **done** | `test/extensions.test.ts` |
-| E1 | Extension skeleton, language, grammar | **done** | `npm run -w vscode-hyper-markdown build` |
+| E1 | Extension skeleton, language, grammar | **done** | `npm run -w hmd-vsc-ext build` |
 | E2 | Index, watchers, diagnostics | **done** | `test/protocol.test.ts` |
 | E3 | Rendered tab, embeds, scroll sync | **done** | `test/renderer.test.ts` |
 | E4 | Backlinks, breadcrumb, create-card, pin | **done** | `test/renderer.test.ts` |
-| E5 | Packaging | **done** | `npm run -w vscode-hyper-markdown package` |
+| E5 | Packaging | **done** | `npm run -w hmd-vsc-ext package` |
 | E6 | Graph tab | **ready** | HMD-0021 §10 |
 | E7 | Editor-column surface, logo | **done** | `test/panel.test.ts` |
 
@@ -57,7 +61,7 @@ Python corpus runner are the next blocks.
 | C4.2 | `nav` mapping, visibility inheritance, HMD017 | HMD-0002 §2 | **blocked** — see below |
 | C5.1 | `conformance/cases/` generated from the canonical implementation | §10 | done |
 | C5.2 | `conformance-xfail.json`, ledger honoured, passing entry fails the build | §10 | done |
-| C5.3 | Python corpus runner | §10 | **ready** — belongs to the branch owning `tests/` |
+| C5.3 | Python corpus runner | §10 | **ready** — belongs to the branch owning `tools/hmd/` |
 | C6.1 | `expand.ts` — page, `#Section`, `#^id`, depth 16, cycle stack | §8 | done |
 | C6.2 | `render.ts` — sentinel substitution, per-block `data-line`, block keys | §3, §7 | done |
 | C6.3 | `graph.ts` — nodes, edges, reverse edge map for backlinks | HMD-0021 §9 | done |

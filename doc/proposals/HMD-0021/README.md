@@ -12,7 +12,7 @@
 
 ## Abstract
 
-This proposal defines `vscode-hyper-markdown`: a VS Code extension registering
+This proposal defines `hmd-vsc-ext`: a VS Code extension registering
 `.hmd` as its own language with its own TextMate grammar, contributing one
 webview view whose internal tab strip carries the preview modes, and rendering
 the HMD-0020 document IR into a card-shaped view where embeds stay embeds. It
@@ -70,8 +70,9 @@ the user's editor. §11 is not boilerplate.
 ### 1. Identity, contributions, activation
 
 ```text
-directory     packages/vscode-hyper-markdown/
-name          hyper-markdown
+directory     tools/hmd-vsc-ext/
+name          hmd-vsc-ext
+publisher     hyper-markdown
 displayName   Hyper-Markdown
 engines.vscode ^1.90.0
 language id   hmd
@@ -79,6 +80,11 @@ extensions    .hmd
 aliases       ["Hyper-Markdown", "hmd"]
 ```
 
+- `name` and `publisher` together form the marketplace identifier
+  `hyper-markdown.hmd-vsc-ext`, which is permanent from the first publish. The
+  extension was `vscode-hyper-markdown` while the repository used a `packages/`
+  layout, and was renamed with the move to `tools/`. Nothing has been published,
+  which is the only window in which this rename is free.
 - The extension MUST contribute the `hmd` language rather than reusing
   `markdown`. Sharing the markdown language ID would put this preview in
   contention with the built-in one for the same file.
@@ -420,7 +426,7 @@ script-src 'nonce-{nonce}';
 ## Backwards Compatibility
 
 Nothing is released, and the extension is additive to the repository: it adds
-`packages/vscode-hyper-markdown/` and a CI job, and modifies no existing file
+`tools/hmd-vsc-ext/` and a CI job, and modifies no existing file
 except `.github/workflows/ci.yml` and the proposal index. The `.hmd` files
 themselves are unchanged — a card that lints clean today renders unchanged
 tomorrow, since every semantic decision is HMD-0020's and HMD-0020 is a port of
@@ -466,7 +472,7 @@ start as soon as those land and before expansion exists.
 ## Reference Implementation
 
 ```text
-packages/vscode-hyper-markdown/
+tools/hmd-vsc-ext/
   package.json            contributions of §1
   syntaxes/hmd.tmLanguage.json
   src/
@@ -522,9 +528,9 @@ Integration tests (`@vscode/test-cli`) MUST include:
 
 ```bash
 npm ci
-npm run -w vscode-hyper-markdown typecheck
-npm run -w vscode-hyper-markdown test
-npm run -w vscode-hyper-markdown package
+npm run -w hmd-vsc-ext typecheck
+npm run -w hmd-vsc-ext test
+npm run -w hmd-vsc-ext package
 ```
 
 ## Open Questions

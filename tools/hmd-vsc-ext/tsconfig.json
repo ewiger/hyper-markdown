@@ -21,12 +21,12 @@
     // build artifact of the thing being typechecked. Bundling is unaffected:
     // esbuild still resolves the built package through the workspace link.
     "paths": {
-      "@hyper-markdown/core": ["../hmd-core/src/index.ts"]
+      "@hyper-markdown/core": ["../hmd-ts-core/src/index.ts"]
     }
   },
   // The core's sources come in through `paths` above, so its ambient
   // declarations for the untyped markdown-it plugins have to come with them —
   // they are part of its program, not ours, and resolving it from source means
   // inheriting what its own tsconfig `include` gave it.
-  "include": ["src", "media", "test", "../hmd-core/src/vendor.d.ts"]
+  "include": ["src", "media", "test", "../hmd-ts-core/src/vendor.d.ts"]
 }

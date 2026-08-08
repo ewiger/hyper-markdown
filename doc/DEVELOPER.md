@@ -7,10 +7,14 @@ says *which command to type*.
 
 Two implementations live in this repository:
 
-- **The Python line** — `src/hyper_markdown/`, the `hmd` CLI, the MkDocs
-  plugin. Canonical for the format's semantics.
-- **The TypeScript line** — `packages/`, the VS Code extension and the core it
-  depends on. Documented below.
+Every tool lives under `tools/`, one directory each:
+
+- **`tools/hmd`** — the Python line: parser, resolver, linter, graph checker,
+  and the MkDocs plugin, published to PyPI as `hyper-markdown`. Canonical for
+  the format's semantics, and the future home of the `pygls` language server.
+- **`tools/hmd-ts-core`** — `@hyper-markdown/core`, the TypeScript half of the
+  conformance contract. A second implementation, not extension code.
+- **`tools/hmd-vsc-ext`** — the VS Code extension. Documented below.
 
 ---
 
@@ -19,19 +23,19 @@ Two implementations live in this repository:
 Specified by [HMD-0021](proposals/HMD-0021/README.md); its parser, resolver, and
 renderer come from `@hyper-markdown/core`, specified by
 [HMD-0020](proposals/HMD-0020/README.md). Implementation status lives in
-[`packages/STATUS.md`](../packages/STATUS.md).
+[`tools/STATUS.md`](../tools/STATUS.md).
 
 ### Layout
 
 ```text
-package.json                        npm workspaces root
-packages/hmd-core/                  @hyper-markdown/core — parser, resolver, IR
-packages/vscode-hyper-markdown/     the extension
-conformance/cases/                  the shared corpus (HMD-0020 §10)
+package.json                 npm workspaces root
+tools/hmd-ts-core/           @hyper-markdown/core — parser, resolver, IR
+tools/hmd-vsc-ext/           the extension
+conformance/cases/           the shared corpus (HMD-0020 §10)
 ```
 
-The TypeScript half touches no file under `src/` or `tests/`, which is what lets
-it develop on its own branch and merge back mechanically.
+The TypeScript half touches no file under `tools/hmd/`, which is what lets it
+develop on its own branch and merge back mechanically.
 
 ### Prerequisites
 
@@ -42,15 +46,18 @@ is.
 
 ```bash
 npm ci                       # both packages
-uv venv && uv pip install -e ".[dev]"   # only for the parity check
+uv sync                      # only for the parity check
 ```
+
+`uv sync` runs at the repository root, which is a uv workspace root: it installs
+`tools/hmd` into one `.venv` and puts `hmd` on `uv run`'s path.
 
 ### Build
 
 ```bash
 npm run build                # core (tsc) then the extension (esbuild)
 npm run typecheck            # both packages, no emit
-npm run -w vscode-hyper-markdown watch   # rebuild both bundles on save
+npm run -w hmd-vsc-ext watch # rebuild both bundles on save
 ```
 
 The extension produces two bundles: `dist/extension.js` for the Node extension
@@ -61,21 +68,24 @@ host, and `media/webview.js` for the sandboxed webview. Both are gitignored.
 #### Automated
 
 ```bash
-npm test                                  # both packages, 141 tests
-npm run -w @hyper-markdown/core test      # 106: scanner, resolver, IR, corpus, parity
-npm run -w vscode-hyper-markdown test     # 35: renderer under jsdom, protocol, CSP
+npm test                              # both packages, 151 tests
+npm run -w @hyper-markdown/core test  # 107: scanner, resolver, IR, corpus, parity
+npm run -w hmd-vsc-ext test           # 44: renderer under jsdom, protocol, CSP
 ```
 
 Two of those suites are doing more than they look:
 
 - **`test/parity.test.ts`** shells out to `hmd lint --format json` and requires
-  byte-identical diagnostics on `examples/small` and `doc/wiki`. It skips with a
-  warning if the `hmd` CLI is unavailable, so a contributor without a Python
-  environment can still work — but CI runs both, and drift fails there.
+  byte-identical diagnostics on `examples/small`, `examples/cs-alg-sorting`, and
+  `doc/wiki`. It skips if the `hmd` CLI is unavailable, so a contributor without
+  a Python environment can still work. Set `HMD_REQUIRE_PARITY=1` and the skip
+  becomes a failure instead — CI sets it, because a job that installs Python in
+  order to ask the canonical implementation should not be able to pass by
+  quietly not asking.
 - **`test/corpus.test.ts`** runs every case in `conformance/cases/`. Each
   `expected.json` was generated from `hmd lint` and `hmd graph`, never written
   by hand. Known divergences live in
-  [`conformance-xfail.json`](../packages/hmd-core/conformance-xfail.json), and a
+  [`conformance-xfail.json`](../tools/hmd-ts-core/conformance-xfail.json), and a
   ledgered case that *starts passing* fails the build.
 
 #### Manual — the Extension Development Host
@@ -114,7 +124,7 @@ warnings that do not exist when each tree is linted on its own.
 **If you need breakpoints.** No debugger configuration ships. Add a throwaway
 `.vscode/launch.json` of `type: extensionHost` with
 `--extensionDevelopmentPath` and an `outFiles` glob over
-`packages/vscode-hyper-markdown/dist`; the bundles carry source maps, so
+`tools/hmd-vsc-ext/dist`; the bundles carry source maps, so
 breakpoints in TypeScript resolve. It is deliberately not committed — one
 person's debugger setup is not worth the F5 ambiguity it reintroduces for
 everyone else.
@@ -123,7 +133,7 @@ While a host window is running:
 
 - **Cmd+R** in it reloads the extension after a rebuild. Much faster than
   relaunching, but it does not rebuild — keep
-  `npm run -w vscode-hyper-markdown watch` in a terminal for a tight loop.
+  `npm run -w hmd-vsc-ext watch` in a terminal for a tight loop.
 - **Help → Toggle Developer Tools** in the host window shows the extension
   host's console, including anything the extension logs or throws.
 - The webview is a separate context. Its breakpoints and console need
@@ -136,8 +146,8 @@ Use this to test under real conditions, or to hand someone a build. It does
 modify your editor; uninstall from the Extensions panel afterwards.
 
 ```bash
-npm run -w vscode-hyper-markdown package
-code --install-extension packages/vscode-hyper-markdown/vscode-hyper-markdown-0.1.0.vsix
+npm run -w hmd-vsc-ext package
+code --install-extension tools/hmd-vsc-ext/hmd-vsc-ext-0.1.0.vsix
 ```
 
 Reload the window afterwards. The VSIX is ~440 KB — mostly KaTeX's fonts —
@@ -152,7 +162,7 @@ every build — the CI runner has no guaranteed librsvg, and the source does not
 change:
 
 ```bash
-cd packages/vscode-hyper-markdown
+cd tools/hmd-vsc-ext
 sed 's/viewBox="0 0 24 24"/viewBox="-4 -4 32 32"/' media/logo.svg > /tmp/padded.svg
 rsvg-convert -w 128 -h 128 -b none /tmp/padded.svg -o media/logo.png
 ```
@@ -217,7 +227,7 @@ fences, all six link constructs, and a D2 diagram; all of them should render.
 What remains ledgered is narrower: `~x~` subscript, setext headings, raw HTML
 (escaped here by design), and column numbers after astral-plane characters. The
 full list is in
-[`conformance-xfail.json`](../packages/hmd-core/conformance-xfail.json).
+[`conformance-xfail.json`](../tools/hmd-ts-core/conformance-xfail.json).
 
 #### The integration suite
 
@@ -231,8 +241,9 @@ It does not run on macOS today. `@vscode/test-electron` 2.5.2 spawns
 symlinking around the rename invalidates the `.app` signature so macOS kills the
 process. Neither blocker exists on a Linux runner. Note also that the harness
 downloads ~305 MB (~912 MB unpacked) on first run, which is why it is not part
-of `npm test`. See `packages/vscode-hyper-markdown/test/integration/README.md`
-on that branch.
+of `npm test`. See the integration suite's own README on that branch, which
+still names the package `packages/vscode-hyper-markdown` — that branch predates
+the `tools/` layout and will need the rename when it is unparked.
 
 ### CI
 

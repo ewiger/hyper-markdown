@@ -18,9 +18,11 @@ would collide on every merge.
 `feat/mvp` (worktree `../hyper-markdown-feat-mvp`) owns Python, MkDocs, and
 `HMD-0002`. `feat/vsc-ext` owns the TypeScript packages and `HMD-0020+`.
 `feat/mvp` is the merge target; both directions get merged periodically. Work
-stays in disjoint directories on purpose — `src/` and `tests/` are Python's,
-`packages/` and `conformance/` are TypeScript's — so the merges stay
-mechanical. `doc/proposals/README.md` is the one file both streams append to.
+stays in disjoint directories on purpose — `tools/hmd/` is Python's,
+`tools/hmd-ts-core/`, `tools/hmd-vsc-ext/`, and `conformance/` are
+TypeScript's — so the merges stay mechanical. Those were `src/`, `tests/`, and
+`packages/` until the repository moved to a `tools/` layout; the disjointness is
+the point, not the names. `doc/proposals/README.md` is the one file both streams append to.
 
 ## Principle P5 is retired, deliberately
 

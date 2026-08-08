@@ -1,7 +1,7 @@
 /**
  * Core data model (HMD-0001 §1, HMD-0020 §7).
  *
- * A direct port of `src/hyper_markdown/model.py`. Every construct carries an
+ * A direct port of `tools/hmd/src/hyper_markdown/model.py`. Every construct carries an
  * exact source span, because diagnostics, scroll sync, and click-through all
  * read from the same positions.
  */

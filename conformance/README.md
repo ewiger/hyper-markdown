@@ -9,7 +9,7 @@ this is the something.
 
 ## Canonicity
 
-The Python package under [`src/hyper_markdown/`](../src/hyper_markdown/) is
+The Python package under [`tools/hmd/src/hyper_markdown/`](../tools/hmd/src/hyper_markdown/) is
 **canonical**. Where implementations disagree on a case this corpus covers,
 Python defines the correct answer and the other implementation carries the bug.
 Canonicity is about arbitration, not quality: it exists so that "which one is
@@ -46,15 +46,15 @@ leaks into the contract.
 
 ## Runners
 
-- **TypeScript** — `packages/hmd-core/test/corpus.test.ts`, part of
+- **TypeScript** — `tools/hmd-ts-core/test/corpus.test.ts`, part of
   `npm run -w @hyper-markdown/core test`.
 - **Python** — not yet written; it belongs to the branch that owns
-  `src/hyper_markdown/` and `tests/`.
+  `tools/hmd/src/hyper_markdown/` and `tools/hmd/tests/`.
 
 ## The ledger
 
 Divergence is permitted. Silence is not. Known differences live in
-[`packages/hmd-core/conformance-xfail.json`](../packages/hmd-core/conformance-xfail.json),
+[`tools/hmd-ts-core/conformance-xfail.json`](../tools/hmd-ts-core/conformance-xfail.json),
 each naming the case, the reason, and where it is tracked. **A ledger entry
 that passes fails the build** — an expected failure that starts succeeding and
 is not removed is how a ledger rots into a lie.

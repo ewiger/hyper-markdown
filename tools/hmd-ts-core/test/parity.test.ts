@@ -2,12 +2,19 @@
  * Conformance against the canonical implementation (HMD-0020 §10).
  *
  * This is what replaces principle P5. The Python package under
- * `src/hyper_markdown/` defines the correct answer; this suite asks it, on the
- * two trees CI already gates, and requires byte-identical diagnostics.
+ * `tools/hmd/src/hyper_markdown/` defines the correct answer; this suite asks
+ * it, on the three trees CI already gates, and requires byte-identical
+ * diagnostics.
  *
  * If the `hmd` CLI is not available the suite skips rather than fails: a
  * contributor without a Python environment should still be able to work on the
- * TypeScript half, and CI runs both.
+ * TypeScript half, and CI runs both. The skip is declared through `ctx.skip()`
+ * so it is reported as a skip and counted as one — a bare `return` left the
+ * case reporting as a pass, which is how a check that stopped running looks
+ * exactly like a check that ran. Anywhere the Python side is meant to exist,
+ * set `HMD_REQUIRE_PARITY=1` and a missing CLI fails instead of skipping; CI
+ * sets it, which is what stops a moved `pyproject.toml` from silently
+ * retiring this suite.
  *
  * A rule named in the `rules` array of `conformance-xfail.json` is one this
  * implementation does not emit at all, so comparing it would only ever restate
@@ -20,8 +27,7 @@
 
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { promisify } from "node:util";
 
 import { describe, expect, it } from "vitest";
@@ -29,12 +35,12 @@ import { describe, expect, it } from "vitest";
 import { check } from "../src/lint.js";
 import { Workspace } from "../src/workspace.js";
 import { NodeHost } from "./nodeHost.js";
+import { packageRoot, repoRoot } from "./repoRoot.js";
 
 const run = promisify(execFile);
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const ledger = JSON.parse(
-  await readFile(resolve(repoRoot, "packages/hmd-core/conformance-xfail.json"), "utf8"),
+  await readFile(resolve(packageRoot, "conformance-xfail.json"), "utf8"),
 ) as { rules?: Array<{ id: string; reason: string }> };
 
 const unimplementedRules = new Set((ledger.rules ?? []).map((entry) => entry.id));
@@ -93,11 +99,17 @@ describe.each([
   ["examples/cs-alg-sorting", resolve(repoRoot, "examples/cs-alg-sorting")],
   ["doc/wiki", resolve(repoRoot, "doc/wiki")],
 ])("parity on %s", (_label, root) => {
-  it("produces the diagnostics the canonical implementation produces", async () => {
+  it("produces the diagnostics the canonical implementation produces", async (ctx) => {
     const expected = await pythonDiagnostics(root);
     if (expected === null) {
-      // eslint-disable-next-line no-console
-      console.warn("hmd CLI unavailable — parity check skipped");
+      if (process.env["HMD_REQUIRE_PARITY"]) {
+        throw new Error(
+          "HMD_REQUIRE_PARITY is set but neither `uv run hmd` nor `hmd` could be run from " +
+            `${repoRoot}. The canonical implementation lives in tools/hmd; install it with ` +
+            "`uv sync` at the repository root.",
+        );
+      }
+      ctx.skip();
       return;
     }
     const actual = await typescriptDiagnostics(root);

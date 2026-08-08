@@ -8,7 +8,7 @@ keeping up as you type.
 
 Specified by [HMD-0021](../../doc/proposals/HMD-0021/README.md); the parser,
 resolver, and renderer come from
-[`@hyper-markdown/core`](../hmd-core/README.md), specified by
+[`@hyper-markdown/core`](../hmd-ts-core/README.md), specified by
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
 ## What it does
@@ -68,7 +68,7 @@ reload.
 
 ## Known gaps
 
-Tracked in [`conformance-xfail.json`](../hmd-core/conformance-xfail.json):
+Tracked in [`conformance-xfail.json`](../hmd-ts-core/conformance-xfail.json):
 collapsible `???` details blocks, D2 diagrams, math, and `admonition` callouts
 render as plain markdown for now. Raw HTML in a card is escaped rather than
 passed through — a deliberate divergence from the MkDocs build, because a
