@@ -109,6 +109,14 @@ tools/STATUS.md       implementation status for the two TypeScript tools
   implementation and from a ledgered case that starts passing failing the
   build — never from its rank in the tree. Two root directories of fixture
   trees would only make a reader learn which kind goes where.
+- **The root owns the language**: its specification, the numbered records that
+  argue it, the models beside them, and the website they are published as. No
+  tool owns the specification, and a tool MUST NOT be the place a question about
+  the format is settled — the dependency runs from tool to specification and
+  never back. The one exception is deliberate and is the project exercising its
+  own format: this repository's documentation is a hyper-markdown wiki, built by
+  the plugin the Python tool ships, so a specification that made the site
+  unbuildable would be caught by its own publication.
 
 ### Where tests live, and what they answer for
 

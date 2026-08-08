@@ -1,7 +1,8 @@
 """The `hmd` command-line interface (HMD-0001 §7).
 
 All semantics live in the library; this layer is argument parsing and
-formatting only, so a future `hmd lsp` shares one implementation (P5).
+formatting only, so a future `hmd lsp` answers from the same code rather than
+from a second reading of the specification.
 
 Exit codes are pinned: 0 clean, 1 diagnostics, 2 usage or internal failure.
 """

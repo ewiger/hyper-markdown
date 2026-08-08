@@ -1,8 +1,14 @@
 """hyper-markdown — a strict, machine-checkable markdown dialect.
 
-The reference implementation of HMD-0001. Semantics live here, in Python;
-every consumer (CLI, MkDocs plugin, future language server) is a thin client,
-so there is no second implementation to drift out of sync (P5).
+The **canonical** implementation of the format: where this and any other
+implementation disagree about a case the conformance corpus covers, this one
+defines the correct answer. Every consumer here (CLI, MkDocs plugin, the language
+server to come) is a thin client over the same semantics.
+
+Canonical is not sole. The old principle that semantics live in one
+implementation is retired — a second implementation exists in TypeScript, and the
+corpus at `examples/conformance/cases/` plus a ledger of expected failures is
+what keeps the two from drifting into dialects.
 """
 
 from .config import Config, ConfigError

@@ -26,7 +26,9 @@ the single layer that ingests documents.
 | W1.3 | Conformance corpus moved from `conformance/` to `examples/conformance/`, with the corpus runner, the root-marker search, and every path in the documentation and in HMD-0020 §10 repointed | What each tool owns |
 | W2.1 | `tools/hmd/pyproject.toml` builds the `hyper-markdown` distribution; name, script, and MkDocs entry point unchanged | The repository root is a workspace, not a project |
 | W2.2 | Root `pyproject.toml` is a uv workspace root with no `[project]` table, a `dev` group, and both test roots in `testpaths` | The repository root is a workspace, not a project |
-| W2.3 | Every tool carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, and `DEVELOP.md`, none of them a symlink. `tools/hmd/README.md` is the PyPI long description and is about the `hmd` command, with absolute links; the root README is an index of the three tools and the root changelog an index of theirs. `release.yml` and `test_cli.py` read `tools/hmd/CHANGELOG.md`. `examples/` stays at the root, so the sdist still does not ship the fixture | A tool's front matter is its own |
+| W2.3 | Every tool carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, and `DEVELOP.md`, none of them a symlink. `tools/hmd/README.md` is the PyPI long description and is about the `hmd` command, with absolute links; `release.yml` and `test_cli.py` read `tools/hmd/CHANGELOG.md`. `examples/` stays at the root, so the sdist still does not ship the fixture | A tool's front matter is its own |
+| W2.5 | The root's three files are the language's: `README.md` names both halves and points at the site, `CHANGELOG.md` is the language's history under a `## [0.1]` section, and `DEVELOP.md` covers the specification, the four versions, and publishing the site — the Python loop, dependency policy, packaging, and the release having moved to `tools/hmd/DEVELOP.md`. `doc/DEVELOPER.md` is an index of the four guides | The root owns the language |
+| W2.6 | `tests/test_docs.py` reads the language version out of the spec card's opening sentence and fails when the root changelog has no section for it, mirroring the tool's own changelog guard | The root owns the language |
 | W2.4 | `uv build --package hyper-markdown` on both the release path and the pull-request package check | The repository root is a workspace, not a project |
 | W3.1 | Python suite split: nine unit files plus the CLI and worked-example suites to `tools/hmd/tests`, the prose and site guards left at `tests/` | Where tests live, and what they answer for |
 | W4.1 | Extension renamed to `hmd-vsc-ext`; publisher, display name, language id, commands, and settings unchanged | The extension's identity |
@@ -101,8 +103,12 @@ uv build --package hyper-markdown
   longer carries the fixture.
 - 2026-08-08: W2.3 rewritten and L4 replaced. The last three packaging symlinks
   are gone: every tool carries its own README, changelog, license, and
-  development guide, the root's three files became indexes, and the release path
-  now reads `tools/hmd/CHANGELOG.md`. L4 no longer describes symlinks — the
-  limitation that replaced it is the prose duplication per-tool guides introduce.
-  [The record](README.md) states the reversal and why the two READMEs were never
-  the same document.
+  development guide, and the release path now reads `tools/hmd/CHANGELOG.md`. L4
+  no longer describes symlinks — the limitation that replaced it is the prose
+  duplication per-tool guides introduce. [The record](README.md) states the
+  reversal and why the two READMEs were never the same document.
+- 2026-08-08: W2.5 and W2.6 added, and *The root owns the language* with them.
+  The root's own three files stopped being indexes of the tools and became the
+  language's: its front page, its changelog under `## [0.1]`, and a guide about
+  the specification and the site. The language's version was already declared in
+  the spec card and is now guarded against that changelog.

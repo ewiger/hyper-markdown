@@ -21,15 +21,27 @@ hyper-markdown wiki, published by the MkDocs plugin the Python tool ships, so a
 specification that made the site unbuildable would be caught by its own
 publication.
 
-**Sections are dated rather than numbered.** Every record is still `drafted` and
-the language has no released version of its own; until `1.0` the format's version
-rides on the canonical implementation, and a minor bump there may be breaking for
-`.hmd` sources. Progress is not tracked here — every proposal has a
-`STATUS.md` beside it, and that is the only place work is recorded.
+**The language's version is declared by the specification itself** — the opening
+sentence of [`doc/wiki/hmd-lang-spec.hmd`](doc/wiki/hmd-lang-spec.hmd), which
+currently specifies hyper-markdown **0.1** against CommonMark 0.31.2. A version
+section here is that number; the dated entries inside it record when each decision
+landed, because a language is worked on continuously and released rarely.
+`tests/test_docs.py` fails if the card names a version this file has no section
+for.
 
-## 2026-08-08
+A tool release never implies a language version and a language version never waits
+for one. Progress is not tracked here either — every proposal has a `STATUS.md`
+beside it, and that is the only place work is recorded.
 
-### Added
+## [0.1] — drafted
+
+The first version of the language: the six constructs, resolution, the severities,
+and the publication model. Still `drafted`, which is what the `0.x` means — a
+construct may still change before `1.0`.
+
+### 2026-08-08
+
+#### Added
 
 - **Publication is a property of a card, and it is opt-in.** `nav.visibility`
   decides whether a card reaches a built site at all: absent it, there is no page
@@ -45,7 +57,7 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   published private prose inside a public card. A blocked embed degrades to the
   same red link a blocked link gets.
 
-### Changed
+#### Changed
 
 - **`nav` is a mapping, not an integer.** `nav: 10` becomes `nav: {order: 10}`.
   Ordering was simply the dimension that existed first, and `visibility` arrived
@@ -64,9 +76,9 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   since an unsaved buffer is a language server's ordinary input.
   [HMD-0024](doc/proposals/HMD-0024/README.md)
 
-## 2026-08-07
+### 2026-08-07
 
-### Added
+#### Added
 
 - **Diagrams are specified as content, not as a rendering flourish.** A `d2`
   fence becomes its own block kind in the document model, cached by the hash of
@@ -84,7 +96,7 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   that name need not be local, static, or singular. No binding syntax and no wire
   protocol. [HMD-0004](doc/proposals/HMD-0004/README.md)
 
-### Changed
+#### Changed
 
 - **A proposal is a complete text.** Records are written to be read start to
   finish by someone who has opened no other file: no feature IDs, question IDs,
@@ -93,9 +105,9 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   which is also why heading numbers were removed — a numbered heading is what
   makes `§5.3` citable, and a named one survives an edit.
 
-## 2026-08-06
+### 2026-08-06
 
-### Added
+#### Added
 
 - **The format has a second implementation, and a contract between the two.**
   Cards render live in an editor from a TypeScript implementation, with the
@@ -107,7 +119,7 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   hand-ordered book. `nav` joins the reserved frontmatter keys, which amends the
   closed set the grammar had fixed. [HMD-0002](doc/proposals/HMD-0002/README.md)
 
-### Removed
+#### Removed
 
 - **"One implementation — semantics live in Python" is retired.** It could not
   survive the parsers in other languages this project expects, and a Rust one is a
@@ -121,9 +133,9 @@ rides on the canonical implementation, and a minor bump there may be breaking fo
   prose has given up the only thing it does that a markdown previewer cannot.
   Erasure stays a *shipping* format: one-way, on purpose.
 
-## 2026-07-31
+### 2026-07-31
 
-### Added
+#### Added
 
 - **The language.** Six constructs on top of GitHub-flavored markdown —
   wikilinks, aliased links, heading links, block anchors, block references, and

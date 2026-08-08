@@ -288,18 +288,58 @@ fixture went where. Nothing about the contract changed with the path: the
 corpus is still language-neutral, still outside both implementations' test
 trees, and still arbitrates between them.
 
-Two packaging consequences that are not derivable and bite silently. setuptools
-refuses to read a file outside the project directory, so the distribution's
-README, license, and changelog are symlinks into the root rather than `../../`
-paths, which fail the build outright; the symlink keeps the PyPI long
-description the repository's own README instead of a copy that drifts. Only
-*files* are linked that way — a symlinked `examples/` was tried and removed the
-same day, because a directory symlink is indistinguishable from a duplicate tree
-in a listing, and the property it bought (linting the fixture from an unpacked
-sdist) is not worth reintroducing the confusion the layout exists to remove. And a bare `uv build` at a workspace root with no `[project]` table does
-not fail — it builds an empty `unknown-0.0.0` and exits zero — so the release
-path names `uv build --package hyper-markdown` explicitly.
+One packaging consequence that is not derivable and bites silently: a bare
+`uv build` at a workspace root with no `[project]` table does not fail — it
+builds an empty `unknown-0.0.0` and exits zero — so the release path names
+`uv build --package hyper-markdown` explicitly.
 
 The full record is [HMD-0024](../proposals/HMD-0024/README.md), which also
 decides the language server: Python on `pygls`, living with the canonical
 implementation.
+
+## The packaging symlinks were the wrong instinct
+
+`tools/hmd/README.md`, `CHANGELOG.md`, and `LICENSE` were symlinks into the
+repository root for one day and are now the tool's own files. Reversed on
+2026-08-08; every tool carries its own four — those three plus `DEVELOP.md` — and
+none of them is a link or a generated copy.
+
+The original argument was one source of truth. setuptools refuses to read a file
+outside the project directory, so `readme = "../../README.md"` fails the build
+outright, and a copy was expected to drift from the original. What that missed is
+that **the two files were never the same document**. A repository front page
+introduces a monorepo and its tools; a long description tells someone about to run
+`pip install` what they are installing. Linking them produced a PyPI page that
+opened by explaining a markup format and closed by naming three tools, two of
+which cannot be installed that way, with every relative link dead — a relative
+link in a long description resolves against `pypi.org`. Two documents differing in
+audience are not duplication, and the symlink was enforcing sameness on things
+that were only adjacent.
+
+Worth keeping in mind for the next instance of the same instinct: "don't repeat
+it" is about a *claim* being restated, not about two audiences being addressed.
+
+## Four versions, and the root is the language
+
+The root of the repository is the language — the spec, the numbered records, and
+the site they publish as. `tools/` holds packages that implement it. The
+dependency runs one way, with one deliberate exception: this repository's own
+documentation is a hyper-markdown wiki built by the plugin the Python tool ships,
+so the project's specification is exercised by its own publication.
+
+Four independent versions follow, each with exactly one literal: the language's,
+declared in the opening sentence of `doc/wiki/hmd-lang-spec.hmd` (0.1, against
+CommonMark 0.31.2); and one per tool, in its own project file. A tool release
+never implies a language version and a language version never waits for one.
+
+The language's number lives in *prose in the specification* rather than in a
+`VERSION` file or a config key, because that document defines the format — a
+second literal would be a number free to disagree with the thing it names.
+`tests/test_docs.py` reads it from that sentence and fails when the root
+`CHANGELOG.md`, which is the language's, has no section for it. That mirrors what
+`tools/hmd/tests/test_cli.py` already does for the tool.
+
+The consequence that is easy to misread: the Python tool's `0.x` caveat is not a
+second format version. It says a minor release of that tool may be the one that
+implements a breaking language change — the change belongs to the language and
+carries the language's number.

@@ -107,6 +107,38 @@ def test_the_guard_catches_the_original_defect_and_nothing_else():
     assert not list(_offending_lines("```markdown\n" + defect + "\n```"))
 
 
+#: The sentence the language specification opens with, which is the only place the
+#: language's version is declared. A second literal in a config file or a `VERSION`
+#: would be a number free to disagree with the document that defines the format.
+SPEC_VERSION = re.compile(r"specifies hyper-markdown (\d+(?:\.\d+)*)")
+
+
+def test_the_language_version_has_a_changelog_section():
+    """The root changelog is the *language's*, and its top section is the version
+    the spec card claims.
+
+    This is the counterpart of `tools/hmd/tests/test_cli.py`, which makes the same
+    check for the Python tool against `tools/hmd/CHANGELOG.md`. Four things version
+    independently here — the language and three tools — and the failure this
+    prevents is the quiet one: a construct changes, the card is bumped, and the
+    history of what changed is nowhere.
+    """
+    card = (ROOT / "doc" / "wiki" / "hmd-lang-spec.hmd").read_text(encoding="utf-8")
+    match = SPEC_VERSION.search(card)
+    assert match is not None, (
+        "hmd-lang-spec.hmd no longer says which version of the language it"
+        " specifies; that sentence is the version's only declaration"
+    )
+    version = match.group(1)
+
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert re.search(rf"^## \[{re.escape(version)}\]", changelog, re.M), (
+        f"the spec card specifies hyper-markdown {version}, and CHANGELOG.md has"
+        f" no `## [{version}]` section. A language version is the specification"
+        " plus the record of what it changed."
+    )
+
+
 @pytest.fixture(scope="module")
 def built_site(tmp_path_factory) -> Path:
     """The real site, built from the repository's own `mkdocs.yml`.

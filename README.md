@@ -25,7 +25,9 @@ See [[tokens#Rotation|the rotation window]], and say it once rather than twice:
 ![[tokens#^definition]]
 ```
 
-This repository is the monorepo that implements the format.
+This repository is both halves of the project: the **language** — its
+specification, the records that argue it, and the website they are published as —
+and the **tools** that implement it, one package each under `tools/`.
 
 ## The tools
 
@@ -56,22 +58,30 @@ Each carries its own README, changelog, and license.
 
 ## Contributing
 
-- **[DEVELOP.md](DEVELOP.md)** — setup, the gates CI applies, how the
-  documentation tree is organised, and how a release is cut. Read this first.
+- **[DEVELOP.md](DEVELOP.md)** — the language and the website: how the
+  documentation tree is organised, the four versions, and how
+  hyper-markdown.org is published. Read this first.
+- **A tool's own guide** for its code — [the Python
+  tool](tools/hmd/DEVELOP.md), [the TypeScript
+  core](tools/hmd-ts-core/DEVELOP.md), [the
+  extension](tools/hmd-vsc-ext/DEVELOP.md). Each carries that tool's test loop,
+  gates, and release.
 - **[`doc/proposals/`](doc/proposals/)** — numbered specifications. A change to
   the format or the tooling starts as one; reserve its number in
   [`doc/proposals/README.md`](doc/proposals/README.md).
 - **Progress is tracked per proposal**, in `doc/proposals/HMD-NNNN/STATUS.md`,
   and updated in the same commit that changes the code.
+- **Kanban board** - doc/issues/**, for the repository's own work, and for the language and the
+  website, as well as the tools. The board is public, but the issues are owned by the contributors team.
 
 ```bash
 git clone https://github.com/ewiger/hyper-markdown
 cd hyper-markdown
-uv sync --locked && uv run python -m pytest   # the Python tool
+uv sync --locked && uv run python -m pytest   # the Python tool and the site
 npm install && npm test                       # the TypeScript tools
 ```
 
-Issues and pull requests are welcome at
+Feature requests, issues and PRs are welcome at
 [github.com/ewiger/hyper-markdown](https://github.com/ewiger/hyper-markdown).
 
 ## License

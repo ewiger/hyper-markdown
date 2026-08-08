@@ -9,9 +9,10 @@
 # root, one copy, and a reader who wants to run it clones the repository, which
 # is what the README tells them to do.
 #
-# The test suite is deliberately absent for a related reason. `tools/hmd/tests`
-# would now travel cleanly — the repository-wide guards that could not,
-# `test_docs.py` and `test_mkdocs.py`, live at the repository root and are not
-# part of this project — but gates are run from a checkout, not from an sdist,
-# and shipping a suite invites someone to run it as if it were one.
+# The test suite is excluded for a related reason, and `prune` is required to do
+# it: distutils' default sdist template sweeps in anything that looks like a test
+# directory. Gates are run from a checkout, not from an sdist, and
+# `tests/test_examples.py` lints `examples/small`, which is deliberately not in
+# the archive.
 include CHANGELOG.md
+prune tests
