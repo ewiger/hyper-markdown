@@ -56,10 +56,15 @@ of any editor group and a preview opens **in that group** — including when the
 neighbouring group is locked, which is where "open to the side" gives up and
 splits a third group instead.
 
-Open as many as you like. A preview opened while a card is active is pinned to
-that card and titled after it, so a column can hold several cards side by side;
-one opened from anything else follows the active editor until you pin it. Tabs
-come back on their own cards after a window reload.
+A preview follows the active editor: click another card in the Explorer or the
+tab bar and the preview re-renders on it. Clicking a `[[wikilink]]` moves the
+preview to the target and opens its source alongside, leaving focus in the
+preview so the next link is one click away.
+
+Open as many as you like — each is titled after its card. To hold one on a card
+while you read elsewhere, click the 📌 in its title bar; the breadcrumb shows
+`pinned` while it is held. Tabs come back on their own cards after a window
+reload.
 
 ## Known gaps
 

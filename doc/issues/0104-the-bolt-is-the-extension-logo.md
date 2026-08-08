@@ -1,6 +1,6 @@
 # 0104 — The extension has no logo, and the project already has one
 
-**Column**: todo
+**Column**: done
 **Opened**: 2026-08-08
 
 ## What

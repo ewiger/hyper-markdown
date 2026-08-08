@@ -89,9 +89,10 @@ and the Python corpus runner are the next blocks.
 | E6.1 | Graph tab under the §10 contract | §10 | ready |
 | E7.1 | Preview is an editor tab; view container removed | §3 | done |
 | E7.2 | `editor/title` button gated on `hyperMarkdown.hasRoot` | §3 | done |
-| E7.3 | Several panels, each pinned to its card, titled after it | §3 | done |
+| E7.3 | Several panels, each titled after its card | §3 | done |
 | E7.4 | `WebviewPanelSerializer` restores card and pin | §3 | done |
 | E7.5 | The ⚡ as tab icon, title-bar icon, and gallery PNG | issue 0104 | done |
+| E7.6 | Preview follows the editor and its own links; pin toggle in the title bar | §3 | done |
 
 ## Open
 

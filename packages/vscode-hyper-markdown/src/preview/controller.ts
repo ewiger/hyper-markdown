@@ -41,6 +41,8 @@ export class PreviewController implements vscode.Disposable {
   constructor(
     private readonly store: Store,
     private readonly webview: vscode.Webview,
+    /** The column this preview occupies, so source never opens on top of it. */
+    private readonly hostColumn: () => vscode.ViewColumn | undefined = () => undefined,
   ) {
     this.disposables.push(
       webview.onDidReceiveMessage((raw: unknown) => this.receive(raw)),
@@ -61,6 +63,10 @@ export class PreviewController implements vscode.Disposable {
 
   get card(): string | null {
     return this.current;
+  }
+
+  get isPinned(): boolean {
+    return this.pinned;
   }
 
   togglePin(): boolean {
@@ -137,10 +143,14 @@ export class PreviewController implements vscode.Disposable {
         this.applyScroll(message.line);
         return;
       case "openSource":
-        void this.open(message.path, message.line, null);
+        // Revealing a source line means going there to edit it, so focus goes
+        // with you.
+        void this.open(message.path, message.line, null, { follow: false });
         return;
       case "openTarget":
-        void this.open(message.path, null, message.fragment);
+        // Following a link means reading, so focus stays in the preview and
+        // the next link is one click away rather than two.
+        void this.open(message.path, null, message.fragment, { follow: true });
         return;
       case "createCard":
         void createCard(this.store, this.current, message.target);
@@ -168,6 +178,7 @@ export class PreviewController implements vscode.Disposable {
     requested: string,
     line: number | null,
     fragment: string | null,
+    options: { follow: boolean },
   ): Promise<void> {
     // An empty path means "the card being previewed", which is what a
     // click-to-reveal on ordinary rendered content asks for (VSX-021).
@@ -181,10 +192,14 @@ export class PreviewController implements vscode.Disposable {
     const uri = this.store.uriFor(path);
     if (uri === null) return;
 
+    // Move this preview itself rather than waiting for the active editor to
+    // change, which is what lets focus stay in the webview (issue 0105).
+    if (options.follow && !this.pinned) this.show(path);
+
     const document = await vscode.workspace.openTextDocument(uri);
     const editor = await vscode.window.showTextDocument(document, {
-      preserveFocus: false,
-      viewColumn: vscode.ViewColumn.One,
+      preserveFocus: options.follow,
+      viewColumn: this.sourceColumn(),
     });
 
     const target = line ?? this.lineOfFragment(path, fragment);
@@ -193,6 +208,28 @@ export class PreviewController implements vscode.Disposable {
       editor.selection = new vscode.Selection(at, 0, at, 0);
       editor.revealRange(new vscode.Range(at, 0, at, 0), vscode.TextEditorRevealType.AtTop);
     }
+  }
+
+  /**
+   * Where to reveal source: anywhere but this preview's own column.
+   *
+   * A hard-coded column one put the source on top of the preview whenever the
+   * preview happened to be there, which is the ordinary case for anyone whose
+   * second group is locked to something else (issue 0105).
+   */
+  private sourceColumn(): vscode.ViewColumn {
+    const mine = this.hostColumn();
+    const active = vscode.window.activeTextEditor?.viewColumn;
+    if (active !== undefined && active !== mine) return active;
+
+    const elsewhere = vscode.window.tabGroups.all.find(
+      (group) => group.viewColumn !== mine,
+    );
+    if (elsewhere !== undefined) return elsewhere.viewColumn;
+
+    // Only the preview's own group exists, so there is nowhere to put the
+    // source except a new group.
+    return vscode.ViewColumn.Beside;
   }
 
   private lineOfFragment(path: string, fragment: string | null): number | null {

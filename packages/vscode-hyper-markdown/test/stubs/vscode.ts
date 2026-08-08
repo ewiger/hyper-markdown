@@ -97,6 +97,8 @@ export class WebviewPanelStub {
   active = true;
   disposed = false;
   iconPath: unknown;
+  viewColumn: number | undefined;
+  revealed = 0;
   readonly posted: unknown[] = [];
 
   private readonly viewStateChanged = new EventEmitter<void>();
@@ -122,6 +124,10 @@ export class WebviewPanelStub {
   onDidChangeViewState = this.viewStateChanged.event;
   onDidDispose = this.didDispose.event;
 
+  reveal(_column?: number, _preserveFocus?: boolean): void {
+    this.revealed += 1;
+  }
+
   /** Drive focus the way VS Code would when the user clicks another tab. */
   setActive(active: boolean): void {
     this.active = active;
@@ -141,6 +147,10 @@ export const window = {
   setStatusBarMessage: () => undefined,
   visibleTextEditors: [] as unknown[],
   activeTextEditor: undefined as { document: { uri: unknown } } | undefined,
+  tabGroups: {
+    all: [] as { viewColumn: number }[],
+    activeTabGroup: { viewColumn: 1 } as { viewColumn: number } | undefined,
+  },
   activeEditorChanged: new EventEmitter<void>(),
   visibleRangesChanged: new EventEmitter<unknown>(),
   onDidChangeActiveTextEditor: (listener: () => void) => window.activeEditorChanged.event(listener),
@@ -153,6 +163,12 @@ export const window = {
     _options?: unknown,
   ): WebviewPanelStub => {
     const panel = new WebviewPanelStub(title);
+    // VS Code resolves Active/Beside to a concrete group; the stub resolves
+    // them to the active group so `viewColumn` is never a sentinel.
+    panel.viewColumn =
+      showOptions.viewColumn > 0
+        ? showOptions.viewColumn
+        : (window.tabGroups.activeTabGroup?.viewColumn ?? 1);
     createdPanels.push({ viewType, title, showOptions, panel });
     return panel;
   },

@@ -106,10 +106,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 function panelState(raw: unknown): PanelState | null {
   if (typeof raw !== "object" || raw === null) return null;
   const state = raw as Record<string, unknown>;
-  return {
-    card: typeof state["card"] === "string" ? state["card"] : null,
-    pinned: state["pinned"] === true,
-  };
+  return { card: typeof state["card"] === "string" ? state["card"] : null };
 }
 
 export function deactivate(): void {

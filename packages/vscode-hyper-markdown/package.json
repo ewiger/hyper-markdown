@@ -105,7 +105,12 @@
         {
           "command": "hyperMarkdown.openPreview",
           "when": "hyperMarkdown.hasRoot",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "hyperMarkdown.togglePin",
+          "when": "activeWebviewPanelViewType == hyperMarkdown.previewPanel",
+          "group": "navigation@2"
         }
       ],
       "commandPalette": [

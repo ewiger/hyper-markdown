@@ -1,6 +1,6 @@
 # 0103 — The preview is a side-bar view when it wants to be a tab in a column
 
-**Column**: todo
+**Column**: done
 **Opened**: 2026-08-08
 
 ## Symptom

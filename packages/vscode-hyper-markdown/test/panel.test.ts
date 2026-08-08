@@ -67,18 +67,41 @@ describe("opening a preview", () => {
     expect(openPanels()[0]?.showOptions.viewColumn).toBe(stub.ViewColumn.Beside);
   });
 
-  it("creates a second panel rather than revealing the first", () => {
+  it("reveals the unpinned preview already in that column", () => {
     const store = fakeStore();
     const first = PreviewPanel.open(store, extensionUri, { column: vscode.ViewColumn.Active });
     const second = PreviewPanel.open(store, extensionUri, { column: vscode.ViewColumn.Active });
 
+    // Two unpinned previews in one column both show the active card, so the
+    // second is only a way to lose track of the first.
+    expect(second).toBe(first);
+    expect(openPanels()).toHaveLength(1);
+    expect(openPanels()[0]?.panel).toHaveProperty("revealed", 1);
+  });
+
+  it("creates a second panel once the first is pinned", () => {
+    const store = fakeStore();
+    stub.window.activeTextEditor = editorFor("notes/alpha.hmd");
+    const first = PreviewPanel.open(store, extensionUri, { column: vscode.ViewColumn.Active });
+    first.togglePin();
+
+    const second = PreviewPanel.open(store, extensionUri, { column: vscode.ViewColumn.Active });
+
+    expect(second).not.toBe(first);
     expect(openPanels()).toHaveLength(2);
-    expect(first).not.toBe(second);
+  });
+
+  it("does not reuse a preview living in a different column", () => {
+    const store = fakeStore();
+    PreviewPanel.open(store, extensionUri, { column: 1 as vscode.ViewColumn });
+    PreviewPanel.open(store, extensionUri, { column: 2 as vscode.ViewColumn });
+
+    expect(openPanels()).toHaveLength(2);
   });
 });
 
 describe("which card a panel holds", () => {
-  it("pins to the card that was active, and ignores the next editor", () => {
+  it("follows the active editor even when opened over a card", () => {
     const store = fakeStore();
     stub.window.activeTextEditor = editorFor("notes/alpha.hmd");
 
@@ -86,9 +109,29 @@ describe("which card a panel holds", () => {
     const tab = openPanels()[0]?.panel as unknown as { title: string };
     expect(tab.title).toBe("alpha");
 
+    // Pinning on open froze the preview for the life of the tab (issue 0105).
+    stub.window.activeTextEditor = editorFor("notes/beta.hmd");
+    stub.window.activeEditorChanged.fire();
+    expect(tab.title).toBe("beta");
+  });
+
+  it("stops following once pinned, and resumes when unpinned", () => {
+    const store = fakeStore();
+    stub.window.activeTextEditor = editorFor("notes/alpha.hmd");
+
+    const preview = PreviewPanel.open(store, extensionUri, {
+      column: vscode.ViewColumn.Active,
+    });
+    const tab = openPanels()[0]?.panel as unknown as { title: string };
+
+    expect(preview.togglePin()).toBe(true);
     stub.window.activeTextEditor = editorFor("notes/beta.hmd");
     stub.window.activeEditorChanged.fire();
     expect(tab.title).toBe("alpha");
+
+    expect(preview.togglePin()).toBe(false);
+    stub.window.activeEditorChanged.fire();
+    expect(tab.title).toBe("beta");
   });
 
   it("follows the active editor when it was opened from a non-card", () => {
@@ -104,17 +147,19 @@ describe("which card a panel holds", () => {
     expect(tab.title).toBe("beta");
   });
 
-  it("restores a pinned card after a window reload", () => {
+  it("comes back on its card after a reload, and still following", () => {
     const store = fakeStore();
     const panel = new (vscode as unknown as {
       WebviewPanelStub: new (title: string) => unknown;
     }).WebviewPanelStub("Hyper-Markdown Preview") as vscode.WebviewPanel;
 
-    PreviewPanel.restore(panel, store, extensionUri, {
-      card: "notes/gamma.hmd",
-      pinned: true,
-    });
-
+    PreviewPanel.restore(panel, store, extensionUri, { card: "notes/gamma.hmd" });
     expect(panel.title).toBe("gamma");
+
+    // Restoring a persisted `pinned` resurrected the frozen preview from
+    // storage an older build had written (issue 0105).
+    stub.window.activeTextEditor = editorFor("notes/beta.hmd");
+    stub.window.activeEditorChanged.fire();
+    expect(panel.title).toBe("beta");
   });
 });

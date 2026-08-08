@@ -148,17 +148,34 @@ trailing ^id         entity.name.label.hmd
   common case when the other column holds a conversational assistant.
   `hyperMarkdown.openPreviewToSide` keeps `ViewColumn.Beside` for the
   side-by-side reading it is named for.
-- Several previews MAY be open at once. A preview opened while a card is
-  active is **pinned to that card**; one opened otherwise follows the active
-  editor. Unpinned previews all show the same card by construction, so
-  pinning on open is what makes more than one of them worth having. Each tab
-  is titled after its card.
+- A preview **follows the active editor**, always, unless the user pins it.
+  This is the surface's defining rule and it MUST NOT be weakened by any
+  heuristic about how the preview was opened: pinning is the absence of
+  following, not a gentler form of it, so a preview that pins itself never
+  follows anything again.
+- Following extends to the preview's own navigation. Clicking a `[[wikilink]]`
+  MUST move the preview to the target, not only open its source. Browsing by
+  following links is the one thing this surface does that a file viewer
+  cannot.
+- Several previews MAY be open at once, each titled after its card. Unpinned
+  ones necessarily show the same card; holding a second card is what pinning
+  is for. Opening a preview MUST therefore reuse the unpinned one already in
+  the target column rather than creating a second, and MUST NOT reuse a pinned
+  one.
 - `togglePin` acts on the focused preview tab and freezes it on the current
-  card, and the frozen state MUST be visible in the UI — a preview that
-  silently stops following looks like a bug.
+  card. The frozen state MUST be visible in the UI and MUST be reachable
+  without the command palette — a preview that silently stops following looks
+  like a bug, and a pin nobody can find invites automating it.
+- Revealing source MUST NOT target the group the preview occupies, and MUST
+  NOT assume column one.
 - The extension MUST register a `WebviewPanelSerializer` for the panel's view
-  type, restoring each tab's card and pinned state. A layout the user arranged
-  and VS Code redrew empty after a reload is indistinguishable from a crash.
+  type, restoring each tab's card. A layout the user arranged and VS Code
+  redrew empty after a reload is indistinguishable from a crash.
+- Persisted state MUST carry the card and nothing else. In particular the
+  pinned flag MUST NOT survive a reload: workspace storage outlives the build
+  that wrote it, a restored preview that silently stops following is
+  indistinguishable from a broken one, and nothing on screen can tell a
+  deliberate pin from a stale flag. A restored preview follows.
 - The header shows the breadcrumb of namespace segments (VSX-005), each segment
   navigating to that namespace's folder note where one exists.
 
@@ -537,3 +554,13 @@ npm run -w vscode-hyper-markdown package
   is gone, several previews may be open at once, and panels are restored
   across a reload. Retires the secondary-side-bar Open Question (VSX-001),
   which the change makes moot rather than answers. See issue 0103.
+- 2026-08-08: §3 corrected — the same revision had a preview pin itself to
+  whichever card was active when it opened, which stopped it following the
+  editor or its own links for the life of the tab. Following is now normative
+  and unconditional, link clicks move the preview, and revealed source may not
+  land in the preview's own column. See issue 0105.
+- 2026-08-08: §3 — the pinned flag is barred from persisted state, and opening
+  a preview reuses the unpinned one already in the target column. The first
+  correction reached only previews created after it; tabs restored from
+  workspace storage carried `pinned: true` written by the older build and came
+  back frozen. See issue 0105, second round.
