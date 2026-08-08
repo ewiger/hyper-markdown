@@ -95,8 +95,8 @@ def test_the_guard_catches_the_original_defect_and_nothing_else():
 
 
 @pytest.fixture(scope="module")
-def built_home(tmp_path_factory) -> str:
-    """The real site's home page, built from the repository's own `mkdocs.yml`.
+def built_site(tmp_path_factory) -> Path:
+    """The real site, built from the repository's own `mkdocs.yml`.
 
     Built into a temporary directory rather than `site/`, so running the suite
     never clobbers whatever a `mkdocs serve` is holding.
@@ -112,7 +112,58 @@ def built_home(tmp_path_factory) -> str:
         text=True,
         check=True,
     )
-    return (out / "index.html").read_text(encoding="utf-8")
+    return out
+
+
+@pytest.fixture(scope="module")
+def built_home(built_site: Path) -> str:
+    """The real site's home page. Most checks here only need this one page."""
+    return (built_site / "index.html").read_text(encoding="utf-8")
+
+
+def _tabs(home: str) -> str:
+    """The top-bar nav, which is where a visitor meets the site's structure."""
+    match = re.search(r'<nav class="md-tabs".*?</nav>', home, re.S)
+    assert match is not None, "the theme emitted no tab bar"
+    return match.group(0)
+
+
+def test_the_top_bar_offers_the_language_specification(built_home):
+    """The site's headline deliverable is the specification of the *language*,
+    so it gets a tab of its own rather than only a row in the wiki section.
+
+    The title is asserted, not just the href, because it is easy to get wrong:
+    MkDocs reuses the `Page` built from a file's **first** appearance in the nav
+    and silently discards the title given at any later one. The card is listed
+    twice on purpose — here and inside the derived wiki section — so this entry
+    has to stay above `Wiki` in `mkdocs.yml` for its title to be the one that
+    survives.
+    """
+    tabs = _tabs(built_home)
+    entry = re.search(
+        r'<a href="(wiki/hmd-lang-spec/)"[^>]*>(.*?)</a>', tabs, re.S
+    )
+    assert entry is not None, "no language specification tab"
+    assert "Language Specification" in re.sub(r"<[^>]+>", "", entry.group(2))
+
+
+def test_the_top_bar_does_not_advertise_the_internal_proposals(built_home):
+    """The numbered proposals specify the *tools*, not the format. They had a
+    "Specifications" tab, which promised a visitor the language's specification
+    and delivered implementation notes instead."""
+    tabs = _tabs(built_home)
+    assert "proposals/" not in tabs, "an HMD-NNNN proposal is back in the top bar"
+
+
+def test_the_proposals_are_unlisted_but_still_published(built_site: Path):
+    """`not_in_nav`, not `exclude_docs`. The cover, the public chapters, and
+    several wiki cards link to the proposals with ordinary relative links; under
+    `validation.links.not_found: info` those would rot into 404s that no gate
+    reports. Unlisted and reachable is the state that costs nothing."""
+    for number in ("HMD-0001", "HMD-0002", "HMD-0003", "HMD-0004"):
+        assert (built_site / "proposals" / number / "index.html").is_file(), (
+            f"{number} stopped being published; links to it now 404 silently"
+        )
 
 
 def test_the_bolt_reaches_the_page_as_a_logo_and_a_favicon(built_home):

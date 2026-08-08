@@ -1,4 +1,4 @@
-"""Lint rules HMD001..HMD016 (HMD-0001 §8)."""
+"""Lint rules HMD001..HMD017 (HMD-0001 §8)."""
 
 from __future__ import annotations
 
@@ -196,13 +196,67 @@ def test_linting_a_subset_of_paths(build_workspace):
     assert {d.path for d in diagnostics} == {"a.hmd"}
 
 
-def test_hmd013_malformed_nav_key(build_workspace):
-    """`nav` orders a card in the site nav; a non-integer is a defect, not a
-    default (HMD-0002 §2)."""
-    ws = build_workspace({**BASE, "a.hmd": "---\nnav: first\n---\n\n# A\n"})
+def test_hmd013_malformed_nav_order(build_workspace):
+    """`nav.order` orders a card in the site nav; a non-integer is a defect, not
+    a default (HMD-0002 §2)."""
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav:\n  order: first\n---\n\n# A\n"})
+    assert "HMD013" in rules_for(ws)
+
+
+def test_hmd013_a_scalar_nav(build_workspace):
+    """The pre-mapping spelling is reported rather than accepted: the card meant
+    to be ordered and would otherwise sort last (HMD-0002 §2)."""
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav: 10\n---\n\n# A\n"})
+    assert "HMD013" in rules_for(ws)
+
+
+def test_hmd013_an_unknown_key_inside_nav(build_workspace):
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav:\n  ordre: 10\n---\n\n# A\n"})
     assert "HMD013" in rules_for(ws)
 
 
 def test_a_well_formed_nav_key_is_accepted(build_workspace):
-    ws = build_workspace({**BASE, "a.hmd": "---\nnav: 10\n---\n\n# A\n"})
+    ws = build_workspace(
+        {**BASE, "a.hmd": "---\nnav:\n  order: 10\n  visibility: public\n---\n\n# A\n"}
+    )
     assert "HMD013" not in rules_for(ws)
+
+
+def test_hmd013_an_unrecognized_visibility(build_workspace):
+    """Coercing an unknown value would publish a card nobody meant to."""
+    ws = build_workspace({**BASE, "a.hmd": "---\nnav:\n  visibility: draft\n---\n\n# A\n"})
+    assert "HMD013" in rules_for(ws)
+
+
+PUBLIC = "---\nnav:\n  visibility: public\n---\n\n"
+
+
+def test_hmd017_a_published_card_links_to_an_unpublished_one(build_workspace):
+    ws = build_workspace({**BASE, "a.hmd": PUBLIC + "# A\n\n[[target]]\n"})
+    (diag,) = [d for d in check(ws) if d.rule == "HMD017"]
+    assert diag.severity == "warning"
+    assert "not published" in diag.message
+
+
+def test_hmd017_covers_embeds_too(build_workspace):
+    ws = build_workspace({**BASE, "a.hmd": PUBLIC + "# A\n\n![[target]]\n"})
+    (diag,) = [d for d in check(ws) if d.rule == "HMD017"]
+    assert "embeds" in diag.message
+
+
+def test_hmd017_is_silent_between_unpublished_cards(build_workspace):
+    """The ordinary case for a knowledge base that publishes only part of
+    itself; warning about it would bury the real finding."""
+    ws = build_workspace({**BASE, "a.hmd": "# A\n\n[[target]]\n"})
+    assert "HMD017" not in rules_for(ws)
+
+
+def test_hmd017_is_silent_when_both_are_published(build_workspace):
+    ws = build_workspace(
+        {
+            **BASE,
+            "target.hmd": PUBLIC + "# Target\n",
+            "a.hmd": PUBLIC + "# A\n\n[[target]]\n",
+        }
+    )
+    assert "HMD017" not in rules_for(ws)

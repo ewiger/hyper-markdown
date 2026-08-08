@@ -14,7 +14,7 @@ from enum import Enum
 from pathlib import Path
 
 from .config import Config
-from .model import Document, ImportStmt
+from .model import PRIVATE, PUBLIC, Document, ImportStmt
 from .parse import parse
 
 SUFFIX = ".hmd"
@@ -194,6 +194,38 @@ class Workspace:
             directory = directory.parent
 
         return self.config.autodiscovery
+
+    # -- HMD-0002 §2 publication -----------------------------------------
+
+    def visibility(self, source: Path) -> str:
+        """Card `nav.visibility`, then the nearest ancestor `index.hmd`, then
+        the default — which is `private`.
+
+        Same walk as `autodiscovery_enabled`, and for the same reason: a folder
+        is a unit an author thinks in, so publishing one should not mean editing
+        every card inside it. The default is the strict end on purpose. A card
+        that says nothing about itself has not asked to be published, and the
+        failure mode of guessing the other way is a leak rather than a 404.
+        """
+        document = self.documents.get(source)
+        if document is not None and document.card.nav.visibility is not None:
+            return document.card.nav.visibility
+
+        directory = source.parent
+        while True:
+            note = directory / f"{INDEX_STEM}{SUFFIX}"
+            if note != source and note in self.documents:
+                inherited = self.documents[note].card.nav.visibility
+                if inherited is not None:
+                    return inherited
+            if directory == self.root or self.root not in directory.parents:
+                break
+            directory = directory.parent
+
+        return PRIVATE
+
+    def is_public(self, source: Path) -> bool:
+        return self.visibility(source) == PUBLIC
 
     # -- §5.2 the algorithm ----------------------------------------------
 

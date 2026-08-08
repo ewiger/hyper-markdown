@@ -112,9 +112,17 @@ nav is used verbatim; omit `nav` entirely and the whole nav is derived.
 **URLs.** A card at `wiki/a/b.hmd` serves at `/wiki/a/b/`. A folder note at
 `wiki/a/b/index.hmd` serves at that same URL — two names for one page, one URL,
 which is why directory URLs are required rather than merely preferred. Cards
-sort by path, or by a `nav:` integer in their frontmatter: keyed cards first,
-ascending, the rest in path order, so adding `nav:` to one card does not
+sort by path, or by an `order` under the `nav` key in their frontmatter: keyed
+cards first, ascending, the rest in path order, so ordering one card does not
 reshuffle its siblings.
+
+**What gets published.** Not every card, and not by default. A card ships only
+if `nav.visibility` resolves to `public`; absent, it is private and the build
+gives it no page and no address at all. The key inherits like `use`, so `public`
+on a folder's `index.hmd` publishes that subtree and a card inside it can opt
+back out. This is what lets one tree hold both the wiki you publish and the notes
+you do not: a published card pointing at an unpublished one renders a red link
+and a warning, and embedding one does not inline its text.
 
 **What the build does.** It registers every `.hmd` file, which MkDocs would
 otherwise not see; expands embeds *before* Markdown runs, so the table of

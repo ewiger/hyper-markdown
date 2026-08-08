@@ -198,7 +198,7 @@ full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
 
 ## Go deeper
 
-- [The hyper-markdown language](../wiki/hmd-lang-specification.hmd) teaches
+- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) teaches
   every construct start to finish. Read it once and you can write the format.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive inventory —
   every feature, where the idea came from, and what is deferred, planned, or

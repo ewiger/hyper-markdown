@@ -310,7 +310,7 @@ Start with the book, published at
 - [Features](doc/public/features.md) — what a page can be, shown working
 - [Namespaces](doc/public/namespaces.md) — how a name becomes a page
 - [Presentation](doc/public/presentation.md) — one card, many formats and viewers
-- [The hyper-markdown language](doc/wiki/hmd-lang-specification.hmd) — every
+- [The HMD Language Specification](doc/wiki/hmd-lang-spec.hmd) — every
   construct, start to finish; read it once and you can write the format
 
 The normative records live under [`doc/proposals/`](doc/proposals/).

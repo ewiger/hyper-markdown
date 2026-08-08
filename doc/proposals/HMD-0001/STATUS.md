@@ -99,7 +99,7 @@ teaching the format taught it wrong. It now states the walk in order: beside the
 card, then each folder above without recursion, nearest winning, a whole-tree
 sweep only if that finds nothing, and two matches in the sweep an error rather
 than a tie-break. It also names the qualified and absolute forms and hands off
-to [`hmd-lang-specification.hmd`](../../wiki/hmd-lang-specification.hmd) for
+to [`hmd-lang-spec.hmd`](../../wiki/hmd-lang-spec.hmd) for
 sections, blocks, embeds, and imports.
 
 No gate catches its return: the guard against prose that contradicts the

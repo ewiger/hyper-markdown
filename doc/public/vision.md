@@ -57,8 +57,8 @@ See [[tokens]] for the token format, or pull the definition in whole:
 ```
 
 That is the entire surface. The whole language fits on one page and can be
-learned in one sitting:
-[the hyper-markdown language](../wiki/hmd-lang-specification.hmd).
+learned in one sitting: the
+[HMD Language Specification](../wiki/hmd-lang-spec.hmd).
 
 ## Documents that assemble themselves
 

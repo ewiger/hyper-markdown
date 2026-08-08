@@ -71,6 +71,31 @@ class ImportStmt:
     raw: str
 
 
+# `nav.visibility` values. Publication is opt-in: a card reaches a built site
+# only if it resolves to PUBLIC, and the resolved default is PRIVATE. Absent
+# means "inherit" so a folder note can govern its subtree.
+PUBLIC = "public"
+PRIVATE = "private"
+VISIBILITIES = frozenset({PUBLIC, PRIVATE})
+
+
+@dataclass(frozen=True)
+class NavConfig:
+    """The `nav` mapping: how a card places itself in a published site.
+
+    A mapping rather than a bare number because placement has more than one
+    dimension — order was simply the one that existed first. A scalar would have
+    had to grow a second spelling the moment `visibility` was wanted.
+    """
+
+    #: Sort position within the card's directory. None sorts after every keyed
+    #: sibling, so ordering one card does not reshuffle the rest.
+    order: int | None = None
+    #: `public` or `private`. None means inherit — from the nearest ancestor
+    #: folder note, and failing that from the default, which is private.
+    visibility: str | None = None
+
+
 @dataclass
 class CardConfig:
     """The reserved frontmatter keys: `tags`, `use`, `import`, `nav`."""
@@ -79,9 +104,7 @@ class CardConfig:
     # Feature name -> enabled. Absent means "inherit".
     use: dict[str, bool] = field(default_factory=dict)
     imports: tuple[ImportStmt, ...] = ()
-    #: Sort position within the card's directory. None sorts after every keyed
-    #: sibling, so adding `nav` to one card does not reshuffle the rest.
-    nav: int | None = None
+    nav: NavConfig = field(default_factory=NavConfig)
 
 
 @dataclass

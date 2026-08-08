@@ -1,8 +1,26 @@
 ---
 tags: [area/format, status/canonical]
+nav:
+  order: 10
+  visibility: public
 ---
 
-# The hyper-markdown language
+# HMD Language Specification
+
+**This document specifies hyper-markdown 0.1, a strict superset of
+[CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/).**
+
+The two numbers are independent. The language is versioned apart from the tools
+that implement it: a `hyper-markdown` release on PyPI does not imply a new
+language version, and a language version does not wait for one. This number
+changes when the constructs below change, and nothing else moves it.
+
+The baseline is named by version rather than as "markdown" because "markdown"
+names a family, not a standard, and a superset of an unnamed dialect specifies
+nothing. Every document CommonMark 0.31.2 accepts is a hyper-markdown document
+with the same meaning; hyper-markdown neither redefines nor restricts any of it.
+Adopting a later CommonMark is an edit to this document, not something that
+happens to it.
 
 This page teaches the syntax. Read it start to finish and you can write
 hyper-markdown; nothing else is required reading.
@@ -77,17 +95,17 @@ Horizontal rules are three dashes on their own line:
 
 ---
 
-None of this is hyper-markdown's. It is Markdown, it is documented better
-elsewhere than it could be here, and hyper-markdown neither redefines nor
-restricts it.
+None of this is hyper-markdown's. It is CommonMark 0.31.2, it is specified
+better at <https://spec.commonmark.org/0.31.2/> than it could be here, and
+hyper-markdown neither redefines nor restricts it. Where this page and that
+specification disagree about inherited syntax, that specification is right.
 
 ## 3. The syntax you inherit from the wider Markdown world
 
-A second tier sits between plain Markdown and the constructs hyper-markdown
-defines: they are not in the original Markdown, they are not hyper-markdown's
-either, and they have become conventional across GitHub, Obsidian, Pandoc, and
-most documentation tools. They are assumed available, and they behave the way
-you expect them to.
+A second tier sits between CommonMark and the constructs hyper-markdown defines:
+they are not in CommonMark 0.31.2, they are not hyper-markdown's either, and they
+have become conventional across GitHub, Obsidian, Pandoc, and most documentation
+tools. They are assumed available, and they behave the way you expect them to.
 
 Tables are pipe-separated rows with a dashed line under the header:
 
@@ -188,7 +206,7 @@ a name. This paragraph carries one. ^the-anchor-example
 The anchor itself does not render. To point at it, use `#^` and the identifier:
 
 ```markdown
-That is stated precisely in [[hmd-format-specification#^the-anchor-example]].
+That is stated precisely in [[hmd-lang-spec#^the-anchor-example]].
 ```
 
 Identifiers are letters, digits, hyphens and underscores. Their scope is the
@@ -266,7 +284,9 @@ use: [no_autodiscovery]
 import:
   - from /shared import tokens as shared-tokens
   - from /glossary import *
-nav: 10
+nav:
+  order: 10
+  visibility: public
 ---
 ```
 
@@ -281,8 +301,20 @@ makes a folder a module rather than a naming convention.
 **`import`** binds names explicitly, for when the resolution rules in §5 are not
 what you want. An import takes precedence over the search.
 
-**`nav`** is a number that orders this card when the wiki is published as a
-site.
+**`nav`** places this card when the wiki is published as a site. It is a mapping,
+and takes two keys.
+
+`order` is an integer, ascending; cards that set it come before cards that do
+not. `visibility` is `public` or `private`, and it decides whether the card is
+published **at all** — a private card gets no page and no address, not merely a
+missing sidebar entry.
+
+Publication is opt-in: say nothing and the card stays private. Like `use`,
+`visibility` inherits, so `public` on a folder's `index.hmd` publishes that whole
+subtree and an individual card can still opt out with its own `private`. A
+published card that links to a private one gets a red link and a warning, and one
+that *embeds* a private card does not inline it — the content stays out of the
+built page.
 
 ## 7. When you get it wrong
 

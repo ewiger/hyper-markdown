@@ -5,9 +5,30 @@
 single thing and links to its neighbours with `[[wikilinks]]`, so understanding
 emerges from small, connected cards rather than one long document.
 
-Start from any card and follow the links; see
-[hyper-markdown.hmd](hyper-markdown.hmd) for the format itself. Related cards can
-be grouped in topic subfolders.
+A graph has no first page, but it does have a good entrance. The order below is
+a reading path, not a hierarchy — start anywhere and follow the links, or read
+straight down if the format is new to you. Related cards can be grouped in topic
+subfolders.
+
+## The format
+
+1. [Hyper-markdown](hyper-markdown.hmd) — what a card is and why the knowledge
+   base is a graph of them. Start here.
+2. [HMD Language Specification](hmd-lang-spec.hmd) — the syntax, taught
+   start to finish. Read it once and you can write hyper-markdown.
+3. [Feature list](hmd-feature-list.hmd) — every supported construct as a numbered
+   row, each pointing at the text that specifies it. An index to consult, not a
+   page to read through.
+4. [MD ↔ HMD interoperability](md-hmd-interop.hmd) — a sketch of converting
+   between plain Markdown and hyper-markdown in both directions. Nothing here is
+   decided yet.
+
+## The process
+
+5. [Tracking](tracking.hmd) — where progress is recorded, and why there is one
+   tracker per proposal rather than a repository-wide list.
+6. [Kanban board](kanban.hmd) — how `doc/issues/` indexes the work currently in
+   flight, and how that differs from a proposal.
 
 ## Writing a card
 
@@ -16,3 +37,14 @@ documentation style, not repeated here:
 [.grem/styles/doc/hmd/prompt.md](../../.grem/styles/doc/hmd/prompt.md). Render it
 against a source document with `grem new --type doc --style hmd <source>` and an
 agent applies it.
+
+The sidebar follows the same order as this page. A card sets its own position
+with an `order` under the `nav` key in its frontmatter, ascending; cards without
+one sort after those that have one, by path. The numbering goes up in tens so a
+new card can be placed between two existing ones without renumbering anything.
+
+A new card also needs `visibility: public` under that same `nav` key, or it will
+not be published — there is no folder note here to inherit it from, so each card
+in this directory declares it. That is the point of the default: a card is
+private until someone says otherwise, so a draft cannot reach the site by being
+forgotten about.

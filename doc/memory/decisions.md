@@ -50,6 +50,49 @@ HMD-0001 §5.3 pins the reserved frontmatter keys as a closed set of `tags`,
 extension. The fallback, if that trade is rejected, is derived order only plus
 an explicit `nav:` in `mkdocs.yml`.
 
+## Publishing is opt-in, and the default is the strict end
+
+`nav.visibility: public` is what puts a card on the site. Absent, it is private:
+no page, no URL, nothing in `site/`. Omitting the nav entry alone was rejected as
+the meaning, because a page you can still reach by typing its address is
+published whatever the sidebar claims.
+
+The default runs the strict way on purpose. Both errors are possible — a card
+that should have shipped and did not, versus one that shipped and should not
+have — but they are not symmetric. The first is visible to the author on the next
+build; the second is a leak nobody looks for. So the failure mode is a missing
+page, never an unintended one.
+
+Inheritance is what keeps that affordable. `visibility` walks the same path
+`use` does — the card, then the nearest ancestor `index.hmd`, then the default —
+so a folder note publishes its whole subtree and a card inside opts out with its
+own `private`. The consequence to keep in mind: `public` on a *root* folder note
+is a decision about every card beneath it. `examples/small` is published by
+exactly one line for that reason, while `doc/wiki` has no folder note and so
+declares it per card.
+
+The embed case is where the gate would have leaked. Expansion copies the target's
+bytes into the host page, so an unexpanded guard would have published private
+prose inside a public card while the private card itself stayed unbuilt. `expand`
+therefore takes a `can_embed` predicate rather than learning what visibility is:
+publication is the caller's policy, and `hmd render` on a card you named yourself
+is not a site build. A blocked embed degrades to the same red link a blocked
+link gets, and both are HMD017.
+
+## `nav` is a mapping because placement has more than one axis
+
+`nav: 10` became `nav: {order: 10}` on 2026-08-08. Ordering is simply the
+dimension that existed first, and `visibility` arrived the same day to prove the
+point — a scalar would have needed a second spelling within hours. Widening the
+value once, before the key had users outside this repository, is cheaper than
+carrying two forms forever.
+
+The scalar is reported as HMD013 rather than quietly accepted. A card that
+carries the old form is asking to be ordered, and the silent outcome — falling
+into the unkeyed bucket and sorting last — is exactly the failure the author
+would not look for. This is the same reasoning that already made a misspelled
+`no_autodiscovry` a diagnostic instead of a default.
+
 ## MkDocs computes URLs; the plugin only names sources
 
 Links are rewritten to a path relative to the **source file** (`kanban.md`), not

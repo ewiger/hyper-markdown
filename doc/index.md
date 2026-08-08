@@ -7,6 +7,68 @@ already valid `.hmd`.
 
 ## TL;DR
 
+```d2
+direction: down
+
+classes: {
+  defined: {
+    style: {
+      fill: "#ffe9b0"
+      stroke: "#d98f00"
+      stroke-width: 2
+    }
+  }
+  assumed: {
+    style: {
+      fill: "#fff7e3"
+      stroke: "#d98f00"
+      stroke-width: 2
+    }
+  }
+  inherited: {
+    style: {
+      fill: "#f2f3f5"
+      stroke: "#8b9199"
+      stroke-width: 2
+    }
+  }
+}
+
+title: "Three layers stack in one file" {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 26
+    bold: true
+  }
+}
+
+card: "notes.hmd" {
+  grid-rows: 3
+  grid-gap: 0
+  style: {
+    fill: transparent
+    stroke: "#8b9199"
+  }
+
+  hyper: "Hyper layer — defined by hyper-markdown\n[[card]] · [[card#Section]] · [[card#^block]] · ![[embed]] · frontmatter" {
+    class: defined
+  }
+  rich: "Rich layer — borrowed from the ecosystem, and assumed rather than optional\ntables · task lists · footnotes · callouts · TeX · D2 diagrams" {
+    class: assumed
+  }
+  commonmark: "CommonMark — inherited whole, nothing redefined\nheadings · lists · emphasis · links · fenced code" {
+    class: inherited
+  }
+}
+
+note: "The two upper layers are what hyper-markdown adds, and a specification is what fixes\nthem. The base is left untouched, which is why any .md file is already a valid card." {
+  near: bottom-center
+  shape: text
+  style.font-size: 15
+}
+```
+
 * **A superset of CommonMark.** Rename a `.md` file to `.hmd` and it is already
   valid — nothing breaks, and the format is adopted one file at a time.
 
@@ -17,6 +79,11 @@ already valid `.hmd`.
 * **Documents made of documents.** `![[glossary/token#^definition]]` splices one
   named block into another page. Write a definition once and embed it everywhere
   it is needed.
+
+* **Rich content is assumed, not optional.** TeX mathematics, D2 diagrams,
+  callouts, footnotes, task lists, and tables are part of what a card may carry.
+  A diagram is text in the file and a diff you can read, and it degrades to its
+  own labelled source rather than to a blank space.
 
 * **The specification is the artifact.** The Python CLI, the MkDocs plugin, and
   the VS Code extension are implementations around it; they conform to it rather
@@ -48,7 +115,7 @@ See [[tokens]] for the format, or pull one block in whole:
 A card may open with YAML frontmatter, where four keys mean something to the
 toolchain — `tags`, `use`, `import`, `nav` — and every other key belongs to the
 author. The whole language fits on one page and can be learned in one sitting:
-[the hyper-markdown language](wiki/hmd-lang-specification.hmd).
+the [HMD Language Specification](wiki/hmd-lang-spec.hmd).
 
 ## Features
 

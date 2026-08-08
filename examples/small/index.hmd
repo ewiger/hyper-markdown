@@ -1,5 +1,7 @@
 ---
 tags: [meta]
+nav:
+  visibility: public
 ---
 
 # Small world

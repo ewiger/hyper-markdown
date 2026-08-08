@@ -59,7 +59,8 @@ a language rather than a convention, and it has its own chapter:
 
 A card may open with a YAML block. Four keys mean something to the toolchain —
 `tags` for what a card is about, `use` for per-subtree feature toggles,
-`import` for explicit name bindings, `nav` for its place in a published site.
+`import` for explicit name bindings, `nav` for its place in a published site —
+including `nav.visibility`, which decides whether it is published at all.
 Every other key is yours, and nothing will inspect it.
 
 ## The check
@@ -80,7 +81,7 @@ rest of the tree to follow.
 
 ## Where the full picture lives
 
-- [The hyper-markdown language](../wiki/hmd-lang-specification.hmd) teaches
+- [The HMD Language Specification](../wiki/hmd-lang-spec.hmd) teaches
   every construct, start to finish — read it once and you can write the
   format.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive

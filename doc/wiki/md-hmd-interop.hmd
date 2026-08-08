@@ -1,5 +1,8 @@
 ---
 tags: [area/format, status/sketch]
+nav:
+  order: 40
+  visibility: public
 ---
 
 # MD ↔ HMD interoperability
