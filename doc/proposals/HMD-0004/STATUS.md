@@ -64,9 +64,9 @@ Nothing. Nothing is built.
 | --- | --- | --- |
 | L1 | The record specifies no binding schema, only where a binding lives | Deliberate — naming the concepts, the address form, and the file is cheap now; a syntax chosen under-informed is expensive to reverse. See Q1 |
 | L2 | Four sentences in HMD-0001 and one in the repository `README.md` still say "namespace" where they mean a folder | The word is settled and the public chapter teaches it, so what remains is a copy-edit rather than a disagreement. HMD-0001 needs no spec change: its "namespace root" is correct as written under the settled vocabulary. Tracked as W6 |
-| L5 | An unbound prefix is not distinguishable from a typo today: `[[design:tokens]]` parses as an ordinary bare name and produces the HMD001 red-link warning | Nothing reads the prefix yet, so there is nothing to report a better diagnostic from. Whether a missing binding is eventually its own error is Q12 |
 | L3 | Remote namespaces have no fetch, cache, or trust story at all | The vision (many small `.hmd` projects linkable by name) needs one, but committing to a mechanism before a second real project exists to link to would be designing against a sample size of zero |
 | L4 | This may not be built inside the MVP line at all | HMD-0001 through HMD-0003 (grammar, rendering, queries) are more load-bearing for a single project's usefulness; namespaces beyond one tree only matter once there is more than one to link to |
+| L5 | An unbound prefix is indistinguishable from a typo today: `[[design:tokens]]` parses as an ordinary bare name and produces the HMD001 red-link warning | Nothing reads the prefix yet, so there is nothing to raise a better diagnostic from. Whether a missing binding eventually becomes its own error is Q12 |
 
 ### Open questions and blockers
 
@@ -77,11 +77,10 @@ points here rather than mirroring the list.
 
 | ID | Question |
 | --- | --- |
-| Q1 | How is a namespace ID bound to its server — an extension of `import:`, or its own project-level table? |
+| Q1 | Which keys express a binding in `.hmd/config.toml`? The file is settled; the schema is not — one table per ID, and what distinguishes a folder from a URL from some third provider |
 | Q2 | What characters are legal in a namespace ID, and how does `namespace:path` stay visually distinct from a bare name and from a literal URL scheme? |
-| Q3 | Does "module" formally replace "namespace" in HMD-0001 and `doc/public/namespaces.md`, or do those documents keep their current wording while this record's vocabulary stays scoped to itself and future work? |
 | Q4 | What fetches/binds a remote namespace, when, and is the result always a pinned snapshot rather than a live fetch? |
-| Q5 | What makes a namespace server "dynamic," concretely — is a build tool like MkDocs already an instance, or does dynamic imply resolving at request time rather than build time? |
+| Q5 | What makes a namespace provider "dynamic," concretely — is a build tool like MkDocs already an instance, or does dynamic imply resolving at request time rather than build time? |
 | Q6 | Should a second local tree ship before a remote server, as the smaller first step? |
 | Q7 | Does a remote namespace's own containment root compose with the importing project's — can a two-hop reference exist at all? |
 | Q8 | Does this resolve HMD-0003's Q5 (cross-namespace query import), or stay independent of it? |
