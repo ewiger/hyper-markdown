@@ -138,6 +138,15 @@ def test_the_language_version_has_a_changelog_section():
         " plus the record of what it changed."
     )
 
+    # The README's `spec` badge is the one other place the number is written out,
+    # and a shields.io URL is exactly the kind of literal nobody thinks to bump.
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert f"/badge/spec-{version}-" in readme, (
+        f"the spec card specifies hyper-markdown {version}, and README.md's `spec`"
+        " badge says something else. Either bump the badge or drop it — the card's"
+        " opening sentence is the declaration, the badge only repeats it."
+    )
+
 
 @pytest.fixture(scope="module")
 def built_site(tmp_path_factory) -> Path:

@@ -6,6 +6,8 @@
 
 **Build your own local wiki knowledge base**
 
+[![Documentation](https://img.shields.io/badge/docs-hyper--markdown.org-ffb300)](https://hyper-markdown.org/)
+[![Spec](https://img.shields.io/badge/spec-0.1-blue)](https://hyper-markdown.org/wiki/hmd-lang-spec/)
 [![CI](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -31,21 +33,41 @@ and the **tools** that implement it, one package each under `tools/`.
 
 ## The tools
 
-Each carries its own README, changelog, and license.
+Each carries its own version, README, changelog, and license.
 
-- **[`tools/hmd/`](tools/hmd/)** — the Python line, published to PyPI as
-  [`hyper-markdown`](https://pypi.org/project/hyper-markdown/): the `hmd` command
-  (`lint`, `render`, `graph`), the library under it, and a MkDocs plugin that
-  builds a tree of cards into a website. **Canonical** — where two
-  implementations disagree, this one defines the answer. It will also host the
-  language server.
-- **[`tools/hmd-ts-core/`](tools/hmd-ts-core/)** —
-  [`@hyper-markdown/core`](tools/hmd-ts-core/README.md), the TypeScript
-  implementation. A second implementation of the format, not extension code.
-- **[`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/)** — the
-  [VS Code extension](tools/hmd-vsc-ext/README.md): live preview that keeps the
-  embed boundary visible, backlinks, red links, and diagnostics, with no Python
-  required.
+### [`hmd`](tools/hmd/) — the CLI, the library, the MkDocs plugin
+
+[![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
+[![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
+[![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd-informational)](tools/hmd/CHANGELOG.md)
+
+The Python line, published to PyPI as
+[`hyper-markdown`](https://pypi.org/project/hyper-markdown/): the `hmd` command
+(`lint`, `render`, `graph`), the library under it, and a MkDocs plugin that
+builds a tree of cards into a website. **Canonical** — where two implementations
+disagree, this one defines the answer. It will also host the language server.
+
+### [`@hyper-markdown/core`](tools/hmd-ts-core/) — the TypeScript implementation
+
+[![npm](https://img.shields.io/badge/npm-not%20yet%20published-lightgrey)](tools/hmd-ts-core/README.md)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-5fa04e)](tools/hmd-ts-core/DEVELOP.md)
+[![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--ts--core-informational)](tools/hmd-ts-core/CHANGELOG.md)
+
+A second implementation of the format, not extension code. It answers to the
+same [conformance corpus](examples/conformance/) the canonical tool does.
+
+### [VS Code extension](tools/hmd-vsc-ext/) — `.hmd` with no Python
+
+[![VS Marketplace](https://img.shields.io/badge/marketplace-not%20yet%20published-lightgrey)](tools/hmd-vsc-ext/README.md#install)
+[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](tools/hmd-vsc-ext/README.md#install)
+[![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
+
+Live preview that keeps the embed boundary visible, backlinks, red links, and
+diagnostics.
+
+![The VS Code extension previewing a card: source on the left, rendered card on
+the right, with resolved links, a table, a callout, and a d2
+diagram.](https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/assets/hmd-vsc-ext-screenshot-1.png)
 
 ## What else is in here
 
