@@ -53,7 +53,24 @@ raise squiggles.
 
 ## LSP is deferred without a decision
 
-Not "later in the plan" — genuinely open. If the feature set ever justifies a
-language server, the implementation language is its own question (TypeScript or
-Rust). The single constraint kept alive for it: every core entry point accepts
-document *text*, not only a path.
+Superseded on 2026-08-08 — kept because what it got wrong is instructive.
+
+It read: not "later in the plan" — genuinely open; if the feature set ever
+justifies a language server, the implementation language is its own question
+(TypeScript or Rust). The single constraint kept alive for it: every core entry
+point accepts document *text*, not only a path.
+
+The language is now decided, and it is neither candidate. The server will be
+Python on `pygls`, living with the canonical implementation, because a language
+server is a semantics server and the semantics are already there — a third
+place where resolution behaviour lives is a third thing that can disagree with
+the arbiter. The extension is unaffected and still requires no Python; the
+Python server exists to serve every *other* editor without a second port of the
+resolver being written. See [HMD-0024](../proposals/HMD-0024/README.md).
+
+The constraint the old note kept alive as a precaution is the part that
+survived, and it is now load-bearing: an unsaved buffer is a language server's
+ordinary input, so text ingestion is not a nicety. On the Python side it holds
+everywhere except the workspace index, which is the one layer that reads from
+disk — recorded as a limitation in
+[the HMD-0024 tracker](../proposals/HMD-0024/STATUS.md#limitations).

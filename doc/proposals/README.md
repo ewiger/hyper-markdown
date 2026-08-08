@@ -21,6 +21,7 @@ it continues at **`HMD-0100`**, leaving `0020`–`0099` to the editor line.
 | [HMD-0021](HMD-0021/README.md) | drafted | The VS Code extension — the hyper-markdown preview surface | [STATUS](../../tools/STATUS.md) |
 | [HMD-0022](HMD-0022/README.md) | drafted | Diagrams as committed artifacts | [STATUS](../../tools/STATUS.md) |
 | HMD-0023 | reserved | Searching the wiki from the preview | — |
+| [HMD-0024](HMD-0024/README.md) | drafted | The `tools/` layout, and a Python language server | [STATUS](HMD-0024/STATUS.md) |
 
 ## Progress is tracked per proposal
 

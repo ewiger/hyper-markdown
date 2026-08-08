@@ -261,3 +261,30 @@ rewritten the same day as the worked example.
 Trackers are exempt. A `STATUS.md` is a table of IDs by nature — that is its
 job, and its rows are read one at a time rather than as prose. The rule binds
 `README.md` records, and applies to `doc/wiki/` cards for the same reason.
+
+## The repository is a monorepo of tools, named after the tools
+
+`tools/hmd` (Python), `tools/hmd-ts-core` (`@hyper-markdown/core`), and
+`tools/hmd-vsc-ext` (the VS Code extension), each with its own project file.
+The previous layout — `src/`, `tests/`, `packages/` — named languages instead of
+products, and a language server is not a language.
+
+The part that needed deciding rather than moving: `@hyper-markdown/core` is its
+own tool, not extension code. It is the second implementation the conformance
+corpus arbitrates against, and filing it inside its only consumer would make it
+read as a detail of how the editor is built. Everything used by more than one
+tool stays at the root — the corpus, the examples, `doc/`, `mkdocs.yml`, and
+the repository's own test guards.
+
+Two packaging consequences that are not derivable and bite silently. setuptools
+refuses to read a file outside the project directory, so the distribution's
+README, license, changelog, and shipped fixture are symlinks into the root
+rather than `../../` paths, which fail the build outright; the symlink keeps the
+PyPI long description the repository's own README instead of a copy that
+drifts. And a bare `uv build` at a workspace root with no `[project]` table does
+not fail — it builds an empty `unknown-0.0.0` and exits zero — so the release
+path names `uv build --package hyper-markdown` explicitly.
+
+The full record is [HMD-0024](../proposals/HMD-0024/README.md), which also
+decides the language server: Python on `pygls`, living with the canonical
+implementation.
