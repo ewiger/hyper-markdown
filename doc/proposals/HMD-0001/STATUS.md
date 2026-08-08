@@ -9,10 +9,12 @@ itself. A decision that needs discussion is named here as an open question and
 argued wherever it belongs; nothing else may hold a task list. Update the row in
 the same commit that changes the code.
 
-**Snapshot** (2026-08-07) — M1–M4 done, gated by 209 tests. Everything the
-proposal requires to call the MVP implemented is implemented. What remains is
-not code but evidence and decision: a conformance corpus, a determinism test,
-and the seven open questions that block `drafted → accepted`.
+**Snapshot** (2026-08-08) — M1–M4 done, gated by 219 tests, released as 0.1.0
+and 0.1.1. Everything the proposal requires to call the MVP implemented is
+implemented, and nothing is known broken: B1, the last defect, was fixed in
+0.1.1. What remains is not code but evidence and decision: a conformance corpus,
+a determinism test, and the seven open questions that block
+`drafted → accepted`.
 
 Section references are to [HMD-0001](README.md) unless marked otherwise.
 
@@ -89,10 +91,22 @@ Known defects. A row leaves this table only when a gate would catch its return.
 
 | ID | Defect | Where | Impact |
 | --- | --- | --- | --- |
-| B1 | The card describes resolution as matching a slug "by filename alone", which predates the two-phase spine walk | [`doc/wiki/hyper-markdown.hmd`](../../wiki/hyper-markdown.hmd) | The card that teaches the format teaches it wrong; §5.2 resolves nearest-first along the spine, then sweeps the root, then probes imported origins |
+| — | None open | — | — |
 
-Recorded under Backwards Compatibility in the proposal. It is a documentation
-defect, not a code one — the resolver is correct.
+**B1 fixed 2026-08-08 (0.1.1).** The card described resolution as matching a
+slug "by filename alone", which predated the two-phase spine walk — so the card
+teaching the format taught it wrong. It now states the walk in order: beside the
+card, then each folder above without recursion, nearest winning, a whole-tree
+sweep only if that finds nothing, and two matches in the sweep an error rather
+than a tie-break. It also names the qualified and absolute forms and hands off
+to [`hmd-lang-specification.hmd`](../../wiki/hmd-lang-specification.hmd) for
+sections, blocks, embeds, and imports.
+
+No gate catches its return: the guard against prose that contradicts the
+resolver would have to read the prose. It leaves this table on the strength of
+the fix rather than a test, which is the exception the table's own rule names.
+It was a documentation defect, not a code one — the resolver was correct
+throughout.
 
 ### Limitations
 

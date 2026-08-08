@@ -21,15 +21,26 @@ each idea reachable from both directions.
 The wiki graph is **closed to `doc/wiki/`**: a `[[ ]]` link resolves only to a
 card in the wiki space, never to a file elsewhere in the repo.
 
-- **`[[slug]]`** links a concept to its card. The slug names a `.hmd` file
-  anywhere under `doc/wiki/` — subfolders included — by filename alone
-  (`[[kanban]]` → `doc/wiki/kanban.hmd`).
+- **`[[slug]]`** links a concept to its card. The slug is a **name, not a
+  filename search**: it is looked for beside the card you are writing, then in
+  each folder above it up to the wiki root, each probed without recursion. A
+  card nearby therefore wins over a card far away, and a bare name never
+  reaches sideways into a sibling folder. Only when that walk finds nothing
+  does a sweep of the whole tree run, and if the sweep matches two cards that
+  is an **error** asking you to qualify the link — not a tie-break.
+- **`[[folder/slug]]` and `[[/folder/slug]]`** qualify it when the walk is not
+  enough: relative to this card's own folder, or absolute from the wiki root.
 - **`[[slug|display text]]`** links while showing different surface text, so the
   sentence still reads naturally.
 - **Forward links are fine** — linking a concept that has no card yet marks it as
   worth writing later; it is not an error.
 - **Anything outside `doc/wiki/`** — `src/`, `.grem/`, proposals, model specs —
   uses ordinary relative Markdown links, never `[[ ]]`.
+
+Sections, single blocks, and embeds are addressable too, and imports can bind a
+name explicitly. Those are taught in full by
+[[hmd-lang-specification]]; this card covers only the conventions this
+repository writes by.
 
 ## Writing a card
 

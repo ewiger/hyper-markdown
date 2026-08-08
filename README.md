@@ -75,7 +75,7 @@ pip install hyper-markdown       # or: uv pip install hyper-markdown
 Point `hmd` at a tree of cards and lint it:
 
 ```bash
-hmd lint --root examples/small
+hmd lint --root path/to/your/wiki
 ```
 
 ```text
@@ -87,10 +87,17 @@ glossary/index.hmd:11:3: warning[HMD001] [[idempotency]] does not resolve to a p
 Exit codes are pinned for CI: `0` clean, `1` diagnostics, `2` usage error. Add
 `--strict` to fail on warnings, `--format json` for machine-readable output.
 
-[`examples/small/`](examples/small/) is that runnable wiki. It exercises the
-spine walk, both import forms, `use` inheritance, folder notes, and most of the
-syntax, and it lints with zero errors and exactly one deliberate warning — the
-red link above, showing what an unwritten page looks like.
+That output is [`examples/small/`](examples/small/), a runnable wiki that
+exercises the spine walk, both import forms, `use` inheritance, folder notes,
+and most of the syntax. It lints with zero errors and exactly one deliberate
+warning — the red link above, showing what an unwritten page looks like. It
+travels in the repository and the source archive rather than the wheel, so try
+it from a clone:
+
+```bash
+git clone https://github.com/ewiger/hyper-markdown
+hmd lint --root hyper-markdown/examples/small
+```
 
 ## What you get
 
