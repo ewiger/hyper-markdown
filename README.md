@@ -71,18 +71,41 @@ Each carries its own README, changelog, and license.
   [`doc/proposals/README.md`](doc/proposals/README.md).
 - **Progress is tracked per proposal**, in `doc/proposals/HMD-NNNN/STATUS.md`,
   and updated in the same commit that changes the code.
-- **Kanban board** - doc/issues/**, for the repository's own work, and for the language and the
+- **Kanban board** - in `doc/issues/**`, for the repository's own work, and for the language and the
   website, as well as the tools. The board is public, but the issues are owned by the contributors team.
+
+### Getting set up
+
+Most contributions are to the language and the site — the prose, the proposals,
+the `.hmd` wiki — and that work needs Python even though none of it is Python:
+this repository's documentation *is* a wiki, built by the MkDocs plugin the
+Python tool ships. The sync installs that toolchain; the serve gives you a local
+preview on `127.0.0.1:8000` that rebuilds as you edit.
 
 ```bash
 git clone https://github.com/ewiger/hyper-markdown
 cd hyper-markdown
-uv sync --locked && uv run python -m pytest   # the Python tool and the site
-npm install && npm test                       # the TypeScript tools
+uv sync --locked      # MkDocs, the plugin, and the `hmd` command
+uv run mkdocs serve   # preview the book and the wiki as you write
 ```
 
+Writing `.hmd` in a tree of your own is the other way round and needs no Python
+at all — the [VS Code extension](tools/hmd-vsc-ext/) previews a card beside the
+file you are typing in. It is not on the marketplace yet, so it is built from a
+clone — three commands, in
+[its README](tools/hmd-vsc-ext/README.md#install).
+
+Before opening a PR, run whichever half you touched:
+
+```bash
+uv run python -m pytest    # the Python tool and the site
+npm install && npm test    # the TypeScript tools
+```
+
+## Feature requests, issues and PRs
 Feature requests, issues and PRs are welcome at
-[github.com/ewiger/hyper-markdown](https://github.com/ewiger/hyper-markdown).
+[GitHub issues](https://github.com/ewiger/hyper-markdown/issues).
+Once accepted, a PR should be merged into the `main` branch, and the issue closed. Again, **Kanban board** - in `doc/issues/**`, for the contributors (or agents) to track the progress of the issue and the PR internally.
 
 ## License
 
