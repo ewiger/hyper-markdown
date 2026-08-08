@@ -55,11 +55,12 @@ npm run example:wiki       # this repository's own doc/wiki
 ```
 
 Each builds both bundles, then opens a second VS Code window with the example as
-its workspace and every other extension disabled. Add `--print` to see the
-command without running it:
+its workspace and every other extension disabled. The same four scripts exist on
+the workspace root and on this package, so they run from either directory. Add
+`--print` to see the command without running it:
 
 ```bash
-node scripts/launch-example.mjs small --print
+npm run example:small -- --print
 ```
 
 **Why a script and no `launch.json`.** F5 runs whichever launch configuration VS
