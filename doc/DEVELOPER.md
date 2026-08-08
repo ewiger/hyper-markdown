@@ -23,5 +23,5 @@ Every tool lives under `tools/`, one directory each:
 - **`tools/hmd-vsc-ext`** — the VS Code extension.
 
 Implementation status for the two TypeScript tools is
-[`tools/STATUS.md`](../tools/STATUS.md); everything else is tracked per proposal,
-in `doc/proposals/HMD-NNNN/STATUS.md`.
+[`doc/vsc-ext/STATUS.md`](vsc-ext/STATUS.md); everything else is tracked per
+proposal, in `doc/proposals/HMD-NNNN/STATUS.md`.

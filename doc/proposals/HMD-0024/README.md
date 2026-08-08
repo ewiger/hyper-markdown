@@ -86,8 +86,11 @@ tools/hmd/            Python: parse, resolve, embed, urls, lint, graph,
                       the MkDocs plugin, and the language server to come
 tools/hmd-ts-core/    @hyper-markdown/core — the TypeScript implementation
 tools/hmd-vsc-ext/    the VS Code extension
-tools/STATUS.md       implementation status for the two TypeScript tools
 ```
+
+Nothing else sits at `tools/`. The tracker the two TypeScript tools share is
+documentation about the work rather than a shippable unit, so it lives at
+`doc/vsc-ext/STATUS.md` with the rest of `doc/`.
 
 - A directory under `tools/` MUST be a single shippable unit with its own
   project file — `pyproject.toml` or `package.json` — and MUST NOT be a
@@ -355,7 +358,7 @@ uv build --package hyper-markdown
 - Does canonicity move if a Rust implementation ever appears, and what is the
   procedure for moving it? This is inherited unresolved and the `tools/` layout
   does not settle it.
-- Should `tools/STATUS.md` be split into per-proposal trackers, which is the
+- Should `doc/vsc-ext/STATUS.md` be split into per-proposal trackers, which is the
   convention every other proposal follows, or does the interleaving of
   milestones across the two TypeScript tools genuinely justify the exception?
 

@@ -54,6 +54,7 @@ fails if the root changelog has no section for it.
 | `doc/proposals/HMD-NNNN/` | Numbered specifications, ADR/RFC style |
 | `doc/models/` | The system through requirements, data, domain, behavior lenses |
 | `doc/issues/` | A kanban board of work items, indexed by `kanban.yaml` |
+| `doc/vsc-ext/` | The editor line's shared tracker — the one exception below |
 | `doc/memory/` | Small real-time decisions that the code and git history do not record |
 
 Three conventions that are easy to get wrong:
@@ -62,7 +63,10 @@ Three conventions that are easy to get wrong:
   and nowhere else — not in `doc/memory/`, not in a wiki card, not in a
   proposal's own `README.md`. Update the tracker in the same commit that changes
   the code. A decision that needs discussion becomes an open question in the
-  tracker.
+  tracker. One standing exception:
+  [`doc/vsc-ext/STATUS.md`](doc/vsc-ext/STATUS.md) covers `HMD-0020`+ in a
+  single file, because those milestones interleave across `tools/hmd-ts-core`
+  and `tools/hmd-vsc-ext` and neither tool owns half a row.
 - **A proposal is a complete text**, readable start to finish by someone who has
   opened no other file. Do not thread prose with identifiers standing in for the
   claim (`F21`, `Q7`, `§5.3`); restate the constraint instead, and put surviving
@@ -156,7 +160,6 @@ tools/hmd/                the Python tool, published as `hyper-markdown`
   tests/                  the tool's own suite
 tools/hmd-ts-core/        @hyper-markdown/core — the TypeScript implementation
 tools/hmd-vsc-ext/        the VS Code extension
-tools/STATUS.md           implementation status for the two TypeScript tools
 tests/                    repository guards: this repo's prose and its built site
 examples/small/           a runnable fixture wiki, exercised by both lines
 examples/cs-alg-sorting/  a larger fixture wiki, exercised by both lines

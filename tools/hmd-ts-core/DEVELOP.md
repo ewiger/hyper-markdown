@@ -98,7 +98,7 @@ covers — the contract has two sides, and only one of them is enforced from her
 [`README.md`](README.md), [`CHANGELOG.md`](CHANGELOG.md), and
 [`LICENSE`](LICENSE) are this package's own, and `package.json` lists all three in
 `files` so they travel in a publish. None of them is a symlink. Work points are
-tracked in [`tools/STATUS.md`](../STATUS.md), against
+tracked in [`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
 Not published to npm yet: the extension resolves the package from the workspace,

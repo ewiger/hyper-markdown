@@ -1,17 +1,18 @@
 # STATUS — the TypeScript line
 
 Where the implementation stands against
-[HMD-0020](../doc/proposals/HMD-0020/README.md) and
-[HMD-0021](../doc/proposals/HMD-0021/README.md). One row per work point; update
-the row in the same commit that changes the code.
+[HMD-0020](../proposals/HMD-0020/README.md) and
+[HMD-0021](../proposals/HMD-0021/README.md). One row per work point; update the
+row in the same commit that changes the code.
 
-It sits at `tools/` rather than inside either tool because the milestones
+It sits under `doc/` rather than inside either tool because the milestones
 interleave across both of them: the `C` rows are
-[`tools/hmd-ts-core`](hmd-ts-core/) and the `E` rows are
-[`tools/hmd-vsc-ext`](hmd-vsc-ext/). The Python tool, `tools/hmd`, is not
-tracked here — it tracks per proposal, in `doc/proposals/HMD-NNNN/STATUS.md`,
-which is the repository's normal convention and the one this file is the
-standing exception to.
+[`tools/hmd-ts-core`](../../tools/hmd-ts-core/) and the `E` rows are
+[`tools/hmd-vsc-ext`](../../tools/hmd-vsc-ext/). One tracker filed in one tool
+would have named the wrong owner for half its rows. The Python tool,
+`tools/hmd`, is not tracked here — it tracks per proposal, in
+`doc/proposals/HMD-NNNN/STATUS.md`, which is the repository's normal convention
+and the one this file is the standing exception to.
 
 **Legend** — `done` shipped and gated by a test · `wip` in progress ·
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·

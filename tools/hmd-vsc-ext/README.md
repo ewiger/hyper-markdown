@@ -1,6 +1,10 @@
-<img src="media/logo.png" width="64" alt="">
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.svg" width="76" height="76" alt="">
 
 # Hyper-Markdown for VS Code
+
+</div>
 
 Live preview for [hyper-markdown](https://github.com/ewiger/hyper-markdown)
 (`.hmd`) knowledge bases: source on the left, the rendered card on the right,
@@ -111,7 +115,7 @@ you write:
 - **The graph tab** is specified and not built yet.
 
 What has changed is in [CHANGELOG.md](CHANGELOG.md); work points are tracked in
-[`tools/STATUS.md`](../STATUS.md).
+[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md).
 
 ## Working on it
 

@@ -11,7 +11,8 @@ the usual `0.x` caveat: **the format itself may change between minor versions.**
 
 **Not published to npm yet.** `0.1.0` is the version the VS Code extension
 resolves from the workspace, so everything so far is unreleased. Implementation
-state is tracked per work point in [`tools/STATUS.md`](../STATUS.md), against
+state is tracked per work point in
+[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
 ## [Unreleased]

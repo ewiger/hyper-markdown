@@ -60,7 +60,7 @@ environment.
 | --- | --- | --- |
 | L1 | The Python workspace index reads every card from disk and offers no way to inject an unsaved buffer | Audited on 2026-08-08 against the "text, not paths" requirement. The leaf functions already honour it: `parse(path, text, rel)` takes text, `mask`, `find_fences`, `line_col`, `split_frontmatter`, and `parse_yaml` are all text-in, and `Document` carries its own `text`, so `expand` and every embed region function work from a document rather than a file. The gap is exactly one layer — `Workspace.__init__` calls `_load`, which walks the root and calls `path.read_text()` per card, with no override map and no per-card invalidation. Everything above it (`lint.check`, `graph.build`, `expand`) takes a `Workspace`, so today they can only ever describe what is on disk. This is W5 and W6, and it is a patch to one class rather than the rewrite the requirement warns about, precisely because the layer below already takes text |
 | L2 | The TypeScript side already solved this and the Python side has not | Not a defect, just an asymmetry worth knowing: the TypeScript core reads through an injectable host port and the extension layers unsaved-buffer overrides on top of it. The Python side has never had a caller that needed it, which is why it stayed a precaution |
-| L3 | `tools/STATUS.md` tracks two tools in one file, against the repository's per-proposal convention | Inherited, not introduced. The milestones genuinely interleave across the two TypeScript tools. Whether that justifies the exception is Q5 |
+| L3 | `doc/vsc-ext/STATUS.md` tracks two tools in one file, against the repository's per-proposal convention | Inherited, not introduced. The milestones genuinely interleave across the two TypeScript tools. Whether that justifies the exception is Q5 |
 | L4 | The same claim is now written in more than one place — the gates appear in the repository's `DEVELOP.md` and in each tool's, and the layout rules appear in both this record and those guides | Accepted as the cost of per-tool guides, which is what removed the worse version of the problem: one `doc/DEVELOPER.md` describing tools it did not live beside. Each per-tool guide is authoritative for its own commands and the repository's guide says so, so a conflict has a resolution rule rather than needing a vote. Nothing gates the duplication, and a stale command is a silent defect |
 | L5 | The sdist does not carry `examples/`, so `hmd lint --root examples/small` does not work from an unpacked archive | Deliberate. The fixture is a repository fixture that both implementations lint, with exactly one copy at the root; carrying it into the tool would mean either a duplicate tree or a directory symlink indistinguishable from one. The wheel never carried it either way, and the README sends a reader to a clone |
 
@@ -78,7 +78,7 @@ here rather than mirroring the list.
 | Q2 | Is `pygls` a base dependency or an `lsp` extra? An extra keeps `pip install hyper-markdown` small; a base dependency means the server exists wherever the CLI does |
 | Q3 | ~~Does the VS Code extension stay on TypeScript permanently, or gain an opt-in Python path?~~ **Answered 2026-08-08: it becomes a client of the Python server** for language features, while the preview keeps rendering without Python. What remains open is the sequencing — which features move first, and how the UI reports an absent server without implying the preview failed |
 | Q4 | Does canonicity move if a Rust implementation appears, and what is the procedure? Inherited unresolved; the layout does not settle it |
-| Q5 | Should `tools/STATUS.md` split into per-proposal trackers, or does the interleaving justify the standing exception? |
+| Q5 | Should `doc/vsc-ext/STATUS.md` split into per-proposal trackers, or does the interleaving justify the standing exception? |
 
 ## Gates
 
@@ -118,3 +118,12 @@ uv build --package hyper-markdown
   language's: its front page, its changelog under `## [0.1]`, and a guide about
   the specification and the site. The language's version was already declared in
   the spec card and is now guarded against that changelog.
+- 2026-08-08: the editor line's shared tracker moved from `tools/STATUS.md` to
+  `doc/vsc-ext/STATUS.md`, and the record's `tools/` tree lost its last non-tool
+  entry. A tracker is documentation about the work, not a shippable unit, so it
+  belongs with the rest of `doc/`; `tools/` is now exactly three directories and
+  nothing else. This does not answer Q5 — the file still tracks two tools in one
+  place, it is just filed where trackers live. `mkdocs.yml` excludes
+  `vsc-ext/` for the same reason it already excluded `proposals/*/STATUS.md`.
+  The directory is named after one of the two tools it covers, which is the
+  smaller wart the move accepted.

@@ -12,7 +12,7 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 **Not published to the marketplace yet.** `0.1.0` is what a local
 `npm run -w hmd-vsc-ext package` builds, so everything so far is unreleased.
 Implementation state is tracked per work point in
-[`tools/STATUS.md`](../STATUS.md), against
+[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
 [HMD-0021](../../doc/proposals/HMD-0021/README.md).
 
 ## [Unreleased]

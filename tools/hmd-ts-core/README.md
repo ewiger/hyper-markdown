@@ -69,8 +69,9 @@ diagnostics on `examples/small` and `doc/wiki`. Known divergences are listed in
 [`conformance-xfail.json`](conformance-xfail.json); a ledgered case that starts
 passing fails the build.
 
-Work points are tracked in [`tools/STATUS.md`](../STATUS.md), and what has
-changed is in [CHANGELOG.md](CHANGELOG.md).
+Work points are tracked in
+[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), and what has changed is
+in [CHANGELOG.md](CHANGELOG.md).
 
 ## Working on it
 
