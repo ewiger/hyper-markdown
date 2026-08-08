@@ -13,10 +13,12 @@ touching each other.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-07): C1–C7 and E1–E5 done. 141 tests green, including
-byte-identical diagnostic parity with `hmd lint` on `examples/small` and
-`doc/wiki`. Callouts, math, and D2 diagrams render (HMD-0022). E6 (graph tab)
-and the Python corpus runner are the next blocks.
+**Snapshot** (2026-08-08): C1–C7 and E1–E5, E7 done. 151 tests green, including
+diagnostic parity with `hmd lint` on `examples/small`, `examples/cs-alg-sorting`
+and `doc/wiki` — byte-identical on every rule except HMD017, which is ledgered
+as unimplemented (see below). Callouts, math, and D2 diagrams render
+(HMD-0022). E6 (graph tab), the publication model, and the Python corpus runner
+are the next blocks.
 
 ---
 
@@ -52,6 +54,7 @@ and the Python corpus runner are the next blocks.
 | C3.1 | `workspace.ts` — phases 0–3, spine walk, sweep, folder notes | §6 | done |
 | C3.2 | `WorkspaceHost` port; no Node builtins in `src/` | §1 | done |
 | C4.1 | `lint.ts` — all 16 rules, sorted, no new rule IDs | §9 | done |
+| C4.2 | `nav` mapping, visibility inheritance, HMD017 | HMD-0002 §2 | **blocked** — see below |
 | C5.1 | `conformance/cases/` generated from the canonical implementation | §10 | done |
 | C5.2 | `conformance-xfail.json`, ledger honoured, passing entry fails the build | §10 | done |
 | C5.3 | Python corpus runner | §10 | **ready** — belongs to the branch owning `tests/` |
@@ -109,5 +112,20 @@ and the Python corpus runner are the next blocks.
   side runs it. Until Python runs it too, the contract is enforced in one
   direction only, and `test/parity.test.ts` is doing the real work by shelling
   out to `hmd lint`.
+- **C4.2 — the publication model, and HMD017 with it.** The canonical
+  implementation grew `nav` as a mapping of `order` and `visibility`, a
+  visibility that inherits from the nearest ancestor folder note and defaults to
+  private, and HMD017, which warns when a published card links to one that is
+  not. This implementation still reads the HMD-0001 closed key set of `tags`,
+  `use`, `import`, ignores `nav`, and has no notion of a card being published.
+  HMD017 is ledgered in `conformance-xfail.json` under `rules`, so parity drops
+  it from the canonical side and compares every other rule byte for byte; the
+  suite fails if this implementation ever emits it, so the ledger cannot go
+  stale. The port is four files — `nav` into the reserved keys and mapping
+  parsing in `frontmatter.ts`, `NavConfig` in `model.ts`, a `visibility` walk in
+  `workspace.ts` modelled on `autodiscoveryEnabled`, and the rule in `lint.ts`.
+  **Open question**: HMD-0020 specifies HMD001–HMD016 and says nothing about
+  publication, which is HMD-0002's, so the port needs a spec amendment naming
+  which proposal owns visibility in the TypeScript core before it is written.
 (V1, the secondary-side-bar question, is closed: E7 removed the view container
 rather than finding a place to put it.)

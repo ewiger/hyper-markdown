@@ -8,9 +8,18 @@
  * If the `hmd` CLI is not available the suite skips rather than fails: a
  * contributor without a Python environment should still be able to work on the
  * TypeScript half, and CI runs both.
+ *
+ * A rule named in the `rules` array of `conformance-xfail.json` is one this
+ * implementation does not emit at all, so comparing it would only ever restate
+ * the ledger. Those diagnostics are dropped from the canonical side before the
+ * comparison; every other rule is still required to match byte for byte. The
+ * drop is guarded in both directions — if this implementation starts emitting a
+ * ledgered rule, the entry is stale and the suite fails rather than quietly
+ * ignoring real output.
  */
 
 import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -23,6 +32,12 @@ import { NodeHost } from "./nodeHost.js";
 
 const run = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+const ledger = JSON.parse(
+  await readFile(resolve(repoRoot, "packages/hmd-core/conformance-xfail.json"), "utf8"),
+) as { rules?: Array<{ id: string; reason: string }> };
+
+const unimplementedRules = new Set((ledger.rules ?? []).map((entry) => entry.id));
 
 interface PythonDiagnostic {
   rule: string;
@@ -85,6 +100,18 @@ describe.each([
       console.warn("hmd CLI unavailable — parity check skipped");
       return;
     }
-    expect(await typescriptDiagnostics(root)).toEqual(expected);
+    const actual = await typescriptDiagnostics(root);
+
+    // A ledgered rule this implementation actually emits is a ledger that needs
+    // deleting, and the drop below would hide it.
+    const emitted = [...new Set(actual.map((d) => d.rule))].filter((rule) =>
+      unimplementedRules.has(rule),
+    );
+    expect(
+      emitted,
+      `${emitted.join(", ")} is ledgered in conformance-xfail.json as unimplemented but was emitted — remove the ledger entry`,
+    ).toEqual([]);
+
+    expect(actual).toEqual(expected.filter((d) => !unimplementedRules.has(d.rule)));
   }, 60_000);
 });
