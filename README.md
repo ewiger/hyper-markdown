@@ -4,7 +4,7 @@
 
 <h1 align="center">hyper-markdown</h1>
 
-<p align="center"><b>Markdown with a link that means something.</b></p>
+<p align="center"><b>Build your own local wiki knowledge base</b></p>
 
 <p align="center">
   <a href="https://pypi.org/project/hyper-markdown/"><img alt="PyPI" src="https://img.shields.io/pypi/v/hyper-markdown.svg"></a>
