@@ -1,8 +1,3 @@
----
-nav:
-  order: 20
----
-
 # Hyper-markdown
 
 **Hyper-markdown** (`.hmd`) is this project's most generic and most-used
@@ -43,9 +38,8 @@ card in the wiki space, never to a file elsewhere in the repo.
   uses ordinary relative Markdown links, never `[[ ]]`.
 
 Sections, single blocks, and embeds are addressable too, and imports can bind a
-name explicitly. Those are taught in full by
-[[hmd-lang-specification]]; this card covers only the conventions this
-repository writes by.
+name explicitly. Those are taught in full by [[hmd-lang-spec]]; this card covers
+only the conventions this repository writes by.
 
 ## Writing a card
 

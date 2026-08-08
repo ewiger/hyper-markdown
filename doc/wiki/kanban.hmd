@@ -1,8 +1,3 @@
----
-nav:
-  order: 60
----
-
 # Kanban board
 
 `doc/issues/` is the project's active-work layer: a lightweight **Kanban board**

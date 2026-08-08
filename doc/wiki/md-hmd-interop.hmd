@@ -9,7 +9,7 @@ nav:
 
 **Markdown is JavaScript. Hyper-markdown is TypeScript.**
 
-That analogy is the shortest way to say what [[hyper-markdown]] is for, and it
+That analogy is the shortest way to say what hyper-markdown is for, and it
 carries further than a slogan should. This card sketches how far. Nothing here
 is decided — no proposal owns it yet.
 
@@ -91,6 +91,6 @@ touching it? Sidecar frontmatter, a manifest, or nothing at all. Open.
 - Does a compiler framing want a `hmd build` command distinct from
   `hmd render`, the way `tsc` is distinct from a formatter?
 
-See [[hyper-markdown]] for the format itself, and
+See [[hmd-lang-spec]] for the format itself, and
 [HMD-0002](../proposals/HMD-0002/README.md) for the erasure direction as it is
 actually being built — MkDocs output, one way only.

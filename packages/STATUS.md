@@ -16,9 +16,9 @@ touching each other.
 **Snapshot** (2026-08-08): C1–C7 and E1–E5, E7 done. 151 tests green, including
 diagnostic parity with `hmd lint` on `examples/small`, `examples/cs-alg-sorting`
 and `doc/wiki` — byte-identical on every rule except HMD017, which is ledgered
-as unimplemented (see below). Callouts, math, and D2 diagrams render
-(HMD-0022). E6 (graph tab), the publication model, and the Python corpus runner
-are the next blocks.
+as unimplemented and currently fires nowhere (see below). Callouts, math, and D2
+diagrams render (HMD-0022). E6 (graph tab), the publication model, and the
+Python corpus runner are the next blocks.
 
 ---
 
@@ -127,5 +127,19 @@ are the next blocks.
   **Open question**: HMD-0020 specifies HMD001–HMD016 and says nothing about
   publication, which is HMD-0002's, so the port needs a spec amendment naming
   which proposal owns visibility in the TypeScript core before it is written.
+  A second reason to wait: what HMD017 *should* do is itself unsettled on the
+  canonical side. Issue 0008 opens the question of whether a public card linking
+  to a private one yields a blocked link, an unlisted-but-reachable page, or
+  nothing at all, and the answer is meant to be configurable per site. Porting
+  the current warning now would mean porting it twice.
+
+  Note that the divergence is latent rather than active as of 2026-08-08. Main
+  cleared its own six HMD017 warnings by de-linking rather than by settling the
+  policy, so no card in `doc/wiki`, `examples/small`, or
+  `examples/cs-alg-sorting` triggers the rule and parity would pass on today's
+  content even with the ledger entry removed. The entry stays because the rule
+  is genuinely unimplemented, not because a fixture currently catches it: the
+  moment a published card links to a private one again, the canonical side warns
+  and this one stays silent.
 (V1, the secondary-side-bar question, is closed: E7 removed the view container
 rather than finding a place to put it.)

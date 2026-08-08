@@ -160,13 +160,13 @@ part of one.**
 Two square brackets around a card's name:
 
 ```markdown
-Resolution is explained in [[hyper-markdown]].
+The numbered inventory lives in [[hmd-feature-list]].
 ```
 
-Which renders as a link: see [[hyper-markdown]]. The name is the card's filename
-without its extension — `hyper-markdown.hmd` is written `[[hyper-markdown]]`.
-You do not write a path, and you do not write `../`; §5 explains how the name is
-found.
+Which renders as a link: see [[hmd-feature-list]]. The name is the card's
+filename without its extension — `hmd-feature-list.hmd` is written
+`[[hmd-feature-list]]`. You do not write a path, and you do not write `../`; §5
+explains how the name is found.
 
 Linking to a card that does not exist yet is **not an error**. It renders as a
 red link and is reported as a warning, which makes it a usable way to mark
@@ -347,10 +347,9 @@ it in a code span or a fenced block, as this page does throughout.
 
 ---
 
-For what the format is *for*, see [[hyper-markdown]]. For the argument that it
-stands to Markdown as TypeScript stands to JavaScript, see [[md-hmd-interop]].
-For the exhaustive inventory with implementation status, see
-[[hmd-feature-list]].
+For the argument that it stands to Markdown as TypeScript stands to JavaScript,
+see [[md-hmd-interop]]. For the exhaustive inventory with implementation status,
+see [[hmd-feature-list]].
 
 [^1]: Like this one. The four-space indent a footnote body uses is why the
     scanner does not treat indented text as literal — doing so would quietly

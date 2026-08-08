@@ -23,10 +23,13 @@ board:
     { name: "done", description: "Issues that have been completed." }
   ]
   # One counter per stream, because the numbering is split (see the header):
-  # the Python line's next issue is 0008, the editor line's is 0107.
-  last_id: 106 # highest assigned overall; per stream — Python 7, editor 106
+  # the Python line's next issue is 0009, the editor line's is 0107.
+  last_id: 106 # highest assigned overall; per stream — Python 8, editor 106
   items:
     backlog:
+      - id: "0008"
+        title: "A public card linking to a private one needs a policy"
+        file: "0008-private-card-link-policy.md"
       - id: "0007"
         title: "Conversion should name its output target"
         file: "0007-conversion-target-dialect.md"

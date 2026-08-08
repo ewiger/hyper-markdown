@@ -125,10 +125,11 @@ saying it in a code block.
 Not every sentence is body text. Some of it is a warning, an aside, or the long
 justification a reader does not need on the first pass:
 
-!!! note "Namespaces are structural"
+!!! note "Names are structural"
 
-    A folder is a namespace. A tag is not. `[[…]]` answers *where a page lives*;
-    a tag answers *what it is about*. Collapsing the two axes breaks both.
+    A folder is a module, and a tree of them is a namespace. A tag is neither.
+    `[[…]]` answers *where a page lives*; a tag answers *what it is about*.
+    Collapsing the two axes breaks both.
 
 !!! warning "Ambiguity is an error"
 

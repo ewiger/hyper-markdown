@@ -14,8 +14,8 @@ a specification, the row points at it, because a feature list that restates its
 own spec drifts from it by the second edit.
 
 Two things live here and nowhere else: the **numbering**, and the **status** of
-every feature including the ones that do not exist yet. See [[hyper-markdown]]
-for what the format is for, and [[md-hmd-interop]] for its relation to plain
+every feature including the ones that do not exist yet. See [[hmd-lang-spec]]
+for the normative text, and [[md-hmd-interop]] for its relation to plain
 markdown.
 
 ## How to read the table
@@ -182,6 +182,6 @@ tracked against Layer 2 by its own proposals.
 
 Add a feature by appending the next free number in its block; never renumber and
 never reuse. Move a row's **Status** in the same commit that changes the code,
-the way a proposal's tracker moves a work point — see [[tracking]]. This card
-tracks the *format*; a tracker tracks the *implementation* of one proposal, and
-the two answer different questions.
+the way a proposal's tracker moves a work point. This card tracks the *format*;
+a tracker tracks the *implementation* of one proposal, and the two answer
+different questions.
