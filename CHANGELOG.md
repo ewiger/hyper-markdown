@@ -9,6 +9,50 @@ Python API.
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-08-08
+
+A dependency-correctness release. No behaviour of the format, the CLI, or the
+plugin changed.
+
+### Fixed
+
+- **`hmd render --to html` was unprotected against the Pygments 2.20 defect.**
+  `pymdownx.superfences` is loaded by the HTML renderer, so it is a *base*
+  dependency — but 0.1.0 carried its `pygments<2.20` guard in the `mkdocs`
+  extra. A plain `pip install hyper-markdown` could therefore resolve a
+  combination in which every fenced code block rendered as running text, with
+  nothing raised and no site involved.
+- **The README told a `pip install` user to lint `examples/small`**, which
+  travels in the repository and the source archive but not in the wheel. The
+  quickstart now lints your own tree, and points at a clone for the fixture.
+- **The card that teaches the format taught resolution wrongly.**
+  `doc/wiki/hyper-markdown.hmd` described a bare name as matching "by filename
+  alone", predating the spine walk. It now states the real order — beside the
+  card, then each folder above without recursion, nearest winning, a whole-tree
+  sweep only if that fails, and two matches in the sweep an error rather than a
+  tie-break.
+
+### Changed
+
+- **`pygments<2.20` is gone; `pymdown-extensions>=10.21.2` replaces it.** The
+  defect was never Pygments' own: 10.21.2, published the same day as Pygments
+  2.20.0, restores fence matching. Bisected against 2.20.0 — 10.20.1 and 10.21
+  broken, 10.21.2, 10.21.3, and 11.0.1 correct. The constraint now sits in the
+  base dependencies, with the code that needs it.
+- **Every dependency range is capped at the next major**, the bound a dependency
+  is allowed to break its own contract at: `typer>=0.12,<1`, `pyyaml>=6,<7`,
+  `markdown>=3.6,<4`, `pymdown-extensions>=10.21.2,<12`, `pytest>=8,<10`. The
+  existing `mkdocs>=1.6,<2` and `mkdocs-material>=9,<10` are unchanged.
+- **`uv.lock` is committed**, and CI and the Pages deploy install with
+  `uv sync --locked` rather than resolving fresh on every run. The published
+  site is now built from the same versions the tests ran against, and a
+  dependency upgrade arrives as a reviewable diff. The wheel smoke test stays
+  deliberately unlocked, since its job is to exercise what `pip install` gives a
+  stranger.
+
+Contributor setup is now `uv sync --locked --all-extras`; see
+[DEVELOP.md](DEVELOP.md).
+
 ## [0.1.0] — 2026-08-08
 
 First public release. Everything below is new; there is nothing to compare it
@@ -97,5 +141,6 @@ Deliberate, and tracked per proposal under `doc/proposals/HMD-NNNN/STATUS.md`:
 Both specifications — the format and the site — are still `drafted`. Expect the
 format to move before `1.0`.
 
-[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/ewiger/hyper-markdown/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ewiger/hyper-markdown/releases/tag/v0.1.0
