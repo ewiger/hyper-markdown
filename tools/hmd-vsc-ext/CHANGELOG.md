@@ -46,9 +46,11 @@ Implementation state is tracked per work point in
 - **Math, callouts, and D2 diagrams.** Diagrams render through the `d2` binary,
   falling back to Docker, with a 64-entry cache keyed by content; KaTeX ships its
   stylesheet and fonts inside the VSIX rather than fetching them.
-- **No Python required.** The extension carries its own implementation of the
-  format — no interpreter to find, no virtualenv to activate, and no subprocess
-  between a keystroke and the preview.
+- **The preview renders without Python.** The extension carries its own
+  implementation of the format — no interpreter to find, no virtualenv to
+  activate, and no subprocess between a keystroke and the preview. Completion
+  and the other language-server features are not in this release; they arrive
+  with the Python server, and the preview stays independent of it.
 
 ### Security
 

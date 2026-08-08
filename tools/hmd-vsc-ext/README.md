@@ -31,12 +31,18 @@ about the extension.
   identical to `hmd lint`.
 - **Syntax highlighting** for `.hmd` as its own language.
 
-## No Python required
+## What it needs
 
-The extension carries its own implementation of the format. There is no
-interpreter to find, no virtualenv to activate, and no subprocess between a
-keystroke and the preview. The `hmd` CLI remains the canonical implementation
-and CI checks the two against a shared conformance corpus.
+The extension is the preview and the viewer, and it carries its own
+implementation of the format for them. Nothing has to be installed to render a
+card: no interpreter to find, no virtualenv to activate, and no subprocess
+between a keystroke and the preview. The `hmd` CLI remains the canonical
+implementation and CI checks the two against a shared conformance corpus.
+
+Completion and the other language-server features are not here yet. They arrive
+with the Python language server, which lives with the canonical implementation
+— so a later version will want Python for those, while the preview keeps
+rendering without it.
 
 ## Settings
 

@@ -27,9 +27,10 @@ See [[tokens#Rotation|the rotation window]], and say it once rather than twice:
 ![[tokens#^definition]]
 ```
 
-This repository is both halves of the project: the **language** — its
-specification, the records that argue it, and the website they are published as —
-and the **tools** that implement it, one package each under `tools/`.
+This repository is both halves of the project: 
+- the **language** — its
+specification, the records that argue it, and the website they are published as 
+- and the **tools** that implement it, one package each under `tools/`.
 
 ## The tools
 
@@ -56,14 +57,16 @@ disagree, this one defines the answer. It will also host the language server.
 A second implementation of the format, not extension code. It answers to the
 same [conformance corpus](examples/conformance/) the canonical tool does.
 
-### [VS Code extension](tools/hmd-vsc-ext/) — `.hmd` with no Python
+### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
 [![VS Marketplace](https://img.shields.io/badge/marketplace-not%20yet%20published-lightgrey)](tools/hmd-vsc-ext/README.md#install)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](tools/hmd-vsc-ext/README.md#install)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
 Live preview that keeps the embed boundary visible, backlinks, red links, and
-diagnostics.
+diagnostics. Today it is the preview and the viewer, rendered in TypeScript, so
+there is nothing to install to see a card. Completion and the rest of the
+language-server features arrive with the Python server.
 
 ![The VS Code extension previewing a card: source on the left, rendered card on
 the right, with resolved links, a table, a callout, and a d2
@@ -111,10 +114,10 @@ uv sync --locked      # MkDocs, the plugin, and the `hmd` command
 uv run mkdocs serve   # preview the book and the wiki as you write
 ```
 
-Writing `.hmd` in a tree of your own is the other way round and needs no Python
-at all — the [VS Code extension](tools/hmd-vsc-ext/) previews a card beside the
-file you are typing in. It is not on the marketplace yet, so it is built from a
-clone — three commands, in
+Writing `.hmd` in a tree of your own needs none of that today — the [VS Code
+extension](tools/hmd-vsc-ext/) previews a card beside the file you are typing
+in, and the preview is TypeScript end to end. It is not on the marketplace yet,
+so it is built from a clone — three commands, in
 [its README](tools/hmd-vsc-ext/README.md#install).
 
 Before opening a PR, run whichever half you touched:

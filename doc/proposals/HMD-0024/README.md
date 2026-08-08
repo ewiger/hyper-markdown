@@ -213,14 +213,32 @@ wants to run it clones the repository.
   server is a semantics server, and putting it anywhere else would create a
   third place where resolution behaviour lives — one that could disagree with
   the arbiter and be right about nothing.
+- Every editor that speaks the protocol — Neovim, Emacs, Helix, Zed — is served
+  by it without a second port of the resolver being written, **and so is VS
+  Code**. The extension is expected to become a client of this server for the
+  language features that live beyond the preview: completion first, then the
+  rest of what a semantics server can answer and a renderer cannot.
+- **The preview MUST keep rendering without Python.** That is the line, and it
+  is narrower than the one this section drew when it was written. Opening a
+  `.hmd` file and seeing a card is the extension's first run, and it MUST NOT
+  wait on an interpreter being found. Features that need the server are absent
+  when the server is absent; they do not take the preview down with them.
 - This does **not** revive the retired principle that semantics live in one
-  implementation. The VS Code extension MUST NOT require Python, and MUST NOT
-  gain a dependency on this server. Zero-setup preview is the extension's
-  promise and it is kept by the TypeScript implementation.
-- The two things therefore serve different clients on purpose: the extension
-  serves itself from TypeScript, and every *other* editor — Neovim, Emacs,
-  Helix, Zed, anything speaking the protocol — is served by the Python server
-  without a second port of the resolver being written.
+  implementation, but it does move the tension inside a single extension: the
+  preview's answers will come from TypeScript and the language features'
+  answers from Python. Keeping those the *same* answers is precisely the job
+  [the conformance corpus](../../examples/conformance/) already has, which is
+  why it is the contract and not a convenience.
+
+> **Revised 2026-08-08.** This section first read that the extension MUST NOT
+> require Python and MUST NOT gain a dependency on this server — zero-setup
+> preview stated as a property of the whole extension. The two lines of work
+> evolved in parallel and the conclusion did not survive contact: once the
+> canonical semantics are a server, refusing to let VS Code speak to it means
+> either a second port of the resolver or an editor permanently short of the
+> features every other editor gets. The promise that was worth keeping is
+> about the *preview*, and it is kept above. Recorded rather than deleted
+> because the narrowing is the substance of the change.
 
 ### Text, not paths
 
@@ -329,10 +347,11 @@ uv build --package hyper-markdown
 - Is `pygls` added to the base dependencies or to an `lsp` extra? An extra
   keeps `pip install hyper-markdown` small; a base dependency means the server
   is always there when the CLI is.
-- Which of the two implementations does the VS Code extension use once the
-  Python server exists — does it stay on TypeScript permanently, or does it
-  gain an opt-in setting for users who have Python and want the canonical
-  answers?
+- What is the ordering and the fallback when the extension becomes a client of
+  the Python server — which features move first, and how does the UI say "the
+  server is not here" without implying the preview is broken? The direction is
+  settled (it becomes a client; the preview stays independent); the sequencing
+  is not.
 - Does canonicity move if a Rust implementation ever appears, and what is the
   procedure for moving it? This is inherited unresolved and the `tools/` layout
   does not settle it.

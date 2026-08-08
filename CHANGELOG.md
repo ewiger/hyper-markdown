@@ -71,9 +71,11 @@ construct may still change before `1.0`.
   unit, and the language server was decided: Python on `pygls`, living with the
   canonical implementation, because a language server is a semantics server and a
   third home for resolution behaviour is a third thing that can disagree with the
-  arbiter. The extension still requires no Python. One existing precaution became
-  load-bearing in the process: every entry point must accept a document's *text*,
-  since an unsaved buffer is a language server's ordinary input.
+  arbiter. VS Code is a client of that server like any other editor; what does not
+  depend on Python is the *preview*, which keeps rendering from TypeScript. One
+  existing precaution became load-bearing in the process: every entry point must
+  accept a document's *text*, since an unsaved buffer is a language server's
+  ordinary input.
   [HMD-0024](doc/proposals/HMD-0024/README.md)
 
 ### 2026-08-07

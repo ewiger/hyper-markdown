@@ -64,9 +64,16 @@ The language is now decided, and it is neither candidate. The server will be
 Python on `pygls`, living with the canonical implementation, because a language
 server is a semantics server and the semantics are already there — a third
 place where resolution behaviour lives is a third thing that can disagree with
-the arbiter. The extension is unaffected and still requires no Python; the
-Python server exists to serve every *other* editor without a second port of the
-resolver being written. See [HMD-0024](../proposals/HMD-0024/README.md).
+the arbiter. See [HMD-0024](../proposals/HMD-0024/README.md).
+
+That record originally added "the extension is unaffected and still requires no
+Python", and **that half was revised on 2026-08-08**. The two lines of work
+evolved in parallel, and once the canonical semantics are a server, walling VS
+Code off from it buys nothing and costs either a second port of the resolver or
+an editor permanently behind every other one. The extension becomes a client
+like the rest; what stays true, and is now stated that way everywhere, is that
+the *preview* renders without Python. Anything claiming the extension needs no
+Python at all is stale text from before this date.
 
 The constraint the old note kept alive as a precaution is the part that
 survived, and it is now load-bearing: an unsaved buffer is a language server's

@@ -22,7 +22,10 @@ bidirectional scroll-sync algorithm and its timing constants, the workspace
 index and its watchers, the mapping from HMD-0001 lint rules onto VS Code
 diagnostics, and a content security policy that forbids remote content. v1
 ships the `rendered` and `backlinks` tabs; `graph` and `mind map` are specified
-only as far as the tab-strip contract. The extension requires no Python.
+only as far as the tab-strip contract. Everything specified here renders without
+Python; the language features that will arrive on the Python server of
+[HMD-0024](../HMD-0024/README.md) are out of scope for this record, and the
+preview stays independent of them.
 
 ## Motivation
 

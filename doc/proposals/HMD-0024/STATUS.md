@@ -76,7 +76,7 @@ here rather than mirroring the list.
 | --- | --- |
 | Q1 | Is the server a subcommand of the existing CLI (`hmd lsp`), or its own console script? |
 | Q2 | Is `pygls` a base dependency or an `lsp` extra? An extra keeps `pip install hyper-markdown` small; a base dependency means the server exists wherever the CLI does |
-| Q3 | Does the VS Code extension stay on the TypeScript implementation permanently, or gain an opt-in setting for users who have Python and want the canonical answers? |
+| Q3 | ~~Does the VS Code extension stay on TypeScript permanently, or gain an opt-in Python path?~~ **Answered 2026-08-08: it becomes a client of the Python server** for language features, while the preview keeps rendering without Python. What remains open is the sequencing — which features move first, and how the UI reports an absent server without implying the preview failed |
 | Q4 | Does canonicity move if a Rust implementation appears, and what is the procedure? Inherited unresolved; the layout does not settle it |
 | Q5 | Should `tools/STATUS.md` split into per-proposal trackers, or does the interleaving justify the standing exception? |
 
@@ -95,6 +95,12 @@ uv build --package hyper-markdown
 
 ## Changelog
 
+- 2026-08-08: Q3 answered, and the record's language-server section revised with
+  it. The extension becomes a client of the Python server for language features
+  instead of being walled off from it; the MUST NOT that forbade the dependency
+  is replaced by a narrower one covering the preview alone. HMD-0021's abstract
+  and the three READMEs that repeated "no Python" were corrected in the same
+  commit.
 - 2026-08-08: drafted alongside [the record](README.md). The layout landed with
   every gate green; the language server is decided and unbuilt, and the text
   ingestion audit that gates it is recorded as L1.
