@@ -6,21 +6,22 @@
 ## Abstract
 
 This proposal names the layer that sits outside a single project's own tree of
-cards, and it needs two concepts to do it, not one. A **module** is what
-[HMD-0001](../HMD-0001/README.md) §4–§5 already builds — a folder acting as a
-resolution boundary a bare name cannot cross sideways — given its own name
-here because the resolver's own text currently calls that same thing a
-"namespace," and this record needs that word for something else. A
-**namespace**, in this record, is a served identity: a namespace ID bound to
-whatever server answers for it — static or dynamic, local or remote — capable
-of resolving and serving hyper-markdown content for that ID. A card names a
+cards, and it needs two concepts to do it, not one. A **module** is a folder
+acting as a resolution boundary a bare name cannot cross sideways — the thing
+[HMD-0001](../HMD-0001/README.md) already builds, given a word of its own so
+that the word below is free to mean one thing. A **namespace** is a rooted tree
+of cards, addressable as a whole: a project's own tree is its default
+namespace, unnamed because nothing yet needs to be told apart from it, and any
+other tree becomes reachable by binding a namespace ID to whatever provides it
+— a folder, a server, or anything else able to resolve and serve
+hyper-markdown for that ID, static or dynamic, local or remote. A card names a
 page in another namespace with the form `namespace:path/to/card`, a namespace
-ID in front of the path resolution HMD-0001 already defines. The binding from
-an ID to a server MAY be a fixed table today and something far more elaborate
-later; this record deliberately leaves that open. It specifies no binding
-syntax, no fetch mechanism, and no wire protocol. It fixes what a module is,
-what a namespace is, that the two are not the same thing, and the constraints
-any future mechanism for either must satisfy.
+ID in front of the path resolution HMD-0001 already defines. The binding is
+declared in the project's own `.hmd/config.toml` and never inferred from a
+link; how elaborate it may become is left open, and this record specifies no
+binding schema, no fetch mechanism, and no wire protocol. It fixes what a
+module is, what a namespace is, that the two are not the same thing, and the
+constraints any future mechanism for either must satisfy.
 
 ## Motivation
 
@@ -29,16 +30,17 @@ itself is not yet hypertext in the sense the name claims — it is one document
 with good internal cross-references, not a web of documents. Three things push
 this record to exist now, even unbuilt:
 
-- **A word is doing two jobs.** [HMD-0001](../HMD-0001/README.md) and
-  [Namespaces](../../public/namespaces.md) already use *namespace* for a
-  folder's resolution scope — "a folder is a namespace" is the first line of
-  that chapter. This record needs a different concept at a different layer: a
-  served identity, not a resolution scope. Reusing one word for both would
-  make every future sentence about either one ambiguous, so this record calls
-  the folder-scoped concept a **module** and reserves *namespace* for the new
-  layer. The two shipped documents still say "namespace" for what this record
-  calls "module" — that collision is named here, not silently resolved; see
-  Non-goals and Open Questions.
+- **A word was doing two jobs, and now does one.** "A folder is a namespace"
+  opened [Namespaces](../../public/namespaces.md), while
+  [HMD-0001](../HMD-0001/README.md) used the same word for the rooted tree the
+  resolver runs inside, and this record needed it for a third thing at a
+  different layer. Three meanings for one word would make every future
+  sentence about any of them ambiguous, so they were reconciled rather than
+  left to coexist: a folder is a **module**, a rooted tree is a **namespace**,
+  and a namespace that is not your own is reached by name. HMD-0001 survives
+  that unchanged — its "namespace root" is the root of the default namespace,
+  which is what the settled vocabulary says. The chapter was rewritten on
+  2026-08-08 to teach the four words apart.
 - **The gap is not hypothetical.** HQL's own tracker already asks how a query
   imports from another namespace, with no answer available because no such
   namespace has been defined anywhere in the project. See
@@ -54,8 +56,8 @@ this record to exist now, even unbuilt:
 ## Goals
 
 - Separate **module** (a folder's resolution boundary) from **namespace** (a
-  served identity), and name the collision with HMD-0001's existing use of
-  "namespace" explicitly rather than let two meanings coexist unremarked.
+  rooted tree of cards, named and provided when it is not your own), and settle
+  the word rather than let two meanings coexist unremarked.
 - Fix one address form — `namespace:path` — so other work can cite it instead
   of inventing its own.
 - State the constraints any namespace-binding or namespace-serving mechanism
@@ -63,19 +65,23 @@ this record to exist now, even unbuilt:
 
 ## Non-goals
 
-- **No binding mechanism.** How a project declares "the ID `shared` means this
-  server" is not decided here — see Open Questions.
+- **No binding schema.** *Where* a binding lives is settled: the project's own
+  `.hmd/config.toml`, alongside the namespace root and the discovery policy it
+  already carries, so that reach is granted in one file a reviewer can read.
+  Which keys express "the ID `shared` means this provider" is not decided here
+  — see Open Questions.
 - **No wire protocol, no fetch mechanism, no caching or vendoring story** for a
   namespace backed by a remote server.
 - **No change to resolution inside one module.** Every rule in
   [HMD-0001](../HMD-0001/README.md) §4–§5 stands exactly as written; this
   record adds an orthogonal address form, not a replacement.
-- **No renaming of the shipped documents.** [HMD-0001](../HMD-0001/README.md)
-  and [Namespaces](../../public/namespaces.md) keep saying "namespace" for a
-  folder's resolution scope. Whether that prose is ever amended to say
-  "module" instead is a separate, later decision — this record introduces its
-  own vocabulary and flags the collision; it does not rewrite text describing
-  shipped, implemented behavior.
+- **No rewrite of HMD-0001.** [Namespaces](../../public/namespaces.md) now
+  teaches module, namespace, path, and URL as four separate words, but
+  [HMD-0001](../HMD-0001/README.md) needs no amendment to agree with it: what
+  it calls the namespace root is the root of the default namespace, and every
+  rule it states about resolution, containment, and import is unchanged. The
+  handful of sentences there that say "namespace" where they mean a folder are
+  a copy-edit against that record, not a change to what it specifies.
 - **No commitment on how elaborate the ID-to-server binding becomes.** A
   static table and something as elaborate as content-addressed storage are
   both left open; this record commits to neither.
@@ -85,9 +91,9 @@ this record to exist now, even unbuilt:
 
 ## Specification
 
-### Module: this record's word for a folder's resolution scope
+### Module: a folder, and the boundary a bare name cannot cross
 
-A module is exactly what [HMD-0001](../HMD-0001/README.md) §4–§5 and
+A module is exactly what [HMD-0001](../HMD-0001/README.md) and
 [Namespaces](../../public/namespaces.md) already build: a folder acting as a
 boundary a bare name cannot cross sideways, an `index.hmd` speaking for it,
 and `import` reaching across it on purpose. Nothing about that mechanism
@@ -95,29 +101,37 @@ changes here — this record only gives the concept a name that does not
 collide with the one below. Every existing rule about resolution, containment,
 and import continues to apply to a module exactly as written today.
 
-### Namespace: a served identity, not a folder
+### Namespace: a named tree, not a folder
 
-A namespace is a name — a namespace ID — bound to whatever server answers for
-it: something able to resolve and serve hyper-markdown content for that ID,
-static or dynamic. A project's own published site is already an unnamed
-instance of this: its MkDocs build is a static-enough server, resolving and
-serving the default namespace out of the project's own module tree — the
-right tool for exactly that job today. What this record adds is that the
-binding does not have to be singular, local, or fixed:
+A namespace is a rooted tree of cards, addressable as a whole. Every project
+already has one: its own tree, the default namespace, unnamed because there is
+nothing yet to tell it apart from. A namespace that is *not* the project's own
+becomes addressable by binding a **namespace ID** to whatever provides that
+tree — a **namespace provider**, meaning anything able to resolve and serve
+hyper-markdown for that ID, static or dynamic. A project's published site is
+already an unnamed instance: its MkDocs build is a static-enough provider,
+serving the default namespace out of the project's own tree — the right tool
+for exactly that job today. What this record adds is that the binding does not
+have to be singular, local, or fixed:
 
-- A namespace ID MUST be bound explicitly, by the project, never inferred
-  from a link. This is the same principle that makes `import` a statement
-  rather than a search, applied one layer up.
-- The binding from an ID to a server MAY be **static** — a fixed table mapping
-  an ID to a location — or **dynamic** — resolved at request or build time by
-  something that understands hyper-markdown well enough to serve it. Both
-  satisfy the same address form; which one backs a given ID is a deployment
-  detail a card's links never need to know.
-- Rebinding a namespace ID to a different server MUST NOT change the meaning
+- A namespace ID MUST be bound explicitly, by the project, in its own
+  `.hmd/config.toml`, and MUST NOT be inferred from a link. This is the same
+  principle that makes `import` a statement rather than a search, applied one
+  layer up — and one step stricter, because a card may widen how its own names
+  resolve inside its tree while only the project may grant reach to another
+  tree at all.
+- The binding from an ID to a provider MAY be **static** — a fixed table
+  mapping an ID to a location — or **dynamic** — resolved at request or build
+  time by something that understands hyper-markdown well enough to serve it.
+  Both satisfy the same address form; which one backs a given ID is a
+  deployment detail a card's links never need to know.
+- Rebinding a namespace ID to a different provider MUST NOT change the meaning
   of a link that names it. `namespace:path/to/card` stays the same text
   whether the namespace behind it moved from a static host to a dynamic
   resolver — the indirection is the point, the way a package name outlives
   the particular registry that happens to host it today.
+- Removing a binding MUST remove the reach it granted, in that one file,
+  without editing any card. Revocation is the same lever as grant.
 
 ### The address form
 
@@ -129,12 +143,12 @@ namespace_ref := namespace ":" page_ref
 namespace     := segment
 ```
 
-- `namespace:path/to/card` names the page `path/to/card` inside whatever
-  module tree the server for `namespace` serves. This is the one syntactic
-  form this record fixes. Once `namespace` resolves to a server and that
-  server's tree, resolving `path/to/card` inside it reuses `page_ref` exactly
-  as [HMD-0001](../HMD-0001/README.md) §2 already defines it — nothing about
-  within-tree resolution is invented twice.
+- `namespace:path/to/card` names the page `path/to/card` inside whatever tree
+  the provider for `namespace` serves. This is the one syntactic form this
+  record fixes. Once `namespace` resolves to a provider and its tree, resolving
+  `path/to/card` inside that tree reuses `page_ref` exactly as
+  [HMD-0001](../HMD-0001/README.md) already defines it, absolute from that
+  tree's own root — nothing about within-tree resolution is invented twice.
 - The existing absolute (`/path`), relative (`./path`), and bare (`path`)
   forms of HMD-0001 §2 are unaffected. `namespace:path` is an additional,
   orthogonal form, not a replacement, and it MUST remain visually
@@ -142,30 +156,42 @@ namespace     := segment
   wonder whether `tokens` is secretly a namespace ID. The exact character
   rules that guarantee this are open; see Open Questions.
 
-### What a namespace's server may be
+### What may provide a namespace
 
-This record deliberately widens the question rather than answering it,
-because the shapes below need very different amounts of missing machinery:
+The provider contract is deliberately small — given a path, hand back a card —
+because that is what keeps the list below open-ended. This record widens the
+question rather than answering it, since the shapes need very different amounts
+of missing machinery:
 
 - **This project's own build.** The default namespace, served today by
-  MkDocs out of the local module tree, with no ID needed because there is
-  nothing yet to disambiguate it from.
-- **A second local tree.** A server serving a different rooted module tree on
-  the same filesystem, bound to its own namespace ID. Nearly free: `bind()`
-  ([HMD-0001](../HMD-0001/README.md) §5.1) run against a second root, once
-  that root has an ID.
-- **A remote server.** A namespace served by another project entirely, at a
-  URL it publishes, static or dynamic. This is the shape the vision is
-  reaching for — many small `.hmd` projects, each its own namespace, linkable
-  by name instead of copied into your own tree — and the shape with no fetch
-  mechanism, no caching story, and no trust model defined anywhere yet.
-- All three MUST resolve through the one address form above, so a card's
+  MkDocs out of the local tree, with no ID needed because there is nothing yet
+  to disambiguate it from.
+- **Another folder.** A different rooted tree on the same filesystem, or a
+  checkout beside this one, bound to its own namespace ID. Nearly free: the
+  binding step [HMD-0001](../HMD-0001/README.md) already defines, run against a
+  second root once that root has an ID.
+- **A web server.** A namespace published by another project entirely, at a URL
+  it announces, static or dynamic. No new REST protocol is invented for this;
+  HTTP is already adequate and this record does not redesign it. What such a
+  server is expected to add is an `hmd.yaml` beside its content — a route
+  configuration, with rewrites, describing how card paths map onto what it
+  serves, so that a client resolves against it rather than guessing its layout.
+  That file is its own specification and is **out of scope here**. This is the
+  shape the vision is reaching for — many small `.hmd` projects, each its own
+  namespace, linkable by name instead of copied into your own tree — and the
+  shape with no fetch mechanism, no caching story, and no trust model defined
+  anywhere yet.
+- **A database, or anything else.** A content store, a generated tree, or a
+  service in front of something that was never a filesystem. A provider is
+  defined by what it answers, not by what it is made of, and the list is
+  therefore never closed.
+- All of them MUST resolve through the one address form above, so a card's
   links do not have to change if what backs a namespace ID later changes.
 
 ### Constraints on any resolution mechanism
 
 Stated now, independent of syntax, so that whatever mechanism eventually binds
-a namespace ID to a server is built inside these rules rather than around
+a namespace ID to a provider is built inside these rules rather than around
 them — the same move [HMD-0001](../HMD-0001/README.md) made by fixing
 determinism before the resolver that had to satisfy it existed.
 
@@ -173,19 +199,21 @@ determinism before the resolver that had to satisfy it existed.
   same inputs produce the same answer on every run, on every machine. This is
   HMD-0001's determinism principle applied to a namespace that is not the
   project's own.
-- A remote namespace's server MUST NOT be dereferenced silently.
+- A remote namespace's provider MUST NOT be dereferenced silently.
   [HMD-0001](../HMD-0001/README.md) pins "no network access" for the MVP
   resolver; any mechanism that fetches from a remote namespace crosses that
   boundary and MUST do so as an explicit, visible step — a pinned snapshot, a
   vendoring command, an explicit build flag — never as a side effect of
   linting or rendering a card that happens to link there.
-- A namespace binding MUST be declared by the project, never inferred from a
-  link. `namespace:path` written in prose means nothing until the project says
-  what `namespace` is bound to — the same principle that makes `import` a
-  statement rather than a search.
-- A resolved target MUST still satisfy the containment check of
-  [HMD-0001](../HMD-0001/README.md) §4, against whatever module tree the
-  namespace's server exposes, even when that tree is not the project's own
+- A namespace binding MUST be declared by the project, in `.hmd/config.toml`,
+  and never inferred from a link. `namespace:path` written in prose means
+  nothing until the project says what `namespace` is bound to — the same
+  principle that makes `import` a statement rather than a search. The
+  consequence worth stating on its own: the set of trees a build may read is
+  fixed by one reviewable file, and no card can widen it.
+- A resolved target MUST still satisfy the containment check
+  [HMD-0001](../HMD-0001/README.md) defines, against whatever tree the
+  namespace's provider exposes, even when that tree is not the project's own
   root. A namespace boundary is a second root, not an exemption from the
   escape check.
 
@@ -196,9 +224,14 @@ link target, a character HMD-0001's grammar does not reserve today — a target
 containing one currently falls through as an ordinary bare name and, absent a
 card coincidentally titled with a literal colon in it, resolves to nothing and
 renders as a red link. The new form is additive: it gives that previously
-meaningless shape a meaning, and changes no link that resolves today. The
-module/namespace vocabulary split is likewise additive prose — it changes no
-shipped document; see Non-goals.
+meaningless shape a meaning, and changes no link that resolves today.
+
+The module/namespace vocabulary is prose, and settling it changed prose only.
+[Namespaces](../../public/namespaces.md) was rewritten to teach the four words
+apart, and the callout in [Features](../../public/features.md) that read "a
+folder is a namespace" now says "a folder is a module". No behaviour, no
+diagnostic, and no configuration key changed, and HMD-0001 needed no amendment
+at all; see Non-goals.
 
 ## Security Considerations
 
@@ -228,18 +261,29 @@ trusted without opening both.
 ## See also
 
 - [STATUS.md](STATUS.md) — work points, limitations, and the open questions.
-- [HMD-0001](../HMD-0001/README.md) — the module boundary (called "namespace"
-  there), containment check, and `import` mechanism this record builds on and
+- [HMD-0001](../HMD-0001/README.md) — the module boundary, the namespace root,
+  the containment check, and the `import` mechanism this record builds on and
   extends outward.
 - [HMD-0003](../HMD-0003/README.md), specifically
   [Q5 of its tracker](../HMD-0003/STATUS.md#open-questions-and-blockers) — the
   cross-namespace query question this record's binding mechanism, once
   designed, is expected to answer.
-- [Namespaces](../../public/namespaces.md) — the within-module resolution
-  rules that `namespace:path` reuses once a namespace ID resolves to a server.
+- [Namespaces](../../public/namespaces.md) — the settled vocabulary for a
+  reader who is not implementing it, and the within-tree resolution rules that
+  `namespace:path` reuses once a namespace ID resolves to a provider.
 
 ## Changelog
 
 - 2026-08-07: drafted as a stub — the module/namespace split, the
   `namespace:path` address form, and the constraints on any future binding or
   fetch mechanism reserved; no binding syntax and no code specified.
+- 2026-08-08: vocabulary settled and the record aligned to it. A namespace is a
+  rooted tree of cards — the project's own is the default one — reached, when it
+  is someone else's, by binding an ID to a **provider**; "served identity" was
+  the same idea named from the wrong end. Bindings are fixed to
+  `.hmd/config.toml`, with the schema still open, and the security consequence
+  of that — reach granted and revoked in one reviewable file, never widened by a
+  card — is stated as a constraint. The provider list is opened beyond three
+  shapes, with a web provider expected to publish an `hmd.yaml` route
+  configuration whose specification is out of scope here. No mechanism was
+  built and no behaviour changed.

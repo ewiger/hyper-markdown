@@ -9,12 +9,13 @@ proposal itself. A decision that needs discussion is named here as an open
 question and argued wherever it belongs; nothing else may hold a task list.
 Update the row in the same commit that changes the code.
 
-**Snapshot** (2026-08-07) — a stub. The record splits "module" (a folder's
-resolution scope, HMD-0001's existing "namespace") from "namespace" (a served
-identity: an ID bound to whatever server resolves and serves it, static or
-dynamic), and reserves the `namespace:path` address form. No binding
-mechanism, no fetch mechanism, and no code exist. Every work point below is
-blocked on how a namespace ID is bound, which is Q1.
+**Snapshot** (2026-08-08) — a stub, with the vocabulary now settled. A folder is
+a **module**; a rooted tree of cards is a **namespace**, of which the project's
+own tree is the default one; another namespace is reached by binding an ID to a
+**provider**. Bindings live in `.hmd/config.toml` and nowhere else, which is a
+security property as much as an ergonomic one. The `namespace:path` address form
+stays reserved. No binding schema, no fetch mechanism, and no code exist. Every
+work point below is blocked on how a binding is expressed, which is Q1.
 
 This depends on HMD-0001's module boundary and containment rules
 (../HMD-0001/STATUS.md), and touches the same open question HMD-0003 already
@@ -31,6 +32,10 @@ Nothing is implemented. The record itself is the only deliverable so far.
 | Q0.3 | Address form fixed: `namespace:path/to/card`, orthogonal to the existing absolute/relative/bare forms | The address form |
 | Q0.4 | Three server shapes distinguished — this project's own build, a second local tree, a remote server — all resolving through one address form | What a namespace's server may be |
 | Q0.5 | Determinism, explicit fetch, and containment constraints stated ahead of any mechanism | Constraints on any resolution mechanism |
+| Q0.6 | Vocabulary settled, answering Q3: a folder is a module, a rooted tree is a namespace, and the project's own tree is the default namespace. HMD-0001 needed no amendment — its "namespace root" is the root of that default namespace | Motivation; Namespace: a named tree, not a folder |
+| Q0.7 | Bindings fixed to `.hmd/config.toml` — granted and revoked in one reviewable file, never inferred from a link, never widened by a card. The key schema stays open | Namespace: a named tree, not a folder; Constraints on any resolution mechanism |
+| Q0.8 | Provider abstraction opened beyond three shapes: a folder, a web server, a database, or anything answering "given a path, hand back a card". A web provider is expected to publish an `hmd.yaml` route configuration, whose specification is named and scoped out | What may provide a namespace |
+| Q0.9 | `doc/public/namespaces.md` rewritten to teach module, namespace, path, and URL apart, with ordinary markdown URLs kept as the way to address anything that is not a card, and the unbuilt half marked per section. Closes W7 | Backwards Compatibility |
 
 ## TODO
 
@@ -42,13 +47,12 @@ shape is visible, not as a commitment.
 
 | ID | Work point | Blocked on |
 | --- | --- | --- |
-| W1 | A binding mechanism — how a project declares "namespace ID X means this server" | Q1 |
+| W1 | A binding schema — the keys that express "namespace ID X means this provider" in `.hmd/config.toml` | Q1 |
 | W2 | Second-local-tree resolution: `bind()` against a second root once it has an ID | W1 |
 | W3 | Remote namespace fetch/vendoring mechanism | Q4 |
 | W4 | Resolver support for `namespace:` targets in `hmd lint` and `hmd render` | W1, W2 |
 | W5 | HQL cross-namespace import, resolving HMD-0003's Q5 | W1 |
-| W6 | Decide whether HMD-0001 and `doc/public/namespaces.md` are ever amended from "namespace" to "module" | Q3 |
-| W7 | Second pass over the *Module, namespace, path* section of `doc/public/namespaces.md`. It now teaches all three words and names the collision, but it was written against a vocabulary Q3 has not settled, so which term the chapter leads with is provisional | Q3 |
+| W6 | Copy-edit the sentences that still say "namespace" where they mean a folder — four in HMD-0001, one in the repository `README.md`. Prose only; nothing they specify changes | nothing, and it is not a decision |
 
 ### Broken
 
