@@ -1,110 +1,113 @@
 # Hyper-markdown { .hmd-hero }
 
-!!! info "The simplicity of Markdown. The visual appeal of modern HTML."
+Hyper-markdown (`.hmd`) is Markdown with a hypertext layer: links that resolve by
+name rather than by path, documents composed out of parts of other documents, and
+a toolchain that checks both instead of trusting them. Every `.md` file is
+already valid `.hmd`.
 
-    30 years ago, HTML was not more complex than plain text, yet made it possible to write websites and link them together. Markdown was a step back toward plain text, and it succeeded because it was simple enough to read in any editor. Hyper-markdown is a step towards reinventing HTML, and it succeeds because it is simple enough to read in any browser, terminal, editor, or AI chat.
+## TL;DR
 
-Markdown already won. It is what a README is written in, what notes are kept in,
-what issues and pull requests are argued in, and — since the machines started
-writing back — what an AI chat answers in. It is the plain text everyone types
-without being told to.
+* **A superset of CommonMark.** Rename a `.md` file to `.hmd` and it is already
+  valid — nothing breaks, and the format is adopted one file at a time.
 
-What it never got is the part HTML had on its first day: a link that means
-something, a page that can be made out of other pages, a document that is part
-of a web rather than a file in a folder. Hyper-markdown (`.hmd`) adds exactly
-that, and stops. Every `.md` file is already valid `.hmd`. You adopt it one file
-at a time, and nothing you have written is ever wrong.
+* **Names, not paths.** `[[tokens]]` is looked up beside the card and then upward
+  through its parent folders. A name that could mean two documents is an error
+  rather than a guess.
 
-## Still just markdown
+* **Documents made of documents.** `![[glossary/token#^definition]]` splices one
+  named block into another page. Write a definition once and embed it everywhere
+  it is needed.
 
-A **card** is one `.hmd` file: one idea, ordinary Markdown, and links to its
-neighbours. Open it anywhere — GitHub, an editor, `less`, a chat window — and it
-reads fine; the wikilinks show as `[[bracketed text]]` and nothing is broken.
-The dialect owns only a handful of constructs, and they are all variations on
-one idea: *naming another card, or a part of one*.
+* **The specification is the artifact.** The Python CLI, the MkDocs plugin, and
+  the VS Code extension are implementations around it; they conform to it rather
+  than define it.
+
+* **Version 0.x is a stage, not the scope.** The resolver, linter, embed
+  expander, renderer, and MkDocs plugin work today. Queries over the document
+  graph and namespaces beyond one tree are specified in outline and unbuilt.
+
+## Language
+
+Three layers stack in one file. At the base, **CommonMark**, inherited whole —
+nothing redefined and nothing taken away, which is why a `.md` file is already
+a valid card. Above it a **rich layer** — tables, footnotes, task lists,
+callouts, TeX mathematics, D2 diagrams — taken from the wider Markdown
+ecosystem rather than invented here, and assumed present rather than optional.
+And the **hyper layer** — arguably the most innovative part, and the reason the
+format exists at all: a small set of constructs that are all variations on one
+idea, *naming another document or a part of one*. Those upper two layers are
+what hyper-markdown adds, and a specification is what fixes them, not
+convention.
 
 ```markdown
-See [[tokens]] for the token format, or pull the definition in whole:
+See [[tokens]] for the format, or pull one block in whole:
 
 ![[glossary/token#^definition]]
 ```
 
-That is the entire surface. The whole language fits on one page and can be
-learned in one sitting:
+A card may open with YAML frontmatter, where four keys mean something to the
+toolchain — `tags`, `use`, `import`, `nav` — and every other key belongs to the
+author. The whole language fits on one page and can be learned in one sitting:
 [the hyper-markdown language](wiki/hmd-lang-specification.hmd).
 
-## Documents that assemble themselves
+## Features
 
-An embed is a link with a `!` in front: `![[glossary/token]]` splices the card
-in where you wrote it, `![[glossary/token#Rotation]]` one section,
-`![[glossary/token#^definition]]` one named block. Write a definition once and
-embed it everywhere it is needed — cards stop being pages and start being parts.
+Wiki links to documents, headings, and named blocks; transclusion of any of
+them; filesystem-shaped modules with explicit imports; TeX mathematics, D2
+diagrams, callouts, collapsible sections, footnotes, tables, and the GitHub-
+flavoured Markdown baseline. HQL, a query language over the document graph, is
+reserved and not yet designed.
 
-The step after that is already reserved: **HQL**, a query language that lets a
-card *compute* its content from the graph — every card tagged `area/backend`,
-every page linking here — instead of listing it by hand. The design constraints
-are fixed in [HMD-0003](proposals/HMD-0003/README.md); the syntax is
-deliberately not.
-
-## It looks like a real website
-
-Plain text in, a real website out. Mathematics in TeX, callouts, diagrams,
-tables, footnotes — a page can carry all of it, and the site you are reading is
-the proof: a hand-ordered **book** with a generated **wiki** inside it, built
-from this repository.
-
-What that looks like in practice is [Features](public/features.md).
-
-## The web, again — made of markdown
-
-A folder is a **module**. It is the home base a set of cards belongs to, and the
-boundary a bare name cannot cross sideways: write inside your own folder and
-`[[tokens]]` reaches you or the folders above you, never a sibling's private
-cards. Reach a sibling on purpose with `[[/shared/tokens]]` and you are naming
-another module rather than hoping a search finds it. That is closer to how a
-programming language treats a package than to how a wiki treats a directory,
-and it is deliberate — a tree of cards should be read the way you read an
-unfamiliar codebase, outward from where you are standing, on purpose.
-
-Inside one module you can trust the answer, because a name that could mean two
-pages is an **error** rather than a coin flip:
-
-```text
-specs/auth/login.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it
-```
-
-A **namespace** is the step outward, and it is where the *hyper* in the name
-starts meaning something. A namespace ID names a place to look up front —
-`namespace:path/to/card` — and what answers for that ID is a server that speaks
-hyper-markdown. This site already runs one, unnamed: its own build, serving the
-default namespace out of a local tree. Nothing says the binding has to stay
-local, static, or singular. An ID could be remapped to an entirely different
-server without a single link in your cards changing.
-
-Follow that far enough and it is the worldwide web again — pages that live
-somewhere, name each other across the gap, and compose — except that what you
-type is markdown rather than HTML, and what you get back still opens in a text
-editor. That is the bet, and it is genuinely unfinished: what a namespace is,
-and how far an ID-to-server binding can go, is sketched rather than built in
-[HMD-0004](proposals/HMD-0004/README.md). The rules as they stand today are
+What a page can carry, shown working rather than described, is
+[Features](public/features.md). How a bare name becomes a page — the spine walk,
+imports, ambiguity as an error, and the module/namespace distinction — is
 [Namespaces](public/namespaces.md).
 
-## Where to go next
+## Tools
 
-1. [Introduction](public/introduction.md) — the format at a glance.
-2. [Features](public/features.md) — what a page can be, shown working.
-3. [Namespaces](public/namespaces.md) — how a name becomes a page.
-4. [Presentation](public/presentation.md) — one card, many formats and viewers.
-5. [The hyper-markdown language](wiki/hmd-lang-specification.hmd) — learn to
-   write it, start to finish.
-6. [The wiki](wiki/README.md) — the living example, generated from `.hmd`.
+`hmd` lints a tree, renders a card to markdown or HTML, and dumps the resolved
+graph. A missing target is a warning, because writing forward is how a wiki
+grows; an ambiguous or malformed one is an error, because that is the one thing
+the format refuses to guess at.
+
+Presentation is not part of the language. A card is plain text, so an editor,
+GitHub, or a chat window already shows it. The MkDocs plugin builds a tree of
+cards into a published site — this one, a hand-ordered book with a generated
+wiki inside it — and a VS Code extension is in development. The trade-offs
+between them are [Presentation](public/presentation.md).
+
+## Specification
+
+The normative text lives in numbered proposals, in the style of lightweight ADRs
+or RFCs. Two are implemented: [HMD-0001](proposals/HMD-0001/README.md) fixes the
+grammar, the deterministic resolver, and `hmd lint`;
+[HMD-0002](proposals/HMD-0002/README.md) maps a tree of cards onto a MkDocs site.
+Two are experimental and specify no mechanism:
+[HMD-0003](proposals/HMD-0003/README.md) reserves HQL and its constraints without
+choosing a syntax, and [HMD-0004](proposals/HMD-0004/README.md) reserves
+`namespace:path/to/card` for documents served by another namespace without
+defining how a namespace ID is bound.
+
+All four are `drafted`, and the format will move before 1.0. The index is
+[Specifications](proposals/README.md).
+
+## Vision
+
+Markdown became the default plain text, and never got the part HTML had on its
+first day — a link that means something, a page that is part of a web rather than
+a file in a folder. Almost none of the ideas here are new; what is being
+attempted is a coherent specification of them.
+
+The longer argument is that this should not stop at one repository: independently
+authored and independently served hyper-markdown, named across the gap, read from
+the same source by humans, tools, and AI. That argument, and how much of it is
+still unbuilt, is [Vision](public/vision.md).
 
 ## Status
 
-Pre-release. The scanner, resolver, linter, embed expander, renderer, and
-MkDocs plugin are implemented and tested. The specifications
-([HMD-0001](proposals/HMD-0001/README.md),
-[HMD-0002](proposals/HMD-0002/README.md),
-[HMD-0003](proposals/HMD-0003/README.md),
-[HMD-0004](proposals/HMD-0004/README.md)) are still `drafted`, and the format
-will move before 1.0.
+Pre-release. The scanner, resolver, linter, embed expander, renderer, and MkDocs
+plugin are implemented and tested. The specifications are still `drafted`. The
+living example is [the wiki](wiki/README.md), generated from `.hmd` cards in this
+repository; the exhaustive inventory of every feature, where the idea came from,
+and what is deferred or turned down is
+[the feature list](wiki/hmd-feature-list.hmd).

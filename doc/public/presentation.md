@@ -1,5 +1,32 @@
 # Presentation
 
+## TL;DR
+
+Presentation is not part of the language. A card is one source file; what a
+reader sees depends on which tool renders it, and no tool's behaviour is
+normative for the format.
+
+**Converting** gives you a file. `hmd render --to markdown` inlines every embed
+and turns every resolved name into an ordinary relative link; `--to html` gives a
+self-contained page with callouts, mathematics, diagrams, and footnotes intact.
+Both are **erasure** — the boundary between a card and the content it embedded is
+gone from the output, and so is the provenance of every link. That is right for
+something you are shipping and wrong for something you are still editing, so
+conversion runs one way on purpose.
+
+**Presenting** is what a viewer does, and a viewer can keep more than a file
+carries. Three matter. Any plain-text surface — an editor, GitHub's file view,
+`less`, an AI chat — shows a card as it is, wikilinks and all, and that is the
+property the whole format exists to protect. The **MkDocs** plugin builds a tree
+of cards into a published site, a hand-ordered book with a generated wiki inside
+it, and erases the embed boundary the way conversion does. The **VS Code**
+extension under construction keeps that boundary, showing embedded content as
+visibly embedded with its source attached. Python stays canonical for semantics:
+the specification and its conformance corpus are the contract between surfaces,
+not a shared runtime.
+
+## Tools and targets
+
 A card is one file, and one file goes many places. Point the converter at a card
 and it comes back as another single file — one in, one out, nothing bundled:
 

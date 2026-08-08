@@ -13,7 +13,7 @@ a pointer to where it is treated properly; none is specified here.
 ## Three layers of syntax
 
 **The Markdown you know.** Paragraphs, emphasis, headings, lists, blockquotes,
-fenced code. All of it works, unchanged — hyper-markdown neither extends nor
+fenced code. All of it works, unchanged — hyper-markdown neither redefines nor
 restricts it, and a fenced block stays literal all the way down, which is the
 escape hatch for showing syntax instead of invoking it.
 
@@ -28,8 +28,9 @@ first-class content:
     So is $e^{i\pi} + 1 = 0$ beside it. What a page can carry, shown working,
     is [Features](features.md).
 
-**The hyper layer.** What the dialect itself owns, and it is all variations on
-one idea — *naming another card, or a part of one*:
+**The hyper layer.** What hyper-markdown itself adds, and the part that is
+genuinely new. It is all variations on one idea — *naming another card, or a
+part of one*:
 
 | Written | Means |
 | --- | --- |
@@ -40,7 +41,7 @@ one idea — *naming another card, or a part of one*:
 | `[[card#^name]]` | a link to that named block |
 | `![[…]]` | an embed — any of the above, spliced in |
 
-The surface the dialect owns is kept deliberately small — small enough to
+The surface hyper-markdown defines is kept deliberately small — small enough to
 specify, and small enough that the resolver behind it stays checkable. The
 richness comes from everywhere else on the page, bought from the Markdown
 ecosystem rather than rebuilt, which is why the feature set keeps growing

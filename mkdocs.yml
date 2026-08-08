@@ -1,10 +1,12 @@
 site_name: hyper-markdown
 site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
 
-# A GitHub project site, so the book is served from a subpath rather than the
-# domain root. The build does not need this — MkDocs emits relative links — but
-# canonical URLs and `sitemap.xml` are wrong without it.
-site_url: https://ewiger.github.io/hyper-markdown/
+# The site's own domain, served from GitHub Pages with a custom domain rather
+# than from the `ewiger.github.io/hyper-markdown/` project subpath it used
+# before. The build does not need this — MkDocs emits relative links — but
+# canonical URLs and `sitemap.xml` are wrong without it, and pointing them at
+# the old host would keep telling search engines the subpath is canonical.
+site_url: https://hyper-markdown.org/
 
 # The header's repository link and its star count. `edit_uri` follows `main`,
 # which is where the book lives now that `feat/mvp` has merged. It pointed at
@@ -104,6 +106,7 @@ nav:
   - Namespaces: public/namespaces.md
   - Features: public/features.md
   - Presentation: public/presentation.md
+  - Vision: public/vision.md
   - Wiki:
       - Overview: wiki/README.md
       - hmd://wiki

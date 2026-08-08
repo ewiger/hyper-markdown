@@ -1,9 +1,34 @@
 # Features
 
+## TL;DR
+
+* **Markdown compatible** — standard Markdown remains valid Hyper-Markdown, including commonly used GitHub-flavoured features such as fenced code, tables, task lists, and strikethrough.
+
+* **Wiki links** — link to documents, headings, and individual blocks: `[[page]]`, `[[page#Section]]`, `[[page#^block]]`, with optional aliases such as `[[page|display text]]`.
+
+* **Transclusion** — embed complete documents, sections, or named blocks using the same addressing model: `![[page]]`, `![[page#Section]]`, `![[page#^block]]`.
+
+* **Modules and namespaces** — the filesystem provides the module structure. A bare name resolves beside the card and then upward through its parent folders, never sideways into a sibling; `[[/shared/tokens]]` and a frontmatter `import` cross a module boundary on purpose, and an ambiguous name is an error rather than a guess. The cross-tree address form `namespace:path/to/document` is reserved and specified in outline only *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*.
+
+* **Metadata** — YAML frontmatter provides tags, imports, feature toggles, navigation hints, and application-specific metadata.
+
+* **Rich technical content** — TeX mathematics, D2 diagrams, callouts, collapsible sections, footnotes, heading permalinks, tables, code blocks, and other established Markdown extensions.
+
+* **Validation and tooling** — `hmd` lints a document tree, renders a card to markdown or HTML, and dumps the resolved link graph. A reference to a document that does not exist yet is a warning; an ambiguous or malformed one is an error. MkDocs integration ships today; VS Code tooling is in development.
+
+* **HQL — Hyper Query Language** *(experimental)* — a proposed query layer for deriving content and views from the document graph: backlinks, tags, relationships, collections, and other structured queries over Hyper-Markdown knowledge.
+
+
+## A superset of CommonMark
+
 Plain markdown is just text. A heading, a list, a bit of emphasis, and a link
 you typed by hand and now maintain by hand. No diagrams. No mathematics. No way
 to say a thing once and use it in ten places. No way to be wrong about a link
 and find out before your reader does.
+
+Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, and it is a strict superset of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. It is also the only one with a conformance test suite, so you can be sure that what you write is what your reader sees.
+
+> CommonMark specification: https://commonmark.org/
 
 Hyper-markdown starts exactly there and keeps going. Everything on this page was
 typed as plain text into a file you can open in any editor — and most of it is
@@ -182,6 +207,6 @@ full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
   formats it converts into and the viewers that show it.
 
 [^1]: Like this one. Footnotes, callouts, and everything else on this page come
-    from the wider markdown world rather than from this dialect — the format
-    assumes them and renders them as first-class content instead of reinventing
-    them.
+    from the wider markdown world rather than from hyper-markdown itself — the
+    format assumes them and renders them as first-class content instead of
+    reinventing them.

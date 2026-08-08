@@ -77,15 +77,17 @@ Horizontal rules are three dashes on their own line:
 
 ---
 
-None of this is the dialect's. It is Markdown, it is documented better elsewhere
-than it could be here, and hyper-markdown neither extends nor restricts it.
+None of this is hyper-markdown's. It is Markdown, it is documented better
+elsewhere than it could be here, and hyper-markdown neither redefines nor
+restricts it.
 
 ## 3. The syntax you inherit from the wider Markdown world
 
-A second tier sits between plain Markdown and this dialect: constructs that are
-not in the original Markdown, are not hyper-markdown's either, and have become
-conventional across GitHub, Obsidian, Pandoc, and most documentation tools. They
-are assumed available, and they behave the way you expect them to.
+A second tier sits between plain Markdown and the constructs hyper-markdown
+defines: they are not in the original Markdown, they are not hyper-markdown's
+either, and they have become conventional across GitHub, Obsidian, Pandoc, and
+most documentation tools. They are assumed available, and they behave the way
+you expect them to.
 
 Tables are pipe-separated rows with a dashed line under the header:
 
@@ -131,8 +133,9 @@ deliberately kept off this page.
 
 ## 4. The syntax hyper-markdown adds
 
-Here is the dialect proper. Six constructs, and they are all variations on one
-idea: **naming another card, or a part of one.**
+Here is the part hyper-markdown defines, and the reason it exists. Six
+constructs, and they are all variations on one idea: **naming another card, or a
+part of one.**
 
 ### Linking to a card
 
