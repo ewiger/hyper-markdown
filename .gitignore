@@ -217,6 +217,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# MkDocs build output
+/site/
+
 # ---------------------------------------------------------------------------
 # Node / TypeScript (github/gitignore Node.gitignore)
 # ---------------------------------------------------------------------------

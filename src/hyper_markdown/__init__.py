@@ -9,7 +9,7 @@ from .config import Config, ConfigError
 from .model import Diagnostic, Document, Link, Span
 from .resolve import Outcome, Resolution, Workspace
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "Config",

@@ -73,12 +73,15 @@ class ImportStmt:
 
 @dataclass
 class CardConfig:
-    """The reserved frontmatter keys: `tags`, `use`, `import`."""
+    """The reserved frontmatter keys: `tags`, `use`, `import`, `nav`."""
 
     tags: tuple[str, ...] = ()
     # Feature name -> enabled. Absent means "inherit".
     use: dict[str, bool] = field(default_factory=dict)
     imports: tuple[ImportStmt, ...] = ()
+    #: Sort position within the card's directory. None sorts after every keyed
+    #: sibling, so adding `nav` to one card does not reshuffle the rest.
+    nav: int | None = None
 
 
 @dataclass

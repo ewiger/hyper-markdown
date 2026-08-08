@@ -1,7 +1,9 @@
-"""Frontmatter parsing and the three reserved keys (HMD-0001 §2, §5.3).
+"""Frontmatter parsing and the reserved keys (HMD-0001 §5.3, HMD-0002 §2).
 
-`tags`, `use`, and `import` are reserved for the toolchain. The set is closed
-and enumerated here; every other key stays user-owned and unexamined (P3).
+`tags`, `use`, `import`, and `nav` are reserved for the toolchain. The set is
+closed and enumerated here; every other key stays user-owned and unexamined
+(P3). `nav` was added by HMD-0002, which is an amendment to that closed set
+rather than an extension of it — worth noticing, not repeating casually.
 """
 
 from __future__ import annotations
@@ -11,7 +13,7 @@ import yaml
 from .imports import ImportError_, parse_statement
 from .model import CardConfig, ImportStmt
 
-RESERVED_KEYS = frozenset({"tags", "use", "import"})
+RESERVED_KEYS = frozenset({"tags", "use", "import", "nav"})
 
 #: Features nameable in `use`. Prefixing `no_` disables, as in vim's `set no…`.
 KNOWN_FEATURES = frozenset({"autodiscovery"})
@@ -69,8 +71,20 @@ def parse_card_config(data: dict) -> tuple[CardConfig, list[tuple[str, str]]]:
     tags = _parse_tags(data.get("tags"), problems)
     use = _parse_use(data.get("use"), problems)
     imports = _parse_imports(data.get("import"), problems)
+    nav = _parse_nav(data.get("nav"), problems)
 
-    return CardConfig(tags=tags, use=use, imports=imports), problems
+    return CardConfig(tags=tags, use=use, imports=imports, nav=nav), problems
+
+
+def _parse_nav(value, problems) -> int | None:
+    """`nav` orders a card within its directory (HMD-0002 §2)."""
+    if value is None:
+        return None
+    # `True` is an int in Python, and `nav: yes` is a mistake worth naming.
+    if isinstance(value, bool) or not isinstance(value, int):
+        problems.append(("HMD013", f"`nav` must be an integer, got {value!r}"))
+        return None
+    return value
 
 
 def _parse_tags(value, problems) -> tuple[str, ...]:

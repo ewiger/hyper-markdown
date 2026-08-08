@@ -8,6 +8,13 @@
 ADR-style proposal skeleton. Copy to doc/proposals/HMD-NNNN/README.md and
 reserve the ID in doc/proposals/README.md. Fill each section; delete the guidance
 comments and any section that genuinely does not apply. House rules:
+  - Create a sibling HMD-NNNN/STATUS.md alongside this file. That tracker is the
+    only place work against the proposal is tracked — not doc/memory/, not
+    doc/wiki/, not this record. It carries Done, then a TODO split into planned
+    work / broken / limitations / open questions and blockers. This file records
+    the decision; STATUS.md records the state. See doc/wiki/tracking.hmd.
+  - Never write progress into this record. A spec section says what the system
+    MUST do, in the present tense, whether or not it is built yet.
   - Normative statements use RFC 2119 keywords in CAPS: MUST, MUST NOT, SHOULD, MAY.
     Reserve them for real requirements; use plain prose for rationale.
   - Pin critical values exactly (hex, byte layout, sizes with units, digests). Never
@@ -15,6 +22,15 @@ comments and any section that genuinely does not apply. House rules:
   - Put wire formats, formulas, and step algorithms in ```text fences.
   - State a rule, then justify it in the next sentence.
   - Link shared workflow/build/style docs; do not paste them in.
+  - A record is a COMPLETE TEXT. State plainly what the thing is and what it does.
+    Do not thread the prose with identifiers — feature IDs (F21), question IDs (Q7),
+    section refs (§5.3), sketch requirement numbers, or links to sibling proposals —
+    in place of saying the thing. Restate the constraint instead of citing where it
+    lives. An identifier may follow a claim so a reader can find the row; it may
+    never BE the claim. Collect surviving pointers into one "See also" section at
+    the end, plus footnotes if needed. A reader must never need archeology across
+    several files to parse a sentence. Trackers (STATUS.md) are exempt — their
+    tables are lists of IDs by nature.
 -->
 
 ## Companion notes
@@ -45,10 +61,12 @@ when relevant.
 - what this proposal explicitly does NOT do
 
 ## Specification
-Normative description of behavior and constants. Break into numbered subsections;
-open each with a one-line framing sentence, then state rules as bullets.
+Normative description of behavior and constants. Break into subsections titled by
+what they cover, not by number — a named heading survives an edit and reads on its
+own, while "§5.3" sends the reader to another file to find out what it meant. Open
+each with a one-line framing sentence, then state rules as bullets.
 
-### 1. <First rule area>
+### <First rule area>
 Framing sentence.
 
 - Rule stated with MUST / SHOULD / MAY, then its rationale.
@@ -59,7 +77,7 @@ Serialization layouts, formulas, and algorithms go in fences:
 field_a | field_b | field_c | field_d
 ```
 
-### 2. <Second rule area>
+### <Second rule area>
 Constants are pinned to exact values:
 
 - identifier: `<identifier>`
@@ -108,7 +126,9 @@ Integration tests MUST include:
 
 ## Open Questions
 Every unresolved decision, each phrased as a question. These MUST be resolved (values
-"frozen") before Status moves from drafted to accepted.
+"frozen") before Status moves from drafted to accepted. Mirror them in STATUS.md
+under *Open questions and blockers*, which is where they are worked; this list is
+the normative one.
 
 - What exact value should `<constant>` take?
 - <other open decision>

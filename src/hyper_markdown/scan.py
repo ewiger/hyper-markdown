@@ -94,6 +94,27 @@ def _fenced_regions(text: str):
         yield (open_start, len(text))
 
 
+def find_fences(text: str):
+    """Yield (info, body, span_start, span_end) for each fenced code block.
+
+    Runs on unmasked text, since the point is to look *inside* a fence. Nested
+    fences are not reported separately: `_fenced_regions` already pairs an
+    opener with its closer, so an inner fence is part of the outer body.
+    """
+    for start, end in _fenced_regions(text):
+        block = text[start:end]
+        lines = block.splitlines(keepends=True)
+        if not lines:
+            continue
+        opener = _FENCE_RE.match(lines[0].rstrip("\r\n"))
+        if opener is None:
+            continue
+        # The closing fence is the last line unless the block is unterminated.
+        closes = len(lines) > 1 and _FENCE_RE.match(lines[-1].rstrip("\r\n"))
+        body = "".join(lines[1:-1] if closes else lines[1:])
+        yield opener.group("info").strip(), body, start, end
+
+
 def line_col(text: str, offset: int) -> tuple[int, int]:
     """1-indexed line and column for a byte offset."""
     line = text.count("\n", 0, offset) + 1

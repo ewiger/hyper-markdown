@@ -22,9 +22,14 @@ board:
     { name: "doing", description: "Issues that are currently being worked on." },
     { name: "done", description: "Issues that have been completed." }
   ]
-  last_id: 106 # to be incremented when adding a new issue card
+  # One counter per stream, because the numbering is split (see the header):
+  # the Python line's next issue is 0008, the editor line's is 0107.
+  last_id: 106 # highest assigned overall; per stream — Python 7, editor 106
   items:
     backlog:
+      - id: "0007"
+        title: "Conversion should name its output target"
+        file: "0007-conversion-target-dialect.md"
       - id: "0101"
         title: "Live-editing behaviours are only checked by hand"
         file: 0101-live-preview-checks-unautomated.md
@@ -43,6 +48,24 @@ board:
         file: 0100-callout-open-state-lost.md
     doing: []
     done:
+      - id: "0006"
+        title: "Escaped pipe inside a table code span keeps its backslash"
+        file: "0006-escaped-pipe-in-a-table-code-span.md"
+      - id: "0005"
+        title: "Strikethrough renders as its own source"
+        file: "0005-strikethrough-shown-as-its-own-source.md"
+      - id: "0004"
+        title: "Math, callouts, and D2 diagrams"
+        file: "0004-math-callouts-diagrams.md"
+      - id: "0003"
+        title: "Pygments 2.20 silently breaks every code block"
+        file: "0003-pygments-220-breaks-code-blocks.md"
+      - id: "0002"
+        title: "Markdown links to .hmd files 404 on the site"
+        file: "0002-md-links-to-cards-404.md"
+      - id: "0001"
+        title: "Book and wiki in one site"
+        file: "0001-book-and-wiki-in-one-site.md"
       - id: "0103"
         title: "The preview is a side-bar view when it wants to be a tab in a column"
         file: 0103-preview-lives-in-an-editor-column.md

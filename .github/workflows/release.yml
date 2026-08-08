@@ -1,0 +1,168 @@
+name: Release
+
+# Publication to PyPI, driven by a tag. `workflow_dispatch` exists so the whole
+# path — build, metadata check, install, smoke test — can be exercised without
+# minting a tag, and so a dry run can be pointed at TestPyPI first. A tag is the
+# only thing that reaches PyPI proper.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Where to publish this build
+        type: choice
+        default: nowhere
+        options: [nowhere, testpypi]
+
+permissions:
+  contents: read
+
+# Never cancel a publication in flight. A half-uploaded release is worse than a
+# queued one, and PyPI refuses to overwrite a file it has already accepted.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      # The tag is a promise about the contents of the archive. Checking it here
+      # turns a mistyped tag into a red build instead of a wrong version on PyPI
+      # that can never be replaced — PyPI does not allow re-uploading a filename.
+      - name: Check the tag matches the packaged version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tagged="${GITHUB_REF_NAME#v}"
+          packaged=$(uv run --no-project python -c "
+          import pathlib, re
+          source = pathlib.Path('src/hyper_markdown/__init__.py').read_text()
+          print(re.search(r'__version__ = \"([^\"]+)\"', source).group(1))
+          ")
+          echo "tag=$tagged packaged=$packaged"
+          if [ "$tagged" != "$packaged" ]; then
+            echo "::error::tag v$tagged does not match __version__ $packaged" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: uv build
+
+      # `twine check --strict` reads the metadata the way PyPI will, which is
+      # the difference between finding a broken long description now and finding
+      # it after the upload succeeded.
+      - name: Check the metadata
+        run: uvx twine check --strict dist/*
+
+      # Install the wheel into a clean environment, away from the source tree,
+      # so nothing resolves through `src/` by accident. The entry point and the
+      # MkDocs plugin registration are the two things that only exist once the
+      # package is installed, so they are what a build check has to touch.
+      - name: Install the wheel and smoke-test it
+        run: |
+          uv venv /tmp/smoke
+          VIRTUAL_ENV=/tmp/smoke uv pip install "$(ls dist/*.whl)[mkdocs]"
+          cd /tmp
+          /tmp/smoke/bin/hmd --version
+          /tmp/smoke/bin/python -c "
+          from importlib.metadata import entry_points
+          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
+          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
+          print('mkdocs plugin entry point resolves')
+          "
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  testpypi:
+    name: publish to TestPyPI
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == 'testpypi'
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/hyper-markdown
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          # A dry run of a version already uploaded should not fail the workflow.
+          skip-existing: true
+
+  pypi:
+    name: publish to PyPI
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/hyper-markdown
+    # Trusted publishing: the job proves its identity to PyPI with a short-lived
+    # OIDC token, so there is no API token in repository secrets to leak or
+    # rotate. It requires a matching publisher configured on PyPI first — owner
+    # `ewiger`, repository `hyper-markdown`, workflow `release.yml`,
+    # environment `pypi` — and fails with a 403 until that exists.
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: github release
+    needs: pypi
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    # The one job that writes to the repository, and it writes only the release.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      # Notes come from CHANGELOG.md rather than from generated commit titles:
+      # the changelog is the edited account, and the commit log is the raw one.
+      - name: Cut the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          python3 -c "
+          import pathlib, re
+          text = pathlib.Path('CHANGELOG.md').read_text()
+          section = re.search(
+              r'^## \[$version\][^\n]*\n(.*?)(?=^## |\Z)', text, re.S | re.M
+          )
+          pathlib.Path('notes.md').write_text((section.group(1) if section else '').strip())
+          " || true
+          [ -s notes.md ] || echo "See CHANGELOG.md for what changed." > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md

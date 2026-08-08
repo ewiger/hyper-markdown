@@ -1,0 +1,167 @@
+site_name: hyper-markdown
+site_description: A strict, machine-checkable markdown dialect for project knowledge bases.
+
+# A GitHub project site, so the book is served from a subpath rather than the
+# domain root. The build does not need this — MkDocs emits relative links — but
+# canonical URLs and `sitemap.xml` are wrong without it.
+site_url: https://ewiger.github.io/hyper-markdown/
+
+# The header's repository link and its star count. `edit_uri` follows `main`,
+# which is where the book lives now that `feat/mvp` has merged. It pointed at
+# the feature branch for as long as `main` did not yet carry these files; an
+# "edit this page" is only useful if it opens a file that exists on the branch
+# it names, so this tracks whichever branch the site is built from.
+repo_url: https://github.com/ewiger/hyper-markdown
+repo_name: ewiger/hyper-markdown
+edit_uri: edit/main/doc/
+
+copyright: MIT-licensed — hyper-markdown
+
+# The site covers the whole documentation tree, while the `[[…]]` namespace is
+# restricted to `doc/wiki` by the plugin's `root` below. The book and the wiki
+# build together; only the wiki is a namespace.
+docs_dir: doc
+
+# The working memory of the project, not part of the published book. The
+# per-proposal STATUS.md trackers are excluded for the same reason the issues
+# are: they are where the work is argued, not what the book teaches.
+exclude_docs: |
+  *.hmd
+  models/
+  issues/
+  memory/
+  proposals/TEMPLATE.md
+  proposals/*/STATUS.md
+
+# A card and its folder note share one URL, so directory URLs are required
+# rather than merely preferred (HMD-0002 §1).
+use_directory_urls: true
+
+theme:
+  name: material
+
+  # The bolt from the README, as a real asset rather than an emoji character —
+  # `⚡` is drawn differently by every platform's font and cannot be a favicon
+  # without becoming an image anyway.
+  #
+  # Both files carry the amber as an explicit `fill`, and neither may use
+  # `currentColor`. Material references the logo as `<img src=…>` rather than
+  # inlining it, and an externally-referenced SVG is an isolated document with
+  # no parent to inherit from: `currentColor` there means black, which is
+  # invisible on this header. Two files rather than one because they are sized
+  # for different jobs, not because they are colored differently.
+  logo: wiki/assets/logo.svg
+  favicon: wiki/assets/favicon.svg
+
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+  icon:
+    repo: fontawesome/brands/github
+
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.tracking
+    # The nav is four flat sections, which is what a top bar is for.
+    - navigation.tabs
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+  # Near-black chrome with an amber accent: the bolt's own color, which reads as
+  # "electric" on the mark and the links without turning the site yellow.
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - hyper-markdown:
+      root: doc/wiki
+
+# The authored nav wins everywhere except where it asks for the wiki by name.
+# `hmd://wiki` is replaced by the section derived from the namespace tree, so
+# the book keeps its own order and still says where the cards belong.
+nav:
+  - Home: index.md
+  - Introduction: public/introduction.md
+  - Namespaces: public/namespaces.md
+  - Features: public/features.md
+  - Presentation: public/presentation.md
+  - Wiki:
+      - Overview: wiki/README.md
+      - hmd://wiki
+  - Specifications:
+      - proposals/README.md
+      - HMD-0001 — MVP: proposals/HMD-0001/README.md
+      - HMD-0001 examples: proposals/HMD-0001/examples.md
+      - HMD-0002 — MkDocs: proposals/HMD-0002/README.md
+      - HMD-0003 — HQL: proposals/HMD-0003/README.md
+      - HMD-0004 — The hyper web: proposals/HMD-0004/README.md
+
+# `generator: false` drops Material's own footer credit so the copyright above
+# is the only line there — the footer is small enough that two claims on it
+# read as clutter.
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ewiger/hyper-markdown
+      name: hyper-markdown on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/hyper-markdown/
+      name: hyper-markdown on PyPI
+
+extra_css:
+  - wiki/assets/hmd.css
+
+# Arithmatex emits `\(…\)` and typesets nothing itself, so math needs MathJax to
+# be present or every formula renders as its own source. This is the only
+# runtime dependency the site has on a network; the build itself stays offline.
+extra_javascript:
+  - wiki/assets/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+# Cards link out to the repository — proposals, styles, source — with ordinary
+# relative markdown links, by the convention in `hyper-markdown.hmd`. Those
+# targets are real files but they are not site pages, so a miss is reported
+# rather than fatal. Wikilinks are checked by `hmd lint`, not by MkDocs.
+validation:
+  links:
+    not_found: info
+
+# The "free" half of the syntax: everything the format does not own itself
+# (HMD-0001 §9).
+markdown_extensions:
+  - admonition
+  # Lets a heading carry a class, which is how the cover marks itself as the
+  # one page that gets the hero treatment — cheaper than a `custom_dir` and a
+  # template override just to put a class on `<body>`.
+  - attr_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

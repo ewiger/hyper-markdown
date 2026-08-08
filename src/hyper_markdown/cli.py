@@ -13,9 +13,12 @@ from typing import Optional
 
 import typer
 
+from . import __version__
 from . import config as config_mod
 from . import graph as graph_mod
 from .lint import check, format_json, format_text, summarize
+from .model import Diagnostic
+from .render import flat
 from .resolve import SUFFIX, Workspace
 
 app = typer.Typer(
@@ -30,6 +33,31 @@ EXIT_USAGE = 2
 
 RootOption = typer.Option(None, "--root", help="Namespace root (default: the `wiki` setting, or doc/wiki).")
 FormatOption = typer.Option("text", "--format", help="Output format: text or json.")
+
+
+def _show_version(value: bool) -> None:
+    """Report the module's version, not the installed distribution's.
+
+    `importlib.metadata` would answer for the wheel on the path, which is the
+    wrong answer in a checkout — the number a contributor is about to tag lives
+    in `__init__.py`, and `hmd --version` should show that one.
+    """
+    if value:
+        typer.echo(f"hmd {__version__}")
+        raise typer.Exit(EXIT_OK)
+
+
+@app.callback()
+def cli(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=_show_version,
+        is_eager=True,
+        help="Show the version and exit.",
+    ),
+) -> None:
+    """Lint, query, and inspect a hyper-markdown knowledge base."""
 
 
 def _workspace(root: Optional[Path], start: Path | None = None) -> Workspace:
@@ -93,6 +121,39 @@ def graph(
         typer.echo(f"hmd: graph supports --format json only, got {output_format!r}", err=True)
         raise typer.Exit(EXIT_USAGE)
     typer.echo(graph_mod.to_json(_workspace(root)))
+
+
+@app.command()
+def render(
+    path: Path = typer.Argument(..., help="The card to render."),
+    root: Optional[Path] = RootOption,
+    to: str = typer.Option("markdown", "--to", help="Output format: markdown or html."),
+) -> None:
+    """Expand embeds and rewrite resolved links.
+
+    Flat markdown is a one-way build product; it does not round-trip back into
+    `.hmd`.
+    """
+    if to not in ("markdown", "html"):
+        typer.echo(f"hmd: unknown target {to!r} (expected markdown or html)", err=True)
+        raise typer.Exit(EXIT_USAGE)
+
+    workspace = _workspace(root)
+    target = path.resolve()
+    if target not in workspace.documents:
+        typer.echo(f"hmd: not a page inside the namespace root: {path}", err=True)
+        raise typer.Exit(EXIT_USAGE)
+
+    result = flat.to_html(workspace, target) if to == "html" else flat.render(workspace, target)
+    typer.echo(result.text)
+
+    for diagnostic in sorted(result.diagnostics, key=Diagnostic.sort_key):
+        typer.echo(
+            f"{diagnostic.path}:{diagnostic.line}:{diagnostic.column}: "
+            f"{diagnostic.severity}[{diagnostic.rule}] {diagnostic.message}",
+            err=True,
+        )
+    raise typer.Exit(EXIT_DIAGNOSTICS if result.diagnostics else EXIT_OK)
 
 
 @app.command()

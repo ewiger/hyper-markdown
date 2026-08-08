@@ -1,0 +1,322 @@
+---
+tags: [area/format, status/canonical]
+---
+
+# The hyper-markdown language
+
+This page teaches the syntax. Read it start to finish and you can write
+hyper-markdown; nothing else is required reading.
+
+Hyper-markdown is Markdown with **wiki** links, **html** richness, and more added.
+Everything you already know about Markdown stays true. Rename a `.md` file to
+`.hmd` and it is already valid: nothing breaks, nothing changes, and you have
+gained the option of using the rest of this page.
+
+## 1. What a file is
+
+A **card** is one `.hmd` file. It explains one idea, and its value is in what it
+links to. Cards live under a single directory — `doc/wiki/` here — and that
+directory is the whole world: a link can reach any card in it and nothing
+outside it.
+
+A card may open with a metadata block, then it is ordinary Markdown:
+
+```markdown
+---
+tags: [area/format]
+---
+
+# The title of the card
+
+Prose, and links to other cards.
+```
+
+That is the entire file format. The rest of this page is syntax.
+
+## 2. The syntax you inherit
+
+All of Markdown works, unchanged. This section is a demonstration rather than a
+list — every construct named below is being used in the sentence that names it.
+
+Text is written in paragraphs, separated by a blank line. You can mark words as
+*emphasis* with single asterisks, as **strong emphasis** with double, and as
+`inline code` with backticks. A [link to a website](https://commonmark.org)
+is written with the text in square brackets and the address in parentheses.
+
+Headings are lines beginning with `#`, one per level — `#` for the card title,
+`##` for a section like the one above, `###` below that. Their nesting is what
+gives a card its outline, and it is also what makes parts of a card addressable,
+which matters in §4.
+
+Lists come in two kinds:
+
+- A bullet list uses `-` at the start of the line.
+- Nesting works by indenting.
+  - Like this.
+
+1. A numbered list uses `1.`, `2.`, and so on.
+2. The numbers you type do not have to be right; the renderer counts for you.
+
+> A blockquote is a line beginning with `>`. Use it for quoting a source, not
+> for emphasis — there are better tools above for that.
+
+A block of code is fenced by three backticks, optionally with a language name so
+it can be coloured:
+
+```python
+def resolve(name: str) -> Page:
+    return index[name]
+```
+
+Fenced blocks are **literal**. Nothing inside one is interpreted — not Markdown,
+and not any of the hyper-markdown syntax below. That is how this page is able to
+show you syntax without using it, and it is the escape hatch to reach for
+whenever you need to write a construct rather than invoke one.
+
+Horizontal rules are three dashes on their own line:
+
+---
+
+None of this is the dialect's. It is Markdown, it is documented better elsewhere
+than it could be here, and hyper-markdown neither extends nor restricts it.
+
+## 3. The syntax you inherit from the wider Markdown world
+
+A second tier sits between plain Markdown and this dialect: constructs that are
+not in the original Markdown, are not hyper-markdown's either, and have become
+conventional across GitHub, Obsidian, Pandoc, and most documentation tools. They
+are assumed available, and they behave the way you expect them to.
+
+Tables are pipe-separated rows with a dashed line under the header:
+
+| Construct | Written |
+| --- | --- |
+| Strikethrough | two tildes either side |
+| Task list item | a dash, then square brackets |
+
+Strikethrough is ~~two tildes either side~~. A task list is a bullet list whose
+items open with `[ ]` or `[x]`:
+
+- [x] Learn the inherited syntax
+- [ ] Learn the six constructs
+
+Footnotes[^1] attach a marker to a note at the foot of the page. Callouts are a
+titled aside, opened with `!!!` and a kind:
+
+!!! note "Callouts take a kind and a title"
+
+    Their body is indented four spaces. Use `???` instead of `!!!` and the
+    callout starts collapsed.
+
+Mathematics is written in TeX between dollar signs — inline as $t_n$, or as a
+display block between double dollars:
+
+$$
+t_n = U\bigl(0,\; \min(t_{max},\; b \cdot 2^n)\bigr)
+$$
+
+Diagrams are a fenced block with `d2` as the language, describing nodes and the
+arrows between them:
+
+```d2
+direction: right
+markdown -> hyper-markdown: adds a graph
+```
+
+**Which program renders any of this is not part of the language.** The tools
+change; the syntax above is what you write either way. If you need the current
+implementation — which library, which version, what is gated by which test —
+that is [[hmd-feature-list]] and [HMD-0001](../proposals/HMD-0001/README.md) §9,
+deliberately kept off this page.
+
+## 4. The syntax hyper-markdown adds
+
+Here is the dialect proper. Six constructs, and they are all variations on one
+idea: **naming another card, or a part of one.**
+
+### Linking to a card
+
+Two square brackets around a card's name:
+
+```markdown
+Resolution is explained in [[hyper-markdown]].
+```
+
+Which renders as a link: see [[hyper-markdown]]. The name is the card's filename
+without its extension — `hyper-markdown.hmd` is written `[[hyper-markdown]]`.
+You do not write a path, and you do not write `../`; §5 explains how the name is
+found.
+
+Linking to a card that does not exist yet is **not an error**. It renders as a
+red link and is reported as a warning, which makes it a usable way to mark
+something as worth writing later.
+
+### Showing different words
+
+A vertical bar separates the target from the text to display, so the sentence
+still reads naturally:
+
+```markdown
+The [[md-hmd-interop|comparison with TypeScript]] makes the case.
+```
+
+Which renders as: the [[md-hmd-interop|comparison with TypeScript]] makes the
+case. The part before the bar is the name that gets resolved; the part after is
+what the reader sees.
+
+### Linking into a card
+
+A `#` addresses a heading inside the target card:
+
+```markdown
+See [[md-hmd-interop#Compilation is the deeper step]].
+```
+
+Write the heading's text as it appears. Capitalisation and spacing are
+forgiving — the heading `## Compilation is the deeper step` is equally reachable
+as `#compilation-is-the-deeper-step`.
+
+### Naming a single block
+
+Sometimes the unit you want to point at is a paragraph, not a section. Put a
+caret and an identifier at the end of the block's last line, and that block has
+a name. This paragraph carries one. ^the-anchor-example
+
+The anchor itself does not render. To point at it, use `#^` and the identifier:
+
+```markdown
+That is stated precisely in [[hmd-format-specification#^the-anchor-example]].
+```
+
+Identifiers are letters, digits, hyphens and underscores. Their scope is the
+card they appear in, so two cards may reuse the same one without colliding.
+
+### Embedding instead of linking
+
+Put a `!` in front of any of the four forms above and the content is pulled in
+where you wrote it, rather than linked:
+
+```markdown
+![[glossary/token]]              the whole card
+![[glossary/token#Rotation]]     one section of it
+![[glossary/token#^definition]]  one named block
+```
+
+This is the construct that makes cards composable: write a definition once, and
+embed it everywhere it is needed instead of repeating it. Embeds nest — an
+embedded card may itself embed another — and the expansion is textual, so
+heading levels arrive exactly as the source wrote them.
+
+Two guards apply. A cycle, where a card ends up embedding itself, is an error
+rather than a hang. And nesting stops at sixteen levels deep.
+
+*(This page shows the syntax rather than using it, because a live embed would
+splice another card's prose into the middle of a reference page. [[md-hmd-interop]]
+and the published book use them for real.)*
+
+### Summary of the six
+
+| Written | Means |
+| --- | --- |
+| `[[card]]` | link to a card |
+| <code>&#91;&#91;card&#124;words&#93;&#93;</code> | link, showing different words |
+| `[[card#Heading]]` | link to a section of a card |
+| `text ^name` | give this block a name |
+| `[[card#^name]]` | link to a named block |
+| `![[…]]` | embed any of the above instead of linking |
+
+## 5. How a name is found
+
+This is the part that makes hyper-markdown feel like a language rather than a
+convention: `[[token]]` is a **name**, and names get resolved by rules you can
+predict.
+
+Resolution tries, in order:
+
+1. **A path, if you wrote one.** `[[glossary/token]]` means that card in that
+   folder. A leading `/` is absolute from the root; `./` and `../` are relative
+   to the current card.
+2. **The nearest card, walking outward.** A bare `[[token]]` first looks beside
+   the current card, then in its parent folder, then that folder's parent, up to
+   the root. A card nearby wins over a card far away, which is what lets a
+   folder keep its own local vocabulary.
+3. **Anywhere under the root.** If the walk finds nothing, the whole tree is
+   searched by filename.
+
+If the last step finds **two** cards with the same name, that is an **error**,
+not a coin flip. Ambiguity is the one thing the language refuses to guess at:
+qualify the link with enough path to disambiguate it and the error goes away.
+
+A folder can also carry an `index.hmd`, in which case the folder's name and the
+index card are the same destination — `[[glossary]]` and `[[glossary/index]]`
+are one page.
+
+## 6. Metadata
+
+The block at the top of a card is YAML. Four keys mean something to the
+toolchain; every other key is yours, and nothing will inspect it.
+
+```yaml
+---
+tags: [area/auth, status/accepted]
+use: [no_autodiscovery]
+import:
+  - from /shared import tokens as shared-tokens
+  - from /glossary import *
+nav: 10
+---
+```
+
+**`tags`** say what a card is *about*. Folders say where it *lives*. Keeping
+those two axes separate is deliberate: a tag is never a link target, and you
+cannot write `[[area/auth]]` to reach one.
+
+**`use`** switches features on or off for this card, and it **inherits** — put
+it in a folder's `index.hmd` and it governs that whole subtree. This is what
+makes a folder a module rather than a naming convention.
+
+**`import`** binds names explicitly, for when the resolution rules in §5 are not
+what you want. An import takes precedence over the search.
+
+**`nav`** is a number that orders this card when the wiki is published as a
+site.
+
+## 7. When you get it wrong
+
+The language ships a checker. `hmd lint` reads the tree and reports what it
+could not resolve, with a file, a line, and a rule identifier:
+
+```text
+glossary/index.hmd:11:3: warning[HMD001] [[idempotency]] does not resolve to a page
+```
+
+The distinction it draws is worth internalising, because it is the same one a
+compiler draws. A link to a card that does not exist is a **warning** — you are
+allowed to write forward, and the report is a to-do list. A link that is
+*ambiguous*, that escapes the root, or that is malformed is an **error** — the
+language will not choose for you.
+
+Everything else about a card is left alone. Hyper-markdown checks the graph and
+nothing more: it has no opinion on your prose, your headings, or your Markdown.
+
+## 8. What is deliberately not here
+
+No inline properties, no highlights, no templates, no query language. Each is
+either postponed to a later specification or turned down; [[hmd-feature-list]]
+records which is which, so that none of them gets re-argued from scratch.
+
+The omission you are most likely to notice is that **there is no escape**. The
+characters `[`, `]`, `|`, `#`, and `^` are reserved inside a link target and
+cannot be written literally there. To show a construct instead of using one, put
+it in a code span or a fenced block, as this page does throughout.
+
+---
+
+For what the format is *for*, see [[hyper-markdown]]. For the argument that it
+stands to Markdown as TypeScript stands to JavaScript, see [[md-hmd-interop]].
+For the exhaustive inventory with implementation status, see
+[[hmd-feature-list]].
+
+[^1]: Like this one. The four-space indent a footnote body uses is why the
+    scanner does not treat indented text as literal — doing so would quietly
+    drop real links out of footnotes and callouts.

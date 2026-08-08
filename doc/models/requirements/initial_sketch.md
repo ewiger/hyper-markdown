@@ -82,7 +82,7 @@ grammar.
 | # | Feature | Syntax | Build or free |
 |---|---|---|---|
 | 1 | Wikilinks | `[[Page]]` | build |
-| 2 | Aliased links | `[[Page\|display text]]` | build |
+| 2 | Aliased links | <code>[[Page&#124;display text]]</code> | build |
 | 3 | Heading links | `[[Page#Section]]` | build |
 | 4 | Block anchors | trailing `^id` | build |
 | 5 | Block references | `[[Page#^id]]` | build |

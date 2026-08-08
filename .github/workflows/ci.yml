@@ -22,16 +22,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Pinned to the exact release, not to `@v9`. `astral-sh/setup-uv` ships
+      # `v9.0.0` but maintains no moving `v9` tag — its floating majors stop at
+      # `v7` — so the shorthand every other action accepts fails here with
+      # "unable to find version", before a single step runs. Check that a
+      # floating tag exists before shortening this.
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
+      # `--locked` rather than a bare sync: it fails if `uv.lock` does not match
+      # `pyproject.toml` instead of quietly re-resolving, so a dependency change
+      # has to arrive as a committed lockfile. That is the whole point of having
+      # one — every run installs the versions a human approved, and an upgrade
+      # is a diff someone can point at rather than whatever the index served
+      # that morning.
       - name: Install
-        run: |
-          uv venv
-          uv pip install -e ".[dev]"
+        run: uv sync --locked --all-extras
 
       - name: Test
         run: uv run python -m pytest
@@ -49,6 +58,26 @@ jobs:
       - name: Lint the sorting example
         run: uv run hmd lint --root examples/cs-alg-sorting --strict
 
+      # D2 renders through its own binary, taken from the published image so CI
+      # pins the same version everywhere rather than whatever an install script
+      # resolves on the day. Without it diagrams would still build — they
+      # degrade to a labelled placeholder — but the rendered path would go
+      # untested, which is the path that can break.
+      - name: Install d2
+        run: |
+          container=$(docker create terrastruct/d2:latest)
+          for candidate in /usr/local/bin/d2 /usr/bin/d2 /bin/d2 /d2; do
+            docker cp "$container:$candidate" /usr/local/bin/d2 2>/dev/null && break
+          done
+          docker rm "$container"
+          sudo chmod +x /usr/local/bin/d2
+          d2 --version
+
+      # The second consumer of the resolver (HMD-0002). A build that goes red
+      # here means the model works for lint but not for rendering.
+      - name: Build the wiki
+        run: uv run mkdocs build --strict
+
   # The TypeScript line (HMD-0020, HMD-0021). It runs independently of the
   # Python matrix so neither half can block the other's merge, and it installs
   # Python anyway: the conformance gate below is only meaningful when it can
@@ -65,8 +94,10 @@ jobs:
           node-version: "20"
           cache: npm
 
+      # Pinned exactly, for the reason spelled out in the `test` job above:
+      # there is no floating `v9` tag to fall back on.
       - name: Install uv
-        uses: astral-sh/setup-uv@v9
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: "3.12"
           enable-cache: true
@@ -96,3 +127,43 @@ jobs:
           name: vscode-hyper-markdown
           path: packages/vscode-hyper-markdown/*.vsix
           if-no-files-found: error
+
+  # The same build `release.yml` runs, minus the upload. Packaging breaks in
+  # ways the test matrix cannot see — an editable install resolves through
+  # `src/` and never exercises the entry points — and PyPI will not let a
+  # filename be replaced, so the place to find a bad wheel is on the pull
+  # request.
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Build
+        run: uv build
+
+      - name: Check the metadata
+        run: uvx twine check --strict dist/*
+
+      # Deliberately *not* installed from `uv.lock`. This step exists to
+      # exercise what a stranger gets from `pip install hyper-markdown[mkdocs]`,
+      # so it resolves fresh against the published ranges — which is the only
+      # place a bad bound shows up before a user finds it.
+      - name: Install the wheel and smoke-test it
+        run: |
+          uv venv /tmp/smoke
+          VIRTUAL_ENV=/tmp/smoke uv pip install "$(ls dist/*.whl)[mkdocs]"
+          cd /tmp
+          /tmp/smoke/bin/hmd --version
+          /tmp/smoke/bin/python -c "
+          from importlib.metadata import entry_points
+          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
+          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
+          print('mkdocs plugin entry point resolves')
+          "
