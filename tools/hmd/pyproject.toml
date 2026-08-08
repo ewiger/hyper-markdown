@@ -1,0 +1,122 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# The folder is `tools/hmd`; the distribution is `hyper-markdown` and stays
+# that way. 0.1.1 is published, and a rename on PyPI is a new project with a
+# new install line, not a move. The user-facing names were never the folder
+# anyway — they are the `hmd` script and the `mkdocs.plugins` entry point
+# below, and neither changes.
+name = "hyper-markdown"
+# One source of truth: `src/hyper_markdown/__init__.py`. A version in two files
+# is a version that disagrees with itself on release day, and `hmd --version`
+# reads the module rather than the installed metadata so it is honest when run
+# from a checkout.
+dynamic = ["version"]
+description = "A strict, machine-checkable markdown dialect for project knowledge bases."
+# `readme`, `license-files`, and the `examples` tree of `MANIFEST.in` all name
+# files that live at the repository root and are shared with the rest of the
+# monorepo. setuptools refuses to read anything outside the project directory —
+# `readme = "../../README.md"` fails the build outright — so each one is a
+# symlink checked into git beside this file. The symlink is what keeps one
+# source of truth: the PyPI long description is the repository's own README,
+# not a copy of it that drifts.
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Yauhen Yakimovich" }]
+keywords = [
+    "markdown",
+    "wiki",
+    "knowledge-base",
+    "wikilinks",
+    "linter",
+    "mkdocs",
+    "documentation",
+]
+# No `License ::` classifier — with the SPDX `license` field above, setuptools
+# rejects carrying both.
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
+dependencies = [
+    # Every range is capped at the next major. A major bump is where a
+    # dependency is allowed to break its own contract, and this project has
+    # twice been handed one it did not ask for; `uv.lock` pins what is actually
+    # built and tested, and these bounds are what a consumer's resolver is held
+    # to when it does not use that lock.
+    "typer>=0.12,<1",
+    "pyyaml>=6,<7",
+    "markdown>=3.6,<4",
+    # The floor is 10.21.2 because that release is what makes `superfences`
+    # survive Pygments 2.20: under 10.21 and earlier the preprocessor stops
+    # matching fences entirely and every code block degrades to running text,
+    # with nothing raised. Bisected 10.20.1 and 10.21 broken, 10.21.2 and
+    # 10.21.3 correct, all against pygments 2.20.0.
+    #
+    # This constraint belongs here rather than in the `mkdocs` extra, which is
+    # where 0.1.0 wrongly put its half of it. `pymdownx.superfences` is loaded
+    # by `render/flat.py` for `hmd render --to html`, so the base install needs
+    # the guarantee whether or not a site is ever built.
+    "pymdown-extensions>=10.21.2,<12",
+]
+
+[project.optional-dependencies]
+mkdocs = [
+    # Held at 1.x on purpose. "MkDocs 2.0" is a ground-up rewrite published
+    # under the same name on PyPI, and it removes the plugin system outright —
+    # the `mkdocs.plugins` entry point below would stop being read at all, so
+    # every card would vanish from the build. It also moves config to TOML and
+    # carries no license yet. An unbounded `>=` would let a resolver make that
+    # migration for us, silently, on a routine CI run.
+    "mkdocs>=1.6,<2",
+    # Material 9 targets MkDocs 1.x and cannot run on 2.0 either. Whatever its
+    # next major targets is a decision to take deliberately.
+    "mkdocs-material>=9,<10",
+    #
+    # No mkdocs-d2-plugin. The plugin renders `d2` fences itself, so a missing
+    # binary degrades to a labelled placeholder instead of failing the build,
+    # and the SVG reaches the page as a data: URI rather than as inline markup
+    # (HMD-0022 §5-§6). The `d2` binary itself is not a Python dependency and
+    # is installed separately; without it diagrams show their source.
+    #
+    # No `pygments` ceiling. 0.1.0 carried `pygments<2.20` here because 2.20.0
+    # stopped `pymdownx.superfences` matching fences at all. The defect was
+    # upstream of Pygments rather than in it, and `pymdown-extensions` 10.21.2
+    # fixes it, so the constraint now lives with that package as a floor in the
+    # base dependencies above — which is also where it can protect
+    # `hmd render --to html`.
+]
+dev = ["pytest>=8,<10"]
+
+[project.urls]
+Homepage = "https://ewiger.github.io/hyper-markdown/"
+Documentation = "https://ewiger.github.io/hyper-markdown/"
+Repository = "https://github.com/ewiger/hyper-markdown"
+Changelog = "https://github.com/ewiger/hyper-markdown/blob/main/CHANGELOG.md"
+Issues = "https://github.com/ewiger/hyper-markdown/issues"
+
+[project.scripts]
+hmd = "hyper_markdown.cli:main"
+
+[project.entry-points."mkdocs.plugins"]
+hyper-markdown = "hyper_markdown.mkdocs_plugin:HyperMarkdownPlugin"
+
+[tool.setuptools.dynamic]
+version = { attr = "hyper_markdown.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

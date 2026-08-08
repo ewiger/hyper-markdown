@@ -7,7 +7,10 @@ import pytest
 from hyper_markdown import config
 from hyper_markdown.resolve import Workspace
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+# `tools/hmd/tests` → `tools/hmd` → `tools` → the repository. `examples/` is
+# shared: the TypeScript parity suite lints the same trees, so the fixture
+# stays at the root rather than moving under the tool that happens to test it.
+REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = REPO_ROOT / "examples" / "small"
 
 

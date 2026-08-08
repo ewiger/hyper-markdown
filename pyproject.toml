@@ -1,114 +1,38 @@
-[build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
+# The repository root, which is deliberately *not* a distribution.
+#
+# Every tool lives under `tools/`, and the Python one — `tools/hmd` — owns the
+# `hyper-markdown` package and its own `pyproject.toml`. This file exists for
+# the two things that are genuinely repository-wide: the uv workspace, so a
+# single `.venv` and a single `uv.lock` serve the whole checkout, and the
+# pytest configuration, because the suite spans a tool's own tests and the
+# guards that check this repository's documentation and site.
 
-[project]
-name = "hyper-markdown"
-# One source of truth: `src/hyper_markdown/__init__.py`. A version in two files
-# is a version that disagrees with itself on release day, and `hmd --version`
-# reads the module rather than the installed metadata so it is honest when run
-# from a checkout.
-dynamic = ["version"]
-description = "A strict, machine-checkable markdown dialect for project knowledge bases."
-readme = "README.md"
-requires-python = ">=3.11"
-license = "MIT"
-license-files = ["LICENSE"]
-authors = [{ name = "Yauhen Yakimovich" }]
-keywords = [
-    "markdown",
-    "wiki",
-    "knowledge-base",
-    "wikilinks",
-    "linter",
-    "mkdocs",
-    "documentation",
-]
-# No `License ::` classifier — with the SPDX `license` field above, setuptools
-# rejects carrying both.
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Topic :: Documentation",
-    "Topic :: Software Development :: Documentation",
-    "Topic :: Text Processing :: Markup :: Markdown",
-]
-dependencies = [
-    # Every range is capped at the next major. A major bump is where a
-    # dependency is allowed to break its own contract, and this project has
-    # twice been handed one it did not ask for; `uv.lock` pins what is actually
-    # built and tested, and these bounds are what a consumer's resolver is held
-    # to when it does not use that lock.
-    "typer>=0.12,<1",
-    "pyyaml>=6,<7",
-    "markdown>=3.6,<4",
-    # The floor is 10.21.2 because that release is what makes `superfences`
-    # survive Pygments 2.20: under 10.21 and earlier the preprocessor stops
-    # matching fences entirely and every code block degrades to running text,
-    # with nothing raised. Bisected 10.20.1 and 10.21 broken, 10.21.2 and
-    # 10.21.3 correct, all against pygments 2.20.0.
-    #
-    # This constraint belongs here rather than in the `mkdocs` extra, which is
-    # where 0.1.0 wrongly put its half of it. `pymdownx.superfences` is loaded
-    # by `render/flat.py` for `hmd render --to html`, so the base install needs
-    # the guarantee whether or not a site is ever built.
-    "pymdown-extensions>=10.21.2,<12",
-]
+[tool.uv.workspace]
+members = ["tools/hmd"]
 
-[project.optional-dependencies]
-mkdocs = [
-    # Held at 1.x on purpose. "MkDocs 2.0" is a ground-up rewrite published
-    # under the same name on PyPI, and it removes the plugin system outright —
-    # the `mkdocs.plugins` entry point below would stop being read at all, so
-    # every card would vanish from the build. It also moves config to TOML and
-    # carries no license yet. An unbounded `>=` would let a resolver make that
-    # migration for us, silently, on a routine CI run.
-    "mkdocs>=1.6,<2",
-    # Material 9 targets MkDocs 1.x and cannot run on 2.0 either. Whatever its
-    # next major targets is a decision to take deliberately.
-    "mkdocs-material>=9,<10",
-    #
-    # No mkdocs-d2-plugin. The plugin renders `d2` fences itself, so a missing
-    # binary degrades to a labelled placeholder instead of failing the build,
-    # and the SVG reaches the page as a data: URI rather than as inline markup
-    # (HMD-0022 §5-§6). The `d2` binary itself is not a Python dependency and
-    # is installed separately; without it diagrams show their source.
-    #
-    # No `pygments` ceiling. 0.1.0 carried `pygments<2.20` here because 2.20.0
-    # stopped `pymdownx.superfences` matching fences at all. The defect was
-    # upstream of Pygments rather than in it, and `pymdown-extensions` 10.21.2
-    # fixes it, so the constraint now lives with that package as a floor in the
-    # base dependencies above — which is also where it can protect
-    # `hmd render --to html`.
-]
-dev = ["pytest>=8,<10"]
+[tool.uv.sources]
+hyper-markdown = { workspace = true }
 
-[project.urls]
-Homepage = "https://ewiger.github.io/hyper-markdown/"
-Documentation = "https://ewiger.github.io/hyper-markdown/"
-Repository = "https://github.com/ewiger/hyper-markdown"
-Changelog = "https://github.com/ewiger/hyper-markdown/blob/main/CHANGELOG.md"
-Issues = "https://github.com/ewiger/hyper-markdown/issues"
+# `uv sync` installs this group by default, which is what makes `uv run hmd`,
+# `uv run mkdocs`, and `uv run python -m pytest` work from the repository root
+# with no arguments. The extras are requested here rather than through
+# `uv sync --all-extras`, which has nothing to act on: extras belong to a
+# project, and this root is not one.
+[dependency-groups]
+dev = ["hyper-markdown[mkdocs,dev]"]
 
-[project.scripts]
-hmd = "hyper_markdown.cli:main"
-
-[project.entry-points."mkdocs.plugins"]
-hyper-markdown = "hyper_markdown.mkdocs_plugin:HyperMarkdownPlugin"
-
-[tool.setuptools.dynamic]
-version = { attr = "hyper_markdown.__version__" }
-
-[tool.setuptools.packages.find]
-where = ["src"]
+# Building the wheel is `uv build --package hyper-markdown`, never a bare
+# `uv build`. A bare `uv build` at a workspace root with no `[project]` table
+# does not fail — it builds an empty `unknown-0.0.0` distribution and reports
+# success. On the release path that is a wrong artifact travelling as far as
+# PyPI will take it, so the `--package` flag is load-bearing rather than
+# stylistic.
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
+# Two roots on purpose. `tools/hmd/tests` belongs to the Python tool and moves
+# with it. `tests/` holds the repository's own guards — `test_docs.py` walks
+# every tracked `*.md` and `*.hmd` in the checkout, and both files build the
+# real site from the root `mkdocs.yml` — so they answer for the repository, not
+# for one tool, and filing them under a tool would misplace what they cover.
+testpaths = ["tests", "tools/hmd/tests"]
+pythonpath = ["tools/hmd/src"]

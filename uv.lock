@@ -2,6 +2,14 @@ version = 1
 revision = 3
 requires-python = ">=3.11"
 
+[manifest]
+members = [
+    "hyper-markdown",
+]
+
+[manifest.dependency-groups]
+dev = [{ name = "hyper-markdown", extras = ["mkdocs", "dev"], editable = "tools/hmd" }]
+
 [[package]]
 name = "annotated-doc"
 version = "0.0.5"
@@ -151,7 +159,7 @@ wheels = [
 
 [[package]]
 name = "hyper-markdown"
-source = { editable = "." }
+source = { editable = "tools/hmd" }
 dependencies = [
     { name = "markdown" },
     { name = "pymdown-extensions" },

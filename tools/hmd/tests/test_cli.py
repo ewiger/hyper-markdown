@@ -19,7 +19,13 @@ from typer.testing import CliRunner
 from hyper_markdown import __version__
 from hyper_markdown.cli import app
 
-ROOT = Path(__file__).resolve().parent.parent
+#: `tools/hmd`, the project that builds the `hyper-markdown` distribution.
+TOOL_ROOT = Path(__file__).resolve().parents[1]
+#: The repository, which owns the changelog the whole monorepo releases from.
+#: Named from `TOOL_ROOT` rather than counted out again, so the two cannot
+#: disagree about how deep the tool sits.
+REPO_ROOT = TOOL_ROOT.parents[1]
+
 runner = CliRunner()
 
 
@@ -44,7 +50,7 @@ def test_the_version_is_declared_once():
     Two literals drift, and they drift silently until the day one of them is
     published.
     """
-    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pyproject = tomllib.loads((TOOL_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert "version" not in pyproject["project"], "pyproject pins a literal version; it must stay dynamic"
     assert "version" in pyproject["project"]["dynamic"]
@@ -53,7 +59,7 @@ def test_the_version_is_declared_once():
 
 def test_the_changelog_has_an_entry_for_the_current_version():
     """A bump without a changelog entry fails here rather than on the tag."""
-    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
 
     assert re.search(rf"^## \[{re.escape(__version__)}\]", changelog, re.M), (
         f"CHANGELOG.md has no `## [{__version__}]` section. Releasing is a"

@@ -1,0 +1,17 @@
+# What the source distribution carries beyond the package itself. README and
+# LICENSE arrive on their own, named by `readme` and `license-files`. All three
+# of the paths named here are symlinks into the repository root, because
+# setuptools reads nothing outside this directory; the sdist gets the real
+# bytes, since the archive follows the link rather than recording it.
+#
+# The test suite is deliberately absent. `tools/hmd/tests` would now travel
+# cleanly — the repository-wide guards that could not, `test_docs.py` and
+# `test_mkdocs.py`, live at the repository root and are not part of this
+# project — but gates are run from a checkout, not from an sdist, and shipping
+# a suite invites someone to run it as if it were one.
+include CHANGELOG.md
+
+# The runnable fixture the README tells a new reader to lint first. 60K, and it
+# is the only way `hmd lint --root examples/small` works straight out of the
+# archive.
+recursive-include examples *.hmd *.md *.toml
