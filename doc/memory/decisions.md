@@ -109,7 +109,58 @@ own `concurrency: pages` with cancelling off.
 
 Requires **Settings → Pages → Source: GitHub Actions** in the repository. With
 the older *Deploy from a branch* setting the workflow runs green and publishes
-nothing, which is a silent failure worth knowing about in advance.
+nothing, which is a silent failure worth knowing about in advance. That is
+exactly how the first deploy went on 2026-08-08: the build was clean and
+`deploy-pages` returned `404 … Ensure GitHub Pages has been enabled`.
+
+## A failed Pages deploy needs a new run, not a re-run
+
+Enabling the setting does not retroactively publish; the workflow has to run
+again. Which route matters, because the obvious one is a trap.
+
+`upload-pages-artifact` writes an artifact named `github-pages`, and re-running
+a job **adds a second one to the same run** rather than replacing it.
+`deploy-pages` then fails with `Multiple artifacts named "github-pages" …
+Artifact count is 2`, and no number of further retries can fix it — the run is
+permanently poisoned. Dispatch `pages.yml` afresh instead; a new run gets a
+clean artifact namespace.
+
+Worth telling apart from the transient failure that looks similar. There, deploy
+queries for the artifact within a second of a successful upload and reports
+`Found 0 artifact(s)` — the metadata has not propagated yet. Same remedy, and
+the same reason to reach for a new run rather than a retry.
+
+## Dependency bounds are for consumers; the lockfile is for us
+
+`uv.lock` is committed and both CI and the Pages deploy install with
+`uv sync --locked`, which fails on drift rather than re-resolving. `pyproject.toml`
+keeps ranges capped at the next major.
+
+The split follows from who each one serves. Exact pins in `pyproject.toml` would
+propagate to every install: anything co-installed that needs a different
+`markdown` becomes unresolvable, and the `mkdocs` extra could deadlock against
+itself, since MkDocs depends on `markdown` too. Ranges alone were what let issue
+0003 arrive — CI installs fresh on every run, so an upstream release lands
+without a commit to point at. A lockfile puts the upgrade in a diff someone
+approved; the bounds stay as the promise made to a resolver that is not using
+our lock.
+
+The wheel smoke test is deliberately exempt and resolves freshly, because its
+whole job is to exercise what a stranger gets from `pip install`. A bad bound is
+invisible to any run that installs from the lock.
+
+## The pygments ceiling was in the wrong place, and is now a floor elsewhere
+
+`pygments<2.20` lifted on 2026-08-08 for 0.1.1. `pymdown-extensions` 10.21.2,
+published the same day as Pygments 2.20.0, restores `superfences`; re-bisected,
+10.20.1 and 10.21 are broken and 10.21.2, 10.21.3, and 11.0.1 are correct.
+
+The more useful half of the finding is where the old constraint lived. It sat in
+the `mkdocs` extra, but `pymdownx.superfences` is imported by `render/flat.py`,
+so `hmd render --to html` from a plain `pip install hyper-markdown` had no
+protection — 0.1.0 could silently render every fence as running text with no
+site involved. A constraint has to sit with the code that depends on it, not
+with the feature that made someone notice.
 
 ## MkDocs is pinned below 2.0, deliberately
 

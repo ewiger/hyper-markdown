@@ -33,10 +33,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
 
+      # `--locked` rather than a bare sync: it fails if `uv.lock` does not match
+      # `pyproject.toml` instead of quietly re-resolving, so a dependency change
+      # has to arrive as a committed lockfile. That is the whole point of having
+      # one — every run installs the versions a human approved, and an upgrade
+      # is a diff someone can point at rather than whatever the index served
+      # that morning.
       - name: Install
-        run: |
-          uv venv
-          uv pip install -e ".[dev,mkdocs]"
+        run: uv sync --locked --all-extras
 
       - name: Test
         run: uv run python -m pytest
@@ -94,6 +98,10 @@ jobs:
       - name: Check the metadata
         run: uvx twine check --strict dist/*
 
+      # Deliberately *not* installed from `uv.lock`. This step exists to
+      # exercise what a stranger gets from `pip install hyper-markdown[mkdocs]`,
+      # so it resolves fresh against the published ranges — which is the only
+      # place a bad bound shows up before a user finds it.
       - name: Install the wheel and smoke-test it
         run: |
           uv venv /tmp/smoke

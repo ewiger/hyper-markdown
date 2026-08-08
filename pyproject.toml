@@ -41,10 +41,25 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: Markdown",
 ]
 dependencies = [
-    "typer>=0.12",
-    "pyyaml>=6",
-    "markdown>=3.6",
-    "pymdown-extensions>=10",
+    # Every range is capped at the next major. A major bump is where a
+    # dependency is allowed to break its own contract, and this project has
+    # twice been handed one it did not ask for; `uv.lock` pins what is actually
+    # built and tested, and these bounds are what a consumer's resolver is held
+    # to when it does not use that lock.
+    "typer>=0.12,<1",
+    "pyyaml>=6,<7",
+    "markdown>=3.6,<4",
+    # The floor is 10.21.2 because that release is what makes `superfences`
+    # survive Pygments 2.20: under 10.21 and earlier the preprocessor stops
+    # matching fences entirely and every code block degrades to running text,
+    # with nothing raised. Bisected 10.20.1 and 10.21 broken, 10.21.2 and
+    # 10.21.3 correct, all against pygments 2.20.0.
+    #
+    # This constraint belongs here rather than in the `mkdocs` extra, which is
+    # where 0.1.0 wrongly put its half of it. `pymdownx.superfences` is loaded
+    # by `render/flat.py` for `hmd render --to html`, so the base install needs
+    # the guarantee whether or not a site is ever built.
+    "pymdown-extensions>=10.21.2,<12",
 ]
 
 [project.optional-dependencies]
@@ -66,13 +81,14 @@ mkdocs = [
     # (HMD-0022 §5-§6). The `d2` binary itself is not a Python dependency and
     # is installed separately; without it diagrams show their source.
     #
-    # Pygments 2.20.0 breaks pymdownx.superfences: its preprocessor stops
-    # matching fences entirely, so every code block on every page silently
-    # degrades to inline text. Nothing errors — the build stays green and the
-    # site is wrong. Lift the ceiling once pymdown-extensions ships a fix.
-    "pygments<2.20",
+    # No `pygments` ceiling. 0.1.0 carried `pygments<2.20` here because 2.20.0
+    # stopped `pymdownx.superfences` matching fences at all. The defect was
+    # upstream of Pygments rather than in it, and `pymdown-extensions` 10.21.2
+    # fixes it, so the constraint now lives with that package as a floor in the
+    # base dependencies above — which is also where it can protect
+    # `hmd render --to html`.
 ]
-dev = ["pytest>=8"]
+dev = ["pytest>=8,<10"]
 
 [project.urls]
 Homepage = "https://ewiger.github.io/hyper-markdown/"

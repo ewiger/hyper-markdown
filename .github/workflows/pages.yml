@@ -37,10 +37,12 @@ jobs:
           python-version: "3.13"
           enable-cache: true
 
+      # From the lockfile, so the published site is built from the same versions
+      # the tests ran against. A deploy that resolved freshly could differ from
+      # a green CI run on nothing but an upstream release, which is how issue
+      # 0003 reached the site in the first place.
       - name: Install
-        run: |
-          uv venv
-          uv pip install -e ".[mkdocs]"
+        run: uv sync --locked --extra mkdocs
 
       # Diagrams degrade to a labelled placeholder without this, which would
       # publish quietly wrong pages rather than failing — so the deploy needs

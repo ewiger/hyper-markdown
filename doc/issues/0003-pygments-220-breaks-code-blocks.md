@@ -39,13 +39,35 @@ is red.
 
 ## Fix
 
-`pygments<2.20` in the `mkdocs` extra of `pyproject.toml`, with the reason
-recorded beside it. Lift the ceiling once `pymdown-extensions` ships a fix.
+Originally `pygments<2.20` in the `mkdocs` extra of `pyproject.toml`, with the
+reason recorded beside it, to be lifted once `pymdown-extensions` shipped a fix.
 
 A configuration workaround exists — `pymdownx.highlight` with
 `use_pygments: false` restores the fences — but it turns off syntax
 highlighting for everyone, including correctly-pinned installs. The pin keeps
 the colours.
+
+## Resolved upstream (0.1.1)
+
+`pymdown-extensions` **10.21.2**, published the same day as Pygments 2.20.0,
+makes `superfences` match fences again. Re-bisected against `pygments 2.20.0`:
+
+| pymdown-extensions | pygments | result |
+| --- | --- | --- |
+| 10.20.1 | 2.20.0 | plain text |
+| 10.21 | 2.20.0 | plain text |
+| 10.21.2 | 2.20.0 | code blocks |
+| 10.21.3 | 2.20.0 | code blocks |
+| 11.0.1 | 2.20.0 | code blocks |
+
+So the ceiling came off and the constraint became `pymdown-extensions>=10.21.2`.
+Two things changed with it. It moved to the **base** dependencies: the extra was
+the wrong home, because `pymdownx.superfences` is loaded by `render/flat.py` for
+`hmd render --to html`, so a plain `pip install hyper-markdown` had no
+protection at all — 0.1.0 could render fences as running text with no site in
+sight. And the versions the project actually builds with are now in `uv.lock`
+rather than left to a resolver, which is what would have made this land as a
+reviewable diff instead of an ordinary CI run.
 
 ## Guard
 

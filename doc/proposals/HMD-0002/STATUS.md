@@ -9,10 +9,11 @@ itself. A decision that needs discussion is named here as an open question and
 argued wherever it belongs; nothing else may hold a task list. Update the row in
 the same commit that changes the code.
 
-**Snapshot** (2026-08-07) — M5 done, published, and branded. `doc/` builds as a
+**Snapshot** (2026-08-08) — M5 done, live, and branded. `doc/` builds as a
 book with the wiki as a section of its nav, green under `mkdocs build --strict`,
-deployed to GitHub Pages from a workflow artifact, and carrying the project's
-own mark rather than stock Material. Nothing is known broken. What remains is
+and serving at <https://ewiger.github.io/hyper-markdown/> from a workflow
+artifact, carrying the project's own mark rather than stock Material. Builds are
+reproducible from `uv.lock`. Nothing is known broken. What remains is
 three open questions blocking `drafted → accepted`, and one deferred decision
 about which MkDocs successor to follow.
 
@@ -50,7 +51,8 @@ when a gate would catch its return, and every row below has one.
 | --- | --- | --- | --- |
 | M5.15 | `doc/public/` book, with the wiki as a section of its nav | [0001](../../issues/0001-book-and-wiki-in-one-site.md) | `mkdocs build --strict` |
 | M5.16 | Ordinary markdown links to `.hmd` files repointed at the rendered card | [0002](../../issues/0002-md-links-to-cards-404.md) | `tests/test_mkdocs.py` |
-| M5.17 | `pygments<2.20` pinned; a built page asserted to contain `<pre>` | [0003](../../issues/0003-pygments-220-breaks-code-blocks.md) | rendered HTML, not the version |
+| M5.17 | Fences kept working under Pygments 2.20 — pinned in 0.1.0, resolved upstream in 0.1.1 by requiring `pymdown-extensions>=10.21.2` in the base dependencies | [0003](../../issues/0003-pygments-220-breaks-code-blocks.md) | rendered HTML, not the version |
+| M5.23 | `uv.lock` committed; CI and the Pages deploy install with `uv sync --locked`, so the site is built from the versions the tests ran against | — | `uv sync --locked` fails on drift |
 | M5.18 | Callouts, math (MathJax), and D2 diagrams render; `diagram.py` | [0004](../../issues/0004-math-callouts-diagrams.md) | `tests/test_mkdocs.py` |
 | M5.19 | Strikethrough, tables, and task lists shown and gated | [0005](../../issues/0005-strikethrough-shown-as-its-own-source.md) | `<del>`, `<table`, task item in built HTML |
 | M5.20 | An escaped pipe inside a table code span kept its backslash, on the page whose job is to show what to type; cells rewritten as raw inline HTML | [0006](../../issues/0006-escaped-pipe-in-a-table-code-span.md) | `tests/test_docs.py` |
@@ -92,7 +94,7 @@ Known, accepted, not being fixed now.
 | --- | --- | --- |
 | L1 | MkDocs is pinned `>=1.6,<2` | MkDocs 2.0 is a ground-up rewrite published under the same name and has **no plugin system**. For this project that is not a breaking upgrade but deletion — the entry point is how a `.hmd` card reaches a page at all. It also moves config to TOML with no migration tool and ships without a license. See Q4 |
 | L2 | `mkdocs-material` is pinned `>=9,<10` | Material 9 targets MkDocs 1.x and cannot run on 2.0 either. Whatever its next major targets is a decision to take deliberately |
-| L3 | `pygments<2.20` is pinned rather than fixed | 2.20 silently stopped `pymdownx.superfences` from matching any fence, so every code block rendered as running text while the build stayed green (issue 0003). Upstream's, not ours |
+| L3 | ~~`pygments<2.20` is pinned rather than fixed~~ — **lifted 2026-08-08 (0.1.1)** | `pymdown-extensions` 10.21.2 restores `superfences` under Pygments 2.20, so the ceiling became a floor on that package and moved to the base dependencies, where `hmd render --to html` also needs it. Re-bisected: 10.20.1 and 10.21 broken, 10.21.2 onward correct (issue 0003) |
 | L4 | MathJax loads from `unpkg.com` at view time | The only network dependency the site has; the build itself is offline. Without it `arithmatex` emits `\(…\)` and typesets nothing, so a reader offline sees math as its own source |
 | L5 | `validation.links.not_found: info` — a missing link target is reported, not fatal | Cards link out to the repository (proposals, styles, source) with ordinary relative links whose targets are real files but not site pages. The cost is that a genuinely broken relative link also only warns; wikilinks are checked by `hmd lint` instead |
 | L6 | D2 fences need the `d2` binary; without it a fence degrades to a labelled placeholder and the build stays green | Deliberate — no `mkdocs-d2-plugin`, so a missing binary cannot fail a build. The cost is that an environment without `d2` ships placeholders silently |
@@ -179,3 +181,15 @@ mkdocs serve                                  # live, watching the namespace roo
 - 2026-08-07: split out of the repo-root `STATUS.md`, which tracked both
   proposals at once. Progress is now tracked per proposal, and the to-do list is
   split into planned work, broken, limitations, and open questions.
+- 2026-08-08: published for real. Pages had to be switched to *GitHub Actions*
+  in the repository settings — until then the build was green and the deploy
+  returned 404, the silent failure L-notes had warned about. A second lesson
+  came with it: a failed Pages run must be re-dispatched, never re-run, because
+  a re-run adds a second `github-pages` artifact and `deploy-pages` then refuses
+  the run permanently.
+- 2026-08-08: issue 0003 resolved upstream. `pygments<2.20` lifted in favour of
+  `pymdown-extensions>=10.21.2` in the **base** dependencies — the old ceiling
+  sat in the `mkdocs` extra while `superfences` is loaded by
+  `hmd render --to html`, so the CLI was unprotected. `uv.lock` committed in the
+  same change, and CI and the deploy switched to `uv sync --locked`, so an
+  upstream release now arrives as a reviewable diff rather than on a routine run.

@@ -8,9 +8,15 @@ the *format*; this file explains the *repository*.
 ## Setup
 
 ```bash
-uv venv
-uv pip install -e ".[dev,mkdocs]"
+uv sync --locked --all-extras
 ```
+
+That installs the exact versions in [`uv.lock`](uv.lock) — the ones CI and the
+published site are built from — and fails rather than re-resolving if the lock
+and [`pyproject.toml`](pyproject.toml) have drifted apart. To change a
+dependency, edit the ranges in `pyproject.toml`, run `uv lock`, and commit the
+resulting lockfile in the same change: an upgrade should be a diff somebody
+approved, not whatever the index happened to serve that morning.
 
 The `mkdocs` extra is optional for the library and required for the site. D2
 diagrams render through the [`d2`](https://d2lang.com) binary, which is not a
@@ -52,6 +58,11 @@ green builds with wrong pages — `pygments` 2.20 silently stopped matching code
 fences, and strikethrough rendered as its own source. Both slipped because no
 test looked at rendered HTML. New rendering work asserts on the HTML, never on
 the configuration.
+
+The wheel smoke test is the one job deliberately left unlocked. It resolves
+fresh against the ranges in `pyproject.toml`, because its whole purpose is to
+exercise what a stranger gets from `pip install`, and a bad bound is invisible
+to a run that installs from the lock.
 
 ## Layout
 
@@ -106,12 +117,12 @@ mkdocs serve
 The plugin watches the namespace root, which MkDocs would otherwise ignore — a
 `.hmd` edit that triggered no rebuild would leave the preview quietly stale.
 
-Proposal numbers are allocated in fixed ranges so two branches can reserve them
-without coordinating: `HMD-0002`–`HMD-0019` for the Python and MkDocs line on
-`feat/mvp`, `HMD-0020`–`HMD-0099` for the editor and TypeScript line on
-`feat/vsc-ext`, and `HMD-0100`+ when the first range is exhausted. Reserve the
-number in [`doc/proposals/README.md`](doc/proposals/README.md) before creating
-the folder.
+Proposal numbers are allocated in fixed ranges so two lines of work can reserve
+them without coordinating: `HMD-0002`–`HMD-0019` for the Python and MkDocs line,
+now merged and continuing on `main`; `HMD-0020`–`HMD-0099` for the editor and
+TypeScript line on `feat/vsc-ext`; and `HMD-0100`+ when the first range is
+exhausted. Reserve the number in
+[`doc/proposals/README.md`](doc/proposals/README.md) before creating the folder.
 
 ## Getting the site onto the web
 
@@ -126,6 +137,16 @@ must have **Settings → Pages → Source** set to *GitHub Actions* — with the
 `--strict` is the same gate the test workflow applies. A build that warns is not
 published, which keeps the site and the lint result describing the same tree.
 
+**When a deploy fails, dispatch a fresh run — do not re-run the failed one.**
+`upload-pages-artifact` writes an artifact named `github-pages`, and a re-run
+adds a *second* one to the same run rather than replacing it; `deploy-pages`
+then refuses with `Multiple artifacts named "github-pages"`, so the run can
+never go green again no matter how often it is retried. `workflow_dispatch` on
+`pages.yml` gets a clean artifact namespace. The failure worth retrying this way
+is the transient one where deploy queries for the artifact before the metadata
+has propagated and reports `Found 0 artifact(s)` moments after a successful
+upload.
+
 One pin is worth knowing about: the MkDocs name is being reused for a ground-up
 rewrite with no plugin system, no migration path, and a different config format.
 A hyper-markdown site *is* a MkDocs plugin, so that release would not degrade it
@@ -133,8 +154,11 @@ A hyper-markdown site *is* a MkDocs plugin, so that release would not degrade it
 rather than left open, and which successor to follow is an open question rather
 than a decided one.
 
-The `pygments<2.20` ceiling is pinned for a related reason and lifts as soon as
-`pymdown-extensions` ships a fix; both pins carry their rationale inline in
+The `pygments<2.20` ceiling that stood beside it is gone as of 0.1.1. The defect
+was never really Pygments': `pymdown-extensions` 10.21.2 fixes it, so the
+constraint is now a floor on that package instead — and it moved into the base
+dependencies, since `pymdownx.superfences` is loaded by `hmd render --to html`
+and not only by the site. Every bound carries its rationale inline in
 [`pyproject.toml`](pyproject.toml).
 
 ## Cutting a release
