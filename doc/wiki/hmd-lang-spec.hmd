@@ -7,7 +7,7 @@ nav:
 
 # HMD Language Specification
 
-**This document specifies hyper-markdown 0.1, a strict superset of
+**This document specifies hyper-markdown 0.1, a syntactic extension of
 [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/).**
 
 ## Status of this document
@@ -44,16 +44,20 @@ each condition listed under *Diagnostics* with the identifier and severity given
 there. An implementation MAY provide constructs beyond this specification, but
 MUST NOT assign a different meaning to any construct defined here.
 
-**Strict superset.** Every document CommonMark 0.31.2 accepts is a
-hyper-markdown document, and its meaning is unchanged. Hyper-markdown neither
-redefines nor restricts any CommonMark construct. Where this document and
-CommonMark 0.31.2 disagree about inherited syntax, CommonMark is right; the
-inherited syntax is specified at <https://spec.commonmark.org/0.31.2/> and is
-not restated here.
+**CommonMark compatibility.** Every document CommonMark 0.31.2 accepts is
+syntactically valid hyper-markdown. CommonMark constructs retain their
+CommonMark meaning except where their bytes form a hyper-markdown construct
+defined by this specification; hyper-markdown also assigns semantics to some
+sequences CommonMark treats as literal text. Where this document and CommonMark
+0.31.2 disagree about inherited syntax, CommonMark is right; the inherited
+syntax is specified at <https://spec.commonmark.org/0.31.2/> and is not restated
+here.
 
-The consequence worth stating plainly: renaming a `.md` file to `.hmd` cannot
-change what it means. A construct this specification adds is only ever a
-sequence CommonMark leaves as literal text.
+The consequence worth stating plainly: renaming a `.md` file to `.hmd`
+preserves its syntactic validity, but can change how it is interpreted. For
+example, `[[foo]]` is literal text in CommonMark and a wikilink in
+hyper-markdown, while a leading `---` block that matches the grammar below is
+frontmatter in hyper-markdown.
 
 **Arbitration.** Where two implementations disagree about behaviour this
 document leaves under-determined, the language-neutral conformance corpus at

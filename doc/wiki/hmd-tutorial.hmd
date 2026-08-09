@@ -16,13 +16,16 @@ the specification is right. This one is here to be read once, in order, by
 someone who has not written a card before.
 
 The baseline is [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/), taken
-whole. Every document CommonMark accepts is a hyper-markdown document with the
-same meaning; hyper-markdown neither redefines nor restricts any of it.
+whole. Every document CommonMark accepts is syntactically valid
+hyper-markdown. CommonMark constructs keep their meaning unless their bytes
+form a hyper-markdown construct, and some text CommonMark treats as literal
+gains hyper-markdown semantics.
 
 Hyper-markdown is Markdown with **wiki** links, **html** richness, and more added.
-Everything you already know about Markdown stays true. Rename a `.md` file to
-`.hmd` and it is already valid: nothing breaks, nothing changes, and you have
-gained the option of using the rest of this page.
+Everything you already know about Markdown constructs stays true. Rename a
+`.md` file to `.hmd` and it remains syntactically valid, but existing text such
+as `[[foo]]` or a leading frontmatter-shaped block can gain the meanings taught
+on this page.
 
 ## What a file is
 
@@ -47,8 +50,9 @@ That is the entire file format. The rest of this page is syntax.
 
 ## The syntax you inherit
 
-All of Markdown works, unchanged. Every construct below appears twice: **what
-you type**, in a fenced block, and then the result that produces on this page.
+All CommonMark constructs work as specified. Every construct below appears
+twice: **what you type**, in a fenced block, and then the result that produces
+on this page.
 
 ### Paragraphs, emphasis, and links
 

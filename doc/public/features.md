@@ -26,7 +26,7 @@ you typed by hand and now maintain by hand. No diagrams. No mathematics. No way
 to say a thing once and use it in ten places. No way to be wrong about a link
 and find out before your reader does.
 
-Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, and it is a strict superset of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. It is also the only one with a conformance test suite, so you can be sure that what you write is what your reader sees.
+Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, built as a syntactic extension of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. Every CommonMark document remains syntactically valid, while text that CommonMark treats as literal can gain hyper-markdown semantics such as wikilinks or frontmatter.
 
 > CommonMark specification: https://commonmark.org/
 
