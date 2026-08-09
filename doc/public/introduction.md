@@ -5,7 +5,7 @@ requires nothing — any editor, any renderer, GitHub's file view all show you a
 sensible page. Writing one is a single page of new syntax on top of what you
 already know. And underneath both sits a toolchain that treats your writing the
 way a compiler treats a program: names resolve, references are checked, and
-ambiguity is an error rather than a guess.
+multiple autodiscovery matches are reported rather than ranked.
 
 This chapter is the format at a glance. Every layer appears here briefly, with
 a pointer to where it is treated properly; none is specified here.
@@ -13,9 +13,10 @@ a pointer to where it is treated properly; none is specified here.
 ## Three layers of syntax
 
 **The Markdown you know.** Paragraphs, emphasis, headings, lists, blockquotes,
-fenced code. All of it works, unchanged — hyper-markdown neither redefines nor
-restricts it, and a fenced block stays literal all the way down, which is the
-escape hatch for showing syntax instead of invoking it.
+fenced code. These CommonMark constructs remain available, and a fenced block
+stays literal all the way down, which is the escape hatch for showing syntax
+instead of invoking it. Byte sequences recognized as HMD syntax — such as
+wikilinks and frontmatter — acquire HMD semantics.
 
 **The rich layer.** Tables, footnotes, task lists, callouts, TeX mathematics,
 D2 diagrams. None of these are original Markdown, and none are
@@ -41,8 +42,8 @@ part of one*:
 | `[[card#^name]]` | a link to that named block |
 | `![[…]]` | an embed — any of the above, spliced in |
 
-The surface hyper-markdown defines is kept deliberately small — small enough to
-specify, and small enough that the resolver behind it stays checkable. The
+The surface hyper-markdown defines is small enough to specify and small enough
+that the resolver behind it stays checkable. The
 richness comes from everywhere else on the page, bought from the Markdown
 ecosystem rather than rebuilt, which is why the feature set keeps growing
 while the table above does not have to.
@@ -50,9 +51,9 @@ while the table above does not have to.
 ## Names, and how they are found
 
 `[[card]]` is a name, not a path. A folder is a *module*, the card beside you
-wins over a card far away, and a name that could mean two pages is an error
-you are asked to qualify. This is the part that makes hyper-markdown feel like
-a language rather than a convention, and it has its own chapter:
+wins over a card far away, and multiple autodiscovery matches require a
+qualified reference. Ordered wildcard imports instead use declaration
+precedence and report a shadowing warning. The complete rules are in
 [Namespaces](namespaces.md).
 
 ## Frontmatter
@@ -68,16 +69,16 @@ Every other key is yours, and nothing will inspect it.
 `hmd lint` reads the tree and reports what it could not resolve — file, line,
 rule ID. The distinction it draws is a compiler's: a link to a card that does
 not exist yet is a **warning**, because writing forward is how a wiki grows; a
-link that is ambiguous or malformed is an **error**, because that is the one
-thing the language refuses to guess at. Everything else about your prose is
-left alone.
+malformed link or multiple autodiscovery matches are **errors**. Explicitly
+ordered wildcard imports use declaration precedence and report shadowing as a
+warning. Everything else about your prose is left alone.
 
 ## Adopting it
 
-A `.hmd` file is still Markdown — that is the superset property, and it is why
-adoption can be gradual: rename one `.md` to `.hmd`, add one link, run
-`hmd lint`. Nothing you have written is ever wrong, and nothing forces the
-rest of the tree to follow.
+A `.md` file remains syntactically valid after it is renamed to `.hmd`, so
+adoption can be gradual: rename one file, review any text that now has HMD
+semantics, add one link, and run `hmd lint`. Nothing forces the rest of the tree
+to follow.
 
 ## Where the full picture lives
 
@@ -86,8 +87,7 @@ rest of the tree to follow.
   stated exactly.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive
   inventory: every feature, what provides it, and where it stands — including
-  what is deferred or deliberately absent, so nothing gets re-argued from
-  scratch.
+  what is deferred or absent, so nothing gets re-argued from scratch.
 - [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd) makes the argument
   that `.hmd` stands to `.md` as TypeScript stands to JavaScript.
 - [HMD-0001](../proposals/HMD-0001/README.md) is the normative specification

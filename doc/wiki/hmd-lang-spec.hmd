@@ -7,7 +7,7 @@ nav:
 
 # HMD Language Specification
 
-**This document specifies hyper-markdown 0.1, a strict superset of
+**This document specifies hyper-markdown 0.1, a syntactic extension of
 [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/).**
 
 ## Status of this document
@@ -44,16 +44,20 @@ each condition listed under *Diagnostics* with the identifier and severity given
 there. An implementation MAY provide constructs beyond this specification, but
 MUST NOT assign a different meaning to any construct defined here.
 
-**Strict superset.** Every document CommonMark 0.31.2 accepts is a
-hyper-markdown document, and its meaning is unchanged. Hyper-markdown neither
-redefines nor restricts any CommonMark construct. Where this document and
-CommonMark 0.31.2 disagree about inherited syntax, CommonMark is right; the
-inherited syntax is specified at <https://spec.commonmark.org/0.31.2/> and is
-not restated here.
+**CommonMark compatibility.** Every document CommonMark 0.31.2 accepts is
+syntactically valid hyper-markdown. CommonMark constructs retain their
+CommonMark meaning except where their bytes form a hyper-markdown construct
+defined by this specification; hyper-markdown also assigns semantics to some
+sequences CommonMark treats as literal text. Where this document and CommonMark
+0.31.2 disagree about inherited syntax, CommonMark is right; the inherited
+syntax is specified at <https://spec.commonmark.org/0.31.2/> and is not restated
+here.
 
-The consequence worth stating plainly: renaming a `.md` file to `.hmd` cannot
-change what it means. A construct this specification adds is only ever a
-sequence CommonMark leaves as literal text.
+The consequence worth stating plainly: renaming a `.md` file to `.hmd`
+preserves its syntactic validity, but can change how it is interpreted. For
+example, `[[foo]]` is literal text in CommonMark and a wikilink in
+hyper-markdown, while a leading `---` block that matches the grammar below is
+frontmatter in hyper-markdown.
 
 **Arbitration.** Where two implementations disagree about behaviour this
 document leaves under-determined, the language-neutral conformance corpus at
@@ -117,20 +121,42 @@ rather than invoking one.
 embed        := "!" wikilink
 wikilink     := "[[" target [ "|" display ] "]]"
 target       := page_ref [ fragment ]
-page_ref     := absolute | relative | bare
+page_ref     := absolute | relative | unqualified
 absolute     := "/" segment { "/" segment }
-relative     := ( "./" | "../" ) { segment | ".." } { "/" ( segment | ".." ) }
-bare         := segment { "/" segment }
+path_component := segment | ".."
+relative     := "./" [ path_component { "/" path_component } ]
+              | "../" [ path_component { "/" path_component } ]
+unqualified  := bare_name | unqualified_path
+bare_name    := segment
+unqualified_path := segment "/" segment { "/" segment }
 fragment     := "#" heading_text
               | "#^" block_id
-segment      := 1*( any character except reserved )
+segment      := 1*( any character except "/" or reserved )
+heading_text := heading_first { heading_char }
+heading_first := any character except "[" / "]" / "|" / "^" / newline
+heading_char := any character except "[" / "]" / "|" / newline
 display      := 1*( any character except "[" / "]" / newline )
-block_id     := ALPHA / DIGIT *63( ALPHA / DIGIT / "_" / "-" )
+block_id     := ( ALPHA / DIGIT ) *63( ALPHA / DIGIT / "_" / "-" )
 reserved     := "[" | "]" | "|" | "#" | "^" | newline
 ```
 
+- A **bare name** is exactly one `segment`, with no `/`, `./`, `../`, leading
+  `/`, or namespace qualifier. A page reference with two or more segments and
+  no leading path marker is an **unqualified path**. Bare names and unqualified
+  paths are collectively **unqualified references** and use the same search
+  phases below; only a bare name can match a named import.
+- The reserved `namespace:path` form is a **namespace-qualified reference**,
+  not a bare name. Namespace qualification is not part of the 0.1 grammar or
+  resolution algorithm.
 - The **reserved character set** inside a `target` is exactly `[`, `]`, `|`,
   `#`, `^`, and newline. These MUST NOT appear literally in a `segment`.
+- `/` is the segment separator and MUST NOT appear inside a `segment`.
+- A `heading_text` MUST contain at least one non-whitespace character. `#` and
+  `^` MAY appear after its first character; `[`, `]`, `|`, and newline MUST NOT
+  appear because they delimit or terminate the surrounding wikilink.
+- `./` and `../` with no following component are valid relative references to
+  the current and parent directory. They resolve only when that directory has a
+  folder note, and the ordinary namespace containment rule still applies.
 - **No escape mechanism exists in this version.** A target that needs a reserved
   character is a malformed link, reported as HMD010. This is a known gap rather
   than a design position.
@@ -185,7 +211,9 @@ does not conform.
 
 ## The namespace
 
-The namespace is a single rooted subtree. Nothing outside it is addressable.
+The namespace is a single rooted subtree. In version 0.1, nothing outside it is
+addressable by an HMD page reference. Ordinary Markdown links remain able to
+address files and URLs outside that subtree.
 
 - The **project root** is the nearest ancestor directory containing a `.hmd/`
   directory, falling back to the nearest ancestor containing `.git`.
@@ -200,25 +228,27 @@ The namespace is a single rooted subtree. Nothing outside it is addressable.
 
 A directory inside the namespace is a **module**: it is the unit that scopes a
 name and the unit that inherits configuration. A directory MAY carry a **folder
-note**, an `index.hmd`, in which case the directory's name and that card are one
-address.
+note**, an `index.hmd`. A reference to the directory and a reference to its
+explicit `index` path resolve to that one card.
 
 ## Name resolution
 
-A `page_ref` is a **name**, not a path. Resolution turns it into exactly one
-card, or into a diagnosable failure. It never guesses.
+A `page_ref` is a local card reference. An absolute or relative path is followed
+directly. An unqualified reference is searched for and resolves to exactly one
+card or a diagnosable failure.
 
-Resolution runs as a **spine walk** — pure path arithmetic from the card
-outward to the root — and, only if that finds nothing, a single **sweep** of the
-tree. The two phases answer different questions. The spine answers *what does
-this name mean here*, which must be predictable enough to hold in your head. The
-sweep answers *does this name exist anywhere*, which is a convenience and is
-allowed to fail loudly.
+Unqualified resolution checks named imports, then runs a **spine walk** — pure
+path arithmetic from the card outward to the root — followed by imported search
+paths and, only if those find nothing, a single **sweep** of the tree. The spine
+and sweep answer different questions. The spine answers *what does this
+reference mean here*, which must be predictable enough to hold in your head.
+The sweep answers *does this reference exist anywhere*, which is a convenience
+and is allowed to fail loudly.
 
-### Binding a name in one directory
+### Binding an unqualified reference in one directory
 
-Both phases bind a name identically, so a folder note behaves the same
-everywhere.
+Every search phase binds an unqualified reference identically, so a folder note
+behaves the same everywhere.
 
 ```text
 bind(dir, parts) -> Resolved(path) | NotFound
@@ -233,11 +263,12 @@ bind(dir, parts) -> Resolved(path) | NotFound
 ```
 
 - A target naming a directory MUST resolve to that directory's `index.hmd`. The
-  directory name and the explicit `index` name therefore address the same card.
-- If a card and a folder note claim the same name as siblings, the card wins so
-  that resolution stays deterministic, and the pair MUST be reported as HMD012.
-  Two files claiming one name is a content defect, not a tie to be broken
-  silently.
+  directory-form reference and the explicit `index` reference therefore resolve
+  to the same card.
+- If a card and a folder note claim the same name as siblings, the pair MUST be
+  reported as HMD012. For deterministic diagnostics and rendering after that
+  error, an implementation MUST select the file card. The selection does not
+  make the collision valid.
 
 ### The algorithm
 
@@ -258,7 +289,7 @@ resolve(target, source, root) -> Resolved(path) | Unresolved | Ambiguous(paths) 
        if base is outside root: return Escapes
        return bind(dirname(base), [basename(base)]) or Unresolved
 
-  3. BARE — anything else
+  3. UNQUALIFIED — anything else
 
        # Phase 0 — named imports. The most explicit thing wins.
        if size(parts) == 1 and parts[0] in bindings:
@@ -290,31 +321,33 @@ resolve(target, source, root) -> Resolved(path) | Unresolved | Ambiguous(paths) 
 ```
 
 `addressable_parts(p)` is `p`'s root-relative parts without the suffix, plus —
-when `p` is a folder note — the parts of its directory, so that a name means the
-same thing in the sweep as it does on the spine.
+when `p` is a folder note — the parts of its directory, so that an unqualified
+reference means the same thing in the sweep as it does on the spine.
 
 ### Rules the algorithm must satisfy
 
-- **Precedence follows explicitness.** A named import beats the spine, and the
-  spine beats an imported search path. A named binding is the author pointing at
-  one card, so it MUST be able to shadow a local card — that is what it is for.
-  A wildcard import is bulk convenience, so it MUST NOT. The resulting property
-  is worth stating plainly: adding a wildcard import can only resolve links that
-  were previously unresolved; it can never change what an already-working link
-  means.
+- Resolution follows the phase order above. A named import is evaluated before
+  the spine and MAY shadow a local card. The spine is evaluated before wildcard
+  import origins, so a wildcard import MUST NOT override either a named import
+  or a spine match. Because wildcard imports precede autodiscovery, adding one
+  MAY change a reference that previously resolved through autodiscovery.
 - The spine MUST run from the card's own directory outward to the root,
   inclusive of both ends, and each directory MUST be probed **non-recursively**.
-  A bare name therefore means exactly *an import, or here, or a folder above me*
-  — it can never reach sideways into a sibling module.
+  The spine never searches sideways into a sibling module. For a bare name it
+  probes the card's own directory and each ancestor directory in turn.
 - Imported search paths MUST be probed in declaration order, non-recursively.
   Where two of them hold the name, the earlier declaration wins; because that is
   easy to write by accident, the shadowed candidate MUST be reported as HMD016.
 - The sweep MUST run only when the earlier phases found nothing, and MUST run at
   most once. Every match it produces is off-spine and off-path by construction,
   so the phases can never disagree.
+- Complete unqualified-reference resolution is not confined to the spine. When
+  the earlier phases find nothing and autodiscovery is enabled, the sweep MAY
+  resolve a unique match in a sibling module or elsewhere in its configured
+  scope.
 - The sweep MUST address folder notes by their directory name, exactly as
-  binding does. Without this, one name would mean two different things depending
-  on where it was written.
+  binding does. Without this, one reference would mean two different things
+  depending on where it was written.
 - In the sweep **all matches rank equally**. A shallower match MUST NOT beat a
   deeper one, and more than one match MUST be reported as HMD002 rather than
   resolved. The remedy is to qualify the link, not to memorise a tie-break.
@@ -338,9 +371,8 @@ Once a card is resolved, its fragment is matched against that card.
 
 Configuration is two-level, and the levels answer different questions. A card
 says **whether** a feature applies to it; project configuration says **how** that
-feature behaves. This keeps the algorithm uniform across a tree — a reader never
-has to ask which search strategy a given card used — while still letting any
-single card opt out.
+feature behaves. The ordering of resolution phases is uniform across the tree;
+a card may disable the final autodiscovery phase.
 
 ```yaml
 ---
@@ -379,8 +411,8 @@ nav:
   header or in the link itself.
 - **`use` inherits.** A `use` list in a directory's folder note applies to that
   directory's whole subtree; the nearest declaration wins, and a card overrides
-  its directory. This is what makes a directory a module rather than a naming
-  convention.
+  its directory. The folder note supplies module-level configuration; the
+  directory is already a module by definition.
 - An unrecognised feature name MUST be reported as HMD013 rather than ignored.
   Silently dropping a misspelling hands the author the default while they
   believe they configured something else.
@@ -393,7 +425,7 @@ nav:
 import_stmt := "from" WS ref WS "import" WS import_list
 import_list := "*" | binding *( "," WS binding )
 binding     := name [ WS "as" WS alias ]
-ref         := absolute | relative          ; never bare
+ref         := absolute | relative          ; never unqualified
 name        := segment
 alias       := segment
 ```
@@ -403,15 +435,15 @@ The two forms do different jobs:
 - **A named binding** binds one name. The local name — the alias if given,
   otherwise the imported name — resolves to that one card and to nothing else.
 - **A wildcard** adds a search origin. That directory joins the list of
-  directories a bare name is probed against, after the spine. It does NOT
-  eagerly bind the directory's contents, so a card added there later becomes
-  reachable without editing the importing card.
+  directories an unqualified reference is probed against, after the spine. It
+  does NOT eagerly bind the directory's contents, so a card added there later
+  becomes reachable without editing the importing card.
 
-- A `ref` MUST be absolute or relative, never bare. A bare `ref` would need
-  resolving by the very algorithm the import feeds.
+- A `ref` MUST be absolute or relative, never unqualified. An unqualified `ref`
+  would need resolving by the very algorithm the import feeds.
 - An imported origin MUST be probed non-recursively, matching the spine, so the
   reachable set stays legible from a directory listing.
-- A named binding applies only to **single-segment** bare targets. A binding
+- A named binding applies only to bare names. A binding
   names a card, not a module, so a multi-segment target falls through it. Search
   origins carry no such restriction.
 - Two named bindings of the same local name MUST be reported as HMD015.
@@ -423,9 +455,10 @@ The two forms do different jobs:
   header regardless of whether the body exercises it.
 - A malformed statement MUST be reported as HMD014.
 - **`import` does NOT inherit.** Unlike `use`, an import in a folder note binds
-  names for that file alone. Inherited bindings would make a bare name in a leaf
-  card resolvable only by reading a file the author may never have opened —
-  precisely the action at a distance that imports exist to eliminate.
+  names for that file alone. Inherited bindings would make an unqualified
+  reference in a leaf card resolvable only by reading a file the author may
+  never have opened — precisely the action at a distance that imports exist to
+  eliminate.
 
 ### `nav` — placement and publication
 
@@ -486,10 +519,8 @@ mode = "both"            # both (default) | recursive — how the sweep searches
   name. A card overrides it freely in either direction.
 - **`mode`** decides how the sweep searches once it runs. `both` sweeps the
   whole namespace; `recursive` sweeps only the source card's own subtree.
-- `mode` MUST NOT be settable per card. A tree where different cards resolve
-  names by different *algorithms* cannot be read with confidence, whereas a card
-  that has merely turned discovery off states something a reader can check
-  locally.
+- `mode` MUST NOT be settable per card. A card MAY disable autodiscovery, but it
+  MUST NOT redefine the scope or ranking of an enabled autodiscovery phase.
 
 Precedence, most specific first — frontmatter always beats configuration,
 because the card is the most local place an author can say what they mean:
@@ -538,7 +569,7 @@ suppression comments and CI configuration reference them.
 | ID | Severity | Condition |
 | --- | --- | --- |
 | HMD001 | warning | Link target does not resolve |
-| HMD002 | error | A bare name matches more than one card in the sweep |
+| HMD002 | error | An unqualified reference matches more than one card in the sweep |
 | HMD003 | error | A target resolves outside the namespace root |
 | HMD004 | error | A heading fragment is not present in the resolved card |
 | HMD005 | error | A block identifier is not present in the resolved card |
@@ -552,23 +583,22 @@ suppression comments and CI configuration reference them.
 | HMD013 | error | Unrecognised `use` feature, or a malformed `tags` or `nav` value |
 | HMD014 | error | Malformed `import` statement |
 | HMD015 | error | An import `ref` does not resolve, or two named imports bind one local name |
-| HMD016 | warning | A bare name matched two imported search paths; the earlier won |
+| HMD016 | warning | An unqualified reference matched two imported search paths; the earlier won |
 | HMD017 | warning | A published card links to or embeds one that is not published |
 
-The distinction between the two severities is a compiler's, and it is the whole
-of the language's strictness policy. A reference to a card that does not exist
-yet is a **warning**: writing forward is permitted, and the report is a to-do
-list. A reference that is ambiguous, that escapes the root, or that is malformed
-is an **error**: the language will not choose on the author's behalf.
+An unresolved reference is a **warning**: writing forward is permitted, and the
+report is a to-do list. Multiple autodiscovery matches are an **error** because
+autodiscovery has no ranking rule. Explicitly ordered wildcard import origins
+use declaration order, and a shadowed match is reported as HMD016.
 
 - Each diagnostic MUST carry the rule identifier, the severity, a root-relative
   path with POSIX separators, a line, a column, and a message. An ambiguity MUST
   additionally carry its sorted candidate list.
 - Diagnostics MUST be emitted sorted by path, then line, then column, then rule.
-- An implementation offering a strict mode MUST implement it as promoting every
-  warning to an error. It MUST NOT change which diagnostics are produced, only
-  how they are counted: a strict run and an ordinary run over the same tree
-  differ in outcome, never in output.
+- Strict mode MUST NOT alter diagnostic records or their reported severity. For
+  aggregate counts and command success or failure only, it MUST count every
+  warning as an error. A strict and ordinary run over the same tree therefore
+  contain the same diagnostics but differ in their summary and outcome.
 
 Nothing else about a card is checked. This language checks the graph and makes
 no claim about prose, headings, or inherited Markdown.

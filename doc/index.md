@@ -72,12 +72,13 @@ note: "The two upper layers are what hyper-markdown adds, and a specification is
 }
 ```
 
-* **A superset of CommonMark.** Rename a `.md` file to `.hmd` and it is already
-  valid — nothing breaks, and the format is adopted one file at a time.
+* **A syntactic superset of CommonMark.** Rename a `.md` file to `.hmd` and it
+  remains valid. HMD preserves CommonMark constructs while assigning added
+  meaning to HMD syntax such as wikilinks and frontmatter.
 
 * **Names, not paths.** `[[tokens]]` is looked up beside the card and then upward
-  through its parent folders. A name that could mean two documents is an error
-  rather than a guess.
+  through its parent folders. Multiple autodiscovery matches are an error;
+  explicitly ordered import paths use declaration precedence.
 
 * **Documents made of documents.** `![[glossary/token#^definition]]` splices one
   named block into another page. Write a definition once and embed it everywhere
@@ -131,15 +132,15 @@ reserved and not yet designed.
 
 What a page can carry, shown working rather than described, is
 [Features](public/features.md). How a bare name becomes a page — the spine walk,
-imports, ambiguity as an error, and the module/namespace distinction — is
+imports, autodiscovery ambiguity, and the module/namespace distinction — is
 [Namespaces](public/namespaces.md).
 
 ## Tools
 
 `hmd` lints a tree, renders a card to markdown or HTML, and dumps the resolved
 graph. A missing target is a warning, because writing forward is how a wiki
-grows; an ambiguous or malformed one is an error, because that is the one thing
-the format refuses to guess at.
+grows. Malformed references and multiple autodiscovery matches are errors;
+ordered wildcard imports resolve by declaration order and report shadowing.
 
 There are three of them, one directory each under `tools/` in the repository,
 each carrying its own version, README, and changelog:
@@ -190,7 +191,7 @@ text leaves under-determined, the language-neutral conformance corpus decides.
 
 The language is at 0.1. The text is drafted, and it will move before 1.0.
 
-How it gets there is a separate process, and deliberately a formal one. A change
+How it gets there is a separate formal process. A change
 is argued out first as a numbered technical proposal — `HMD-0001`, `HMD-0002`,
 and so on — in the style of RFCs and lightweight ADRs: a problem, the decision
 taken, the alternatives rejected, and a tracker of its own. Most of them are not

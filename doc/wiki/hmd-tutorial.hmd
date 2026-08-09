@@ -10,26 +10,30 @@ nav:
 **This page teaches hyper-markdown. Read it start to finish and you can write
 the format; nothing else is required reading.**
 
-It is deliberately not the normative text. Where this page says "forgiving" or
+It is not the normative text. Where this page says "forgiving" or
 "roughly", the exact rule is in [[hmd-lang-spec]], and where the two disagree
 the specification is right. This one is here to be read once, in order, by
 someone who has not written a card before.
 
 The baseline is [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/), taken
-whole. Every document CommonMark accepts is a hyper-markdown document with the
-same meaning; hyper-markdown neither redefines nor restricts any of it.
+whole. Every document CommonMark accepts is syntactically valid
+hyper-markdown. CommonMark constructs keep their meaning unless their bytes
+form a hyper-markdown construct, and some text CommonMark treats as literal
+gains hyper-markdown semantics.
 
 Hyper-markdown is Markdown with **wiki** links, **html** richness, and more added.
-Everything you already know about Markdown stays true. Rename a `.md` file to
-`.hmd` and it is already valid: nothing breaks, nothing changes, and you have
-gained the option of using the rest of this page.
+Everything you already know about Markdown constructs stays true. Rename a
+`.md` file to `.hmd` and it remains syntactically valid, but existing text such
+as `[[foo]]` or a leading frontmatter-shaped block can gain the meanings taught
+on this page.
 
 ## What a file is
 
 A **card** is one `.hmd` file. It explains one idea, and its value is in what it
 links to. Cards live under a single directory — `doc/wiki/` here — and that
-directory is the whole world: a link can reach any card in it and nothing
-outside it.
+directory is the default namespace root. In HMD 0.1 it bounds all HMD
+page-reference resolution. Ordinary Markdown links can still reach files and
+URLs outside it.
 
 A card may open with a metadata block, then it is ordinary Markdown:
 
@@ -47,8 +51,9 @@ That is the entire file format. The rest of this page is syntax.
 
 ## The syntax you inherit
 
-All of Markdown works, unchanged. Every construct below appears twice: **what
-you type**, in a fenced block, and then the result that produces on this page.
+All CommonMark constructs work as specified. Every construct below appears
+twice: **what you type**, in a fenced block, and then the result that produces
+on this page.
 
 ### Paragraphs, emphasis, and links
 
@@ -81,9 +86,8 @@ and the address in parentheses.
 ```
 
 This one is shown without its result, because live headings would join this
-page's own outline. That outline is exactly the point: heading nesting is what
-gives a card its structure, and it is also what makes parts of a card
-addressable — which is what *Linking into a card* below relies on.
+page's own outline. Heading nesting gives a card its structure and makes parts
+of it addressable, which *Linking into a card* below relies on.
 
 ### Lists
 
@@ -285,7 +289,7 @@ rather than to a blank space or a failed build.
 **Which program renders any of this is not part of the language.** The tools
 change; the syntax above is what you write either way. If you need the current
 implementation — which library, which version, what is gated by which test —
-that is [[hmd-feature-list]], deliberately kept off this page.
+that is [[hmd-feature-list]], which keeps implementation status off this page.
 
 ## The syntax hyper-markdown adds
 
@@ -304,7 +308,7 @@ The numbered inventory lives in [[hmd-feature-list]].
 Which renders as a link: see [[hmd-feature-list]]. The name is the card's
 filename without its extension — `hmd-feature-list.hmd` is written
 `[[hmd-feature-list]]`. You do not write a path, and you do not write `../`;
-*How a name is found* below explains how the name is located.
+*How a reference is found* below explains how the target is located.
 
 Linking to a card that does not exist yet is **not an error**. It renders as a
 red link and is reported as a warning, which makes it a usable way to mark
@@ -424,11 +428,23 @@ The rule, pulled in rather than repeated:
 ![[tokens#^rotation-rule]]
 ```
 
-## How a name is found
+## How a reference is found
 
 This is the part that makes hyper-markdown feel like a language rather than a
-convention: `[[token]]` is a **name**, and names get resolved by rules you can
-predict.
+convention: card references are resolved by rules you can predict. The form you
+write determines which rules apply.
+
+| Reference | Form |
+| --- | --- |
+| `[[login]]` | **bare name** — exactly one segment |
+| `[[specs/login]]` | **unqualified path** — multiple segments, no leading marker |
+| `[[./login]]`, `[[../login]]` | relative path |
+| `[[/specs/login]]` | absolute path from the namespace root |
+| `[[docs:login]]` | namespace-qualified reference *(reserved; not implemented in 0.1)* |
+
+A bare name has no `/`, `./`, `../`, leading `/`, or namespace qualifier. Bare
+names and unqualified paths are collectively **unqualified references** and use
+the same search phases. Absolute and relative paths are followed directly.
 
 Take this tree:
 
@@ -444,70 +460,62 @@ doc/wiki/
         └── login.hmd
 ```
 
-Resolution tries, in order:
+An unqualified reference is tried in four phases: a named import (for bare names
+only), the **spine**, wildcard import origins, then **autodiscovery**. The first
+match stops resolution.
 
-1. **A path, if you wrote one.** A leading `/` is absolute from the root; `./`
-   and `../` are relative to the current card.
-
-    ```markdown
-    [[glossary/token]]     that card in that folder
-    [[/tokens]]            the one at the root, whatever is nearby
-    [[../tokens]]          one folder up from the current card
-    ```
-
-2. **The nearest card, walking outward.** A bare name first looks beside the
-   current card, then in its parent folder, then that folder's parent, up to the
-   root. A card nearby wins over a card far away, which is what lets a folder
-   keep its own local vocabulary.
-
-    ```markdown
-    <!-- written in specs/auth/login.hmd -->
-    [[tokens]]
-    ```
-
-    Nothing named `tokens` sits beside `login.hmd`, so the walk steps up to
-    `specs/` and finds `specs/tokens.hmd`. The root's `tokens.hmd` is never
-    reached — the nearer card won. The same link written in `glossary/index.hmd`
-    finds the root one instead, because the walk from `glossary/` passes nothing
-    else on the way.
-
-3. **Anywhere under the root.** If the walk finds nothing, the whole tree is
-   searched by filename.
-
-    ```markdown
-    <!-- written in glossary/index.hmd -->
-    [[login]]
-    ```
-
-    Nothing on the spine matches, so the sweep runs and finds
-    `specs/auth/login.hmd`.
-
-A bare name never reaches *sideways*. Written in `glossary/`, `[[login]]` only
-resolves because the sweep ran — and the sweep is the phase that can fail:
+The spine looks beside the current card, then in its parent folder, then that
+folder's parent, up to the root. Each folder is probed non-recursively. A card
+nearby wins over a card far away, which lets a folder keep its own local
+vocabulary.
 
 ```markdown
-<!-- written in glossary/index.hmd, and this one is an error -->
+<!-- written in specs/auth/login.hmd -->
 [[tokens]]
 ```
 
-There is no `tokens` on the spine from `glossary/`… but there are two under the
-root, so the sweep matches both. That is an **error**, not a coin flip.
-Ambiguity is the one thing the language refuses to guess at: qualify the link
-and the error goes away.
+Nothing named `tokens` sits beside `login.hmd`, so the walk steps up to `specs/`
+and finds `specs/tokens.hmd`. The root's `tokens.hmd` is never reached — the
+nearer card won. The same link written in `glossary/index.hmd` finds the root one
+instead, because the walk from `glossary/` passes nothing else on the way.
+
+The spine never searches sideways. If it and the import phases find nothing,
+autodiscovery searches the configured scope, which is the whole namespace by
+default:
 
 ```markdown
-[[/tokens]]          or          [[specs/tokens]]
+<!-- written in glossary/index.hmd -->
+[[login]]
+```
+
+Nothing on the spine matches, so the sweep runs and finds
+`specs/auth/login.hmd`. Complete bare-name resolution can therefore reach
+sideways even though the spine cannot.
+
+Autodiscovery requires a unique match. If the tree also contained
+`admin/login.hmd`, the same link would be an error rather than a coin flip:
+
+```markdown
+<!-- written in glossary/index.hmd, and this one is an error -->
+[[login]]
+```
+
+The fix is to qualify the reference:
+
+```markdown
+[[/specs/auth/login]]          or          [[specs/auth/login]]
 ```
 
 A folder can also carry an `index.hmd`, in which case the folder's name and the
-index card are the same destination:
+explicit index path resolve to the same destination:
 
 ```markdown
 [[glossary]]         and         [[glossary/index]]
 ```
 
-Both reach `glossary/index.hmd`. That is what makes a folder note the landing
-page for its namespace rather than a file you have to name in full.
+The first is a bare name and the second an unqualified path, but both reach
+`glossary/index.hmd`. They are two reference spellings for one folder note, not
+two page names or two published pages.
 
 ## Metadata
 
@@ -537,9 +545,8 @@ tags: [area/auth, status/accepted]
 ---
 ```
 
-Tags say what a card is *about*. Folders say where it *lives*. Keeping those two
-axes separate is deliberate: a tag is never a link target, and `[[area/auth]]`
-does not reach one.
+Tags say what a card is *about*. Folders say where it *lives*. A tag is not a
+link target, so `[[area/auth]]` does not reach one.
 
 ### `use` — feature toggles
 
@@ -551,7 +558,7 @@ use: [no_autodiscovery]
 
 `use` switches features on or off for this card. Prefixing `no_` turns one off,
 so the card above is restricted to its imports and its spine: step 3 of *How a
-name is found* never runs for it, and every card it depends on is visible in its
+reference is found* never runs for it, and every card it depends on is visible in its
 own header or in the link itself.
 
 It **inherits** — put it in a folder's `index.hmd` and it governs that whole
@@ -564,7 +571,8 @@ use: [no_autodiscovery]
 ---
 ```
 
-This is what makes a folder a module rather than a naming convention.
+The folder note supplies module-level configuration to the subtree; the folder
+is already a module.
 
 ### `import` — binding a name explicitly
 
@@ -582,8 +590,9 @@ sits right beside this one. The second adds a **search origin**: bare names that
 the walk did not find are tried against `/glossary/` before the sweep runs, and a
 card added there later becomes reachable without editing this header.
 
-An import takes precedence over the search, which is the point — it is how you
-say what you mean when the walk would find something else.
+A named import takes precedence over the spine, so it can select a page that the
+walk would not choose. Wildcard origins run after the spine and before
+autodiscovery.
 
 ### `nav` — where the card is published
 
@@ -642,28 +651,29 @@ and you get a warning, which is a to-do list rather than a failure:
 glossary/index.hmd:11:3: warning[HMD001] [[idempotency]] does not resolve to a page
 ```
 
-Write the ambiguous one from *How a name is found*:
+Write the ambiguous one from *How a reference is found*:
 
 ```markdown
-The window is described in [[tokens]].
+The flow is described in [[login]].
 ```
 
 and you get an error, with the candidates it refused to choose between:
 
 ```text
-glossary/index.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it
-  (candidates: specs/tokens.hmd, tokens.hmd)
+glossary/index.hmd:14:5: error[HMD002] [[login]] matches 2 pages; qualify it
+  (candidates: admin/login.hmd, specs/auth/login.hmd)
 ```
 
-The distinction is worth internalising, because it is the same one a compiler
-draws. A link to a card that does not exist is a **warning** — you are allowed
-to write forward. A link that is *ambiguous*, that escapes the root, or that is
-malformed is an **error** — the language will not choose for you.
+The distinction is the same one a compiler draws. A link to a card that does not
+exist is a **warning** — you are allowed to write forward. A link that escapes
+the root, is malformed, or has multiple autodiscovery matches is an **error**.
+Ordered wildcard imports use declaration precedence and report shadowing as
+HMD016.
 
 Everything else about a card is left alone. Hyper-markdown checks the graph and
 nothing more: it has no opinion on your prose, your headings, or your Markdown.
 
-## What is deliberately not here
+## What is not here
 
 No inline properties, no highlights, no templates, no query language. Each is
 either postponed to a later specification or turned down; [[hmd-feature-list]]

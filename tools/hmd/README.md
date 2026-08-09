@@ -136,15 +136,17 @@ specs/auth/login.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it
 
 The distinction it draws is a compiler's. A link to a page you have not written
 yet is a **warning** — writing forward is how a wiki grows, so it renders as a
-red link instead of breaking the build. An ambiguous or malformed link is an
-**error**. Everything else about your prose is left entirely alone.
+red link instead of breaking the build. A malformed link or multiple
+autodiscovery matches is an **error**. Ordered wildcard imports instead use
+declaration precedence and report shadowing as HMD016.
 
 Resolution runs in phases and stops at the first hit: explicit imports, then the
 **spine** — this folder, then each folder above it, probed without recursion —
 then imported search paths, then one sweep of the whole tree. A bare name
-therefore means *"an import, or here, or a folder above me"*, and can never reach
-sideways into a sibling's namespace. Reach a sibling on purpose with
-`[[/shared/tokens]]`.
+is a one-segment reference such as `[[tokens]]`; `[[shared/tokens]]` is an
+unqualified path, not a bare name. The spine never searches sideways, but if
+the earlier phases miss, autodiscovery may resolve a unique card elsewhere in
+the namespace. Use `[[/shared/tokens]]` to make that dependency explicit.
 
 ## Publish it: a book with a wiki in it
 

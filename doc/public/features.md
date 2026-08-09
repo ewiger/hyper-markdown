@@ -8,13 +8,13 @@
 
 * **Transclusion** — embed complete documents, sections, or named blocks using the same addressing model: `![[page]]`, `![[page#Section]]`, `![[page#^block]]`.
 
-* **Modules and namespaces** — the filesystem provides the module structure. A bare name resolves beside the card and then upward through its parent folders, never sideways into a sibling; `[[/shared/tokens]]` and a frontmatter `import` cross a module boundary on purpose, and an ambiguous name is an error rather than a guess. The cross-tree address form `namespace:path/to/document` is reserved and specified in outline only *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*.
+* **Modules and namespaces** — the filesystem provides the module structure. A bare name is searched beside the card and then upward through its parent folders; that spine never searches sideways, but autodiscovery may resolve a unique match elsewhere when the spine finds nothing. An explicit path such as `[[/shared/tokens]]` or a frontmatter import crosses module boundaries without global discovery and makes the dependency visible. Multiple autodiscovery matches are an error. The cross-tree address form `namespace:path/to/document` is reserved and specified in outline only *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*.
 
 * **Metadata** — YAML frontmatter provides tags, imports, feature toggles, navigation hints, and application-specific metadata.
 
 * **Rich technical content** — TeX mathematics, D2 diagrams, callouts, collapsible sections, footnotes, heading permalinks, tables, code blocks, and other established Markdown extensions.
 
-* **Validation and tooling** — `hmd` lints a document tree, renders a card to markdown or HTML, and dumps the resolved link graph. A reference to a document that does not exist yet is a warning; an ambiguous or malformed one is an error. MkDocs integration ships today; VS Code tooling is in development.
+* **Validation and tooling** — `hmd` lints a document tree, renders a card to markdown or HTML, and dumps the resolved link graph. A reference to a document that does not exist yet is a warning; malformed references and ambiguous autodiscovery are errors, while ordered import paths use declaration precedence. MkDocs integration ships today; VS Code tooling is in development.
 
 * **HQL — Hyper Query Language** *(experimental)* — a proposed query layer for deriving content and views from the document graph: backlinks, tags, relationships, collections, and other structured queries over Hyper-Markdown knowledge.
 
@@ -26,7 +26,7 @@ you typed by hand and now maintain by hand. No diagrams. No mathematics. No way
 to say a thing once and use it in ten places. No way to be wrong about a link
 and find out before your reader does.
 
-Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, and it is a strict superset of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. It is also the only one with a conformance test suite, so you can be sure that what you write is what your reader sees.
+Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, built as a syntactic extension of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. Every CommonMark document remains syntactically valid, while text that CommonMark treats as literal can gain hyper-markdown semantics such as wikilinks or frontmatter.
 
 > CommonMark specification: https://commonmark.org/
 
@@ -131,10 +131,11 @@ justification a reader does not need on the first pass:
     `[[…]]` answers *where a page lives*; a tag answers *what it is about*.
     Collapsing the two axes breaks both.
 
-!!! warning "Ambiguity is an error"
+!!! warning "Autodiscovery does not rank matches"
 
-    If a bare name matches two pages, the build tells you instead of guessing.
-    The fix is to qualify the link, not to memorise a tie-break.
+    If autodiscovery finds two pages, the build asks you to qualify the link.
+    Explicitly ordered wildcard imports use declaration precedence and report a
+    shadowing warning instead.
 
 ??? tip "Collapsed until someone wants it"
 
@@ -156,11 +157,10 @@ heading:
 | `- [x] item` | a checked box |
 | `$e^{i\pi} + 1 = 0$` | $e^{i\pi} + 1 = 0$ |
 
-## Be wrong on purpose, find out immediately
+## Find ambiguous autodiscovery immediately
 
-A wiki that guesses is a wiki that quietly rots, because a link that silently
-changes meaning is indistinguishable from one that did not. So the toolchain
-refuses to guess:
+Autodiscovery does not rank competing matches. If it finds more than one, the
+toolchain requires a qualified reference:
 
 ```text
 specs/auth/login.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it
@@ -169,9 +169,10 @@ specs/auth/login.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it
 
 `hmd lint` reads the whole tree and reports what it could not resolve — file,
 line, rule ID, exit code your CI understands. The distinction it draws is a
-compiler's: a page you have not written yet is a warning, and an ambiguous or
-malformed link is an error. Everything else about your prose is left entirely
-alone.
+compiler's: a page you have not written yet is a warning; malformed links and
+multiple autodiscovery matches are errors. Ordered wildcard imports use
+declaration precedence and report shadowing as a warning. Everything else about
+your prose is left entirely alone.
 
 ## Markdown is JavaScript. Hyper-markdown is TypeScript.
 
@@ -191,8 +192,8 @@ Tokens rotate hourly. See [[tokens]], and here is the rule itself:
 ![[tokens#^rotation-rule]]
 ```
 
-Rename the file and nothing breaks; the second version is what you get when you
-decide the link is worth being checked. `hmd lint` is `tsc --noEmit`. Rendering
+The Markdown remains syntactically valid when renamed; the second version opts
+into HMD's checked wikilink semantics. `hmd lint` is `tsc --noEmit`. Rendering
 back down to flat markdown is compilation. And "adopt it file by file" is the
 same reason `allowJs` mattered: nobody rewrites a wiki by hand. The argument in
 full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
@@ -206,7 +207,7 @@ full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
   stated exactly.
 - [The feature list](../wiki/hmd-feature-list.hmd) is the exhaustive inventory —
   every feature, where the idea came from, and what is deferred, planned, or
-  deliberately turned down.
+  rejected.
 - [Presentation](presentation.md) is what happens to a card afterwards: the
   formats it converts into and the viewers that show it.
 

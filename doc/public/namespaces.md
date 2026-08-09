@@ -2,113 +2,50 @@
 
 ## TL;DR
 
-`[[tokens]]` is a **name, not a path**. It is looked up in the card's own
-folder, then in each folder above it up to the root, each probed without
-recursion — so a bare name reaches you or your parents, never sideways into a
-sibling. Resolution runs in a fixed order and stops at the first hit: named
-imports, then that spine walk, then each `from … import *` origin in declaration
-order, then one sweep of the whole tree.
+`[[tokens]]` is a **bare name**: exactly one segment, with no slash, path marker,
+or namespace qualifier. `[[specs/login]]` is an **unqualified path**. Both are
+unqualified references and use the same four resolution phases: named imports,
+the spine, wildcard import origins, then autodiscovery.
 
-The sweep is the strict phase. Two matches is `HMD002`, an error asking you to
-qualify the link rather than a tie-break to memorise. Qualify with `[[./tokens]]`
-against the card's own folder or `[[/shared/tokens]]` against the root; nothing
-may escape the root (`HMD003`). A folder's `index.hmd` is its folder note,
-addressed by either name and served at one URL. `import x as y` binds one page to
-one name and beats the spine; `import *` only adds a search origin *after* it —
-so adding `import *` can resolve links that were previously red, and can never
-change what an already-working link means. A link to a page not yet written stays
-a warning.
+The spine probes the card's own folder and each ancestor folder without
+recursion. It never searches sideways. If the earlier phases find nothing,
+autodiscovery may resolve a unique match elsewhere in its configured scope.
+Multiple autodiscovery matches are `HMD002`; they have no ranking rule.
 
-Four words carry the rest of the chapter. A **module** is a folder. A
-**namespace** is a named tree of cards — you already have one, and a prefix is
-how a link reaches another. A **path** is what you write inside a namespace when
-a name is not enough. A **URL** is everything else on the web, addressed by
-ordinary markdown that hyper-markdown never touches.
+In HMD 0.1, the default namespace root bounds all HMD page-reference
+resolution. Ordinary Markdown links can still address files and URLs outside
+that root. Cross-namespace references such as `design:tokens` are reserved but
+not implemented.
 
-## Four words: module, namespace, path, URL
+## Resolution scope and address forms
 
-Four words, four different jobs. The rest of the page is easier to read once
-they are apart.
+A **module** is a directory and provides a local resolution scope for the spine
+and inherited configuration. It is not a hard boundary: autodiscovery can find
+a unique card in another module. A directory's `index.hmd`, when present, is its
+folder note and can provide module-level configuration.
 
-### A module is a folder
+A **namespace** is a rooted tree of modules. The default namespace root comes
+from the `wiki` setting in `.hmd/config.toml`, defaults to `doc/wiki`, and can be
+overridden by a command or integration. A page reference that escapes this root
+is `HMD003`; path normalization happens before that check, and symlinks are not
+followed out of the tree.
 
-It is a resolution boundary rather than something you declare: any folder of
-cards is one by virtue of being a folder. Its job is to answer *where a bare
-name is looked for* — here, then upward, never sideways. That is closer to how a
-programming language treats a package than to how a wiki treats a directory, and
-it is deliberate: a tree of cards should be read outward from where you are
-standing.
-
-### A namespace is a named tree of cards
-
-A namespace is a whole rooted tree — every module in it, addressable as one
-thing. The nearest familiar shapes are a Confluence space and a MediaWiki
-interwiki prefix: a label in front of an address that says *which* tree the rest
-of the address is resolved in.
-
-You already have one. Your project's own tree is the **default namespace**,
-unnamed because there is nothing yet to disambiguate it from. Its root is the
-`wiki` setting of `.hmd/config.toml`, defaulting to `doc/wiki` and overridable
-per command with `--root`; the MkDocs plugin names the same thing `root`. That
-root is the whole world a link can reach today. Every rule below resolves inside
-it and nothing resolves outside it: a target that would escape is `HMD003`, and
-symlinks are not followed out of the tree. A repository is free to hold ordinary
-Markdown outside the root; cards reach that with ordinary relative links, never
-with `[[…]]`.
-
-A namespace that is *not* yours works the same way from the inside — it is
-someone else's rooted tree, with its own modules and its own root — and it
-becomes reachable from your cards by being given a name in your configuration.
-That is what the rest of this chapter builds toward, and it is the part that is
-reserved rather than implemented.
-
-One thing a namespace is deliberately **not**: a flat bag of pages. The
-interwiki precedent is one namespace per wiki, holding long articles with no
-structure between them. Hyper-markdown maps onto a filesystem of small cards in
-nested folders, so a namespace keeps its tree — a prefix selects a tree, and the
-path after it is a path through folders, not an article title.
-
-### A path is what you write when a name is not enough
-
-`[[./tokens]]` and `[[/shared/tokens]]` are paths — the first relative to the
-card's own folder, the second absolute from the namespace root. A name is looked
-up; a path is followed.
-
-### A URL is everything else
-
-Markdown's own link syntax is untouched and keeps every capability it has.
-`[the spec](https://example.org/spec)` addresses any resource on the web, and a
-card is free to link to a website, an issue tracker, a file in the repository
-outside the namespace root, or a page on a site that has never heard of
-hyper-markdown. Nothing in this chapter takes that away.
-
-`[[…]]` is the other kind of address: hyper-markdown's own resource identifier,
-for reaching *cards*. The two are worth keeping apart because they are checked
-by different parties at different times.
-
-| | `[[card]]` | `[text](https://…)` |
+| Form | Category | Resolution |
 | --- | --- | --- |
-| Addresses | a card, inside a namespace | any resource on the web |
-| Resolved by | `hmd`, when you lint or build | the browser, when someone clicks |
-| Checked | yes — missing, ambiguous, or escaping targets are reported | no |
-| Survives a file move | yes, because a name is not a location | no |
-| Understands folder notes, heading fragments, block anchors, embeds | yes | no |
+| `[[tokens]]` | bare name | four phases below |
+| `[[specs/login]]` | unqualified path | four phases below |
+| `[[./tokens]]`, `[[../billing/invoices]]` | relative path | directly from the source directory |
+| `[[/shared/tokens]]` | absolute path | directly from the namespace root |
+| `[[design:tokens]]` | namespace-qualified reference | reserved; not implemented in 0.1 |
 
-So the rule of thumb is short: if it is a card, use `[[…]]` and let the
-toolchain keep the link honest. If it is anything else, write a markdown link
-and a URL.
+Use ordinary Markdown syntax, such as
+`[the spec](https://example.org/spec)`, for a URL or repository file that is not
+an HMD card.
 
-A namespace prefix looks like a URL scheme and is not one. `shared:tokens` is
-not dereferenced by a browser and carries no location; it names a tree that
-*your project* has bound, and the binding is what knows where that tree lives.
-The indirection is the point — the same way a package name outlives whichever
-registry happens to host it, a namespace ID outlives the folder or server behind
-it, and re-pointing it changes no link in any card.
+## Resolving an unqualified reference
 
-## Resolving a bare name
-
-Given `[[tokens]]` written in `specs/auth/login.hmd`, resolution runs four
-phases and stops at the first hit:
+Given `[[tokens]]` written in `specs/auth/login.hmd`, resolution runs these
+phases and stops at the first match:
 
 ```text
 0. named imports     an explicit `from … import tokens` in this card
@@ -117,38 +54,45 @@ phases and stops at the first hit:
 3. autodiscovery     one sweep of the whole tree
 ```
 
-Each directory is probed **non-recursively**. A bare name therefore means
-exactly *"an import, or here, or a folder above me"* — it can never reach
-sideways into a sibling module. This is the property that makes `[[logging]]`
-in `specs/billing/` mean the general card rather than whatever `specs/auth/`
-happens to contain.
+The spine is the straight line from the card up to the root. Each directory on
+it is probed for the name itself, and nothing below them is opened:
 
-Phase 3 is the convenience phase, and it is the strict one: if a sweep finds two
-matches, that is `HMD002`, an error. All matches rank equally — a shallower one
-does not beat a deeper one. The fix is to qualify the link, not to memorize a
-tie-break.
+```text
+wiki/
+├── index.hmd
+├── specs/
+│   └── auth/
+│       ├── login.hmd      ← [[tokens]] is written here
+│       └── session.hmd
+└── glossary/
+    └── tokens.hmd
+```
 
-## Qualifying a link
+The walk checks `specs/auth/`, then `specs/`, then `wiki/`, and stops. It never
+opens `glossary/`, which hangs off a directory the walk did visit but is not
+itself on the line to the root — that is what *sideways* means. Naming the route
+still works from anywhere on the spine: `[[glossary/tokens]]` is an unqualified
+path and resolves in phase 1.
 
-Four forms, from most local to most explicit. The first three ship; the fourth
-is reserved, and the section on reaching another namespace says exactly what it
-does today.
+Autodiscovery does look sideways, at the whole tree at once, and here it finds
+`tokens` and resolves. The word doing the work is *unique*: had a second
+`tokens` existed anywhere in the tree, the sweep would report `HMD002` instead
+of preferring the nearer one or the first one found.
 
-| Form | Resolved against |
-| --- | --- |
-| `[[tokens]]` | the four phases above |
-| `[[./tokens]]`, `[[../billing/invoices]]` | the source file's own directory |
-| `[[/shared/tokens]]` | the namespace root |
-| `[[design:tokens]]` *(proposed)* | the root of the tree bound to `design` |
+The split is deliberate. What a bare name means on the spine depends only on the
+card's own folder and its ancestors, so a card added in an unrelated branch can
+never silently change it. Autodiscovery may reach everywhere precisely because
+it refuses to guess when the answer is not unique.
 
-A target may never escape the root. `[[../../../../etc/passwd]]` is `HMD003`,
-and symlinks are not followed out of the tree.
+Wildcard origins are probed non-recursively too, but unlike the sweep they are
+explicitly ordered. If two contain a match, the earlier origin wins and the
+shadowed match is reported as HMD016.
 
 ## Folder notes
 
 A directory's `index.hmd` is its landing page. `[[specs/auth]]` and
-`[[specs/auth/index]]` address the same card, and it serves at the same URL.
-Two names for one page never become two pages.
+`[[specs/auth/index]]` are two unqualified path spellings that resolve to the
+same card, which is served at one URL.
 
 ## Imports
 
@@ -160,17 +104,17 @@ import:
   - from /glossary import *                       # adds a search origin
 ```
 
-The two forms do different jobs, and the difference is the point:
+The two forms have different precedence:
 
 - **`import x as y`** binds a single page to a single name. It beats the spine,
-  because that is what it is for — it is the author pointing at one page.
+  allowing the author to choose one page explicitly.
 - **`import *`** adds a directory to the list of origins a bare name is probed
   against, *after* the spine. It does not bind anything eagerly, so a card added
   to that directory later becomes reachable with no edit here.
 
-That ordering gives a property worth stating plainly: **adding `import *` can
-only resolve links that were previously red. It can never change what an
-already-working link means.**
+A wildcard import cannot override a named import or a spine match. It can change
+a reference that previously resolved by autodiscovery because wildcard origins
+are checked before the global sweep.
 
 Imports do **not** inherit. An import in `index.hmd` binds names for that file
 alone, because a bare name resolvable only by reading a file you never opened is
@@ -179,10 +123,8 @@ exactly the action-at-a-distance imports exist to remove.
 A card's header is its declarative layer, and it is small on purpose: `tags`,
 `use`, `import`, and `nav` are reserved for the toolchain, and every other key
 stays yours, exposed but unexamined. Reach across a namespace is the same idea
-one layer up — declared, never discovered — with one deliberate asymmetry: a
-card may widen how its own names are looked up **inside** its tree, but only the
-project may grant reach to a **different** tree. That is the subject of the next
-three sections.
+one layer up: a card may widen how its own references are looked up inside its
+tree, but only project configuration may grant access to another tree.
 
 ## Reaching another namespace *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*
 
@@ -209,12 +151,11 @@ location:
   wondering whether `tokens` is secretly a namespace name. Exactly which
   characters a namespace name may use is still open.
 
-**What happens today:** a colon is not a reserved character in a link target, so
-`[[design:tokens]]` currently parses as an ordinary bare name, matches no card,
-and renders as a red link. `hmd lint` and `hmd render` do not treat the prefix
-as a prefix, and the resolver performs no network access of any kind. What is
-fixed so far is the shape of the address and the constraints any mechanism
-behind it has to satisfy — not a mechanism.
+**What happens today:** `[[design:tokens]]` has the reserved shape of a
+namespace-qualified reference, not a bare name. Version 0.1 does not recognize
+the colon as a qualifier, so the parser passes the whole target to local
+resolution as one unqualified segment; it normally matches no card and renders
+as a red link. `hmd lint` and `hmd render` perform no network access.
 
 ## A namespace must be granted, not guessed *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*
 
@@ -260,9 +201,9 @@ used it stops reaching, in one edit, without hunting through cards.
 
 ## What can provide a namespace *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*
 
-Deliberately open-ended. A namespace is defined by what it answers, not by what
-it is made of: given a path, hand back a card. Anything that can do that is a
-**namespace provider**.
+The provider set is open-ended. A namespace is defined by what it answers, not
+by what it is made of: given a path, hand back a card. Anything that can do that
+is a **namespace provider**.
 
 - **This project's own tree.** The default namespace, resolved off the local
   filesystem. This is the provider that exists today.
@@ -280,8 +221,8 @@ it is made of: given a path, hand back a card. Anything that can do that is a
   purpose so that the list is never closed.
 
 Whichever provider answers, a card's links do not change, and the resolution
-rules on this page are the ones that apply once the tree is in hand. That is the
-whole point of naming the tree instead of pointing at it.
+rules on this page apply once the tree is available. Naming the tree keeps its
+storage location out of card references.
 
 ## Red links are not errors
 
