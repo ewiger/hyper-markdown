@@ -112,12 +112,15 @@ against.
 - **Deterministic resolution.** A bare name is resolved against explicit imports
   first, then the *spine* — this folder, then each folder above it, probed
   without recursion — then imported search paths, then a whole-tree sweep. A
-  name can never reach sideways into a sibling namespace without an import.
-- **Ambiguity is an error, not a tie-break.** If a name could mean two pages,
-  the build says so rather than picking one.
+  spine lookup never reaches sideways; the final sweep may find a unique card
+  elsewhere in the namespace.
+- **Autodiscovery does not tie-break.** Multiple matches in the final sweep are
+  an error. Ordered wildcard imports use declaration precedence and report
+  shadowing as HMD016.
 - **Frontmatter** carries `tags`, `use`, `import`, and `nav`. Both import forms
   are supported: named with an alias, and star, which contributes a search path.
-- **Folder notes.** `a/b/index.hmd` and `a/b.hmd` are two spellings of one page.
+- **Folder notes.** `[[a/b]]` and `[[a/b/index]]` address the folder note at
+  `a/b/index.hmd`. A sibling `a/b.hmd` would collide with that address (HMD012).
 
 ### The `hmd` command
 

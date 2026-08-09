@@ -11,7 +11,7 @@
 
    “Every `.md` is valid `.hmd`” is defensible. **“Same meaning” is not.**
 
-- [ ] 2. **[CRITICAL] “A bare name never reaches sideways” directly contradicts autodiscovery.**
+- [x] 2. **[CRITICAL] “A bare name never reaches sideways” directly contradicts autodiscovery.**
    **Locations:**
 
    * `Namespaces → TL;DR`, line 80
@@ -27,7 +27,7 @@
 
    > The spine never searches sideways. If it finds nothing, autodiscovery may resolve a unique match elsewhere in the namespace.
 
-- [ ] 3. **[CRITICAL] The claimed wildcard-import stability property is false.**
+- [x] 3. **[CRITICAL] The claimed wildcard-import stability property is false.**
    **Locations:**
 
    * `Namespaces → Imports`, line 150
@@ -63,7 +63,7 @@
 
    That property actually follows from your algorithm.
 
-- [ ] 4. **[HIGH] “The language never guesses” conflicts with wildcard-import precedence.
+- [x] 4. **[HIGH] “The language never guesses” conflicts with wildcard-import precedence.
    **Locations:**
 
    * `Language Specification → Name resolution`, line 182: “It never guesses.”
@@ -100,7 +100,7 @@
    segment := 1*(any character except "/" / "[" / "]" / "|" / "#" / "^" / newline)
    ```
 
-- [ ] 6. **[HIGH] `heading_text` is used by the grammar but never actually defined there.**
+- [x] 6. **[HIGH] `heading_text` is used by the grammar but never actually defined there.**
    **Location:** `Language Specification → Grammar`, line 140.
 
    You have:
@@ -115,7 +115,7 @@
 
    **Fix:** give `heading_text` an explicit grammar production.
 
-- [ ] 7. **[HIGH] The relative-path grammar looks malformed or at least highly ambiguous.**
+- [x] 7. **[HIGH] The relative-path grammar looks malformed or at least highly ambiguous.**
    **Location:** `Language Specification → Grammar`, line 138.
 
    Current:
@@ -138,7 +138,7 @@
 
    Adjust for whether bare `./` or `../` should itself be valid.
 
-- [ ] 8. **[HIGH] `block_id` grammar is suspiciously parenthesized.**
+- [x] 8. **[HIGH] `block_id` grammar is suspiciously parenthesized.**
    **Location:** `Language Specification → Grammar`, line 144.
 
    Current:
@@ -165,7 +165,7 @@
    block_id := ( ALPHA / DIGIT ) *63( ALPHA / DIGIT / "_" / "-" )
    ```
 
-- [ ] 9. **[HIGH] “`page_ref` is a name, not a path” contradicts your own grammar and algorithm.**
+- [x] 9. **[HIGH] “`page_ref` is a name, not a path” contradicts your own grammar and algorithm.**
    **Location:** `Language Specification → Name resolution`, line 182.
 
    `page_ref` is explicitly:
@@ -182,7 +182,7 @@
 
    That is much more precise.
 
-- [ ] 10. **[HIGH] “The sweep is the strict phase” is nonsense as specification terminology.**
+- [x] 10. **[HIGH] “The sweep is the strict phase” is nonsense as specification terminology.**
     **Locations:**
 
     * `Namespaces → TL;DR`, line 81
@@ -196,7 +196,7 @@
 
     Say exactly that.
 
-- [ ] 11. **[HIGH] “Strict mode promotes warnings to errors but output never changes” is internally muddy.
+- [x] 11. **[HIGH] “Strict mode promotes warnings to errors but output never changes” is internally muddy.
     **Location:** `Language Specification → Diagnostics`, line 376.
 
     You say strict mode MUST “promote every warning to an error” but then MUST NOT change the diagnostics/output, only “how they are counted.” ([hyper-markdown.org][1])
@@ -212,7 +212,7 @@
 
     > Strict mode MUST NOT alter diagnostics or their reported severity. It only treats warnings as failures when determining the command outcome.
 
-- [ ] 12. **[MEDIUM/HIGH] “A namespace is the whole world a link can reach” becomes false once cross-namespace links exist.**
+- [x] 12. **[MEDIUM/HIGH] “A namespace is the whole world a link can reach” becomes false once cross-namespace links exist.**
     **Locations:**
 
     * `Namespaces → A namespace is a named tree`, line 93
@@ -226,7 +226,7 @@
 
     That survives future evolution much better.
 
-- [ ] 13. **[MEDIUM/HIGH] “Nothing outside the namespace is addressable” is too absolute.**
+- [x] 13. **[MEDIUM/HIGH] “Nothing outside the namespace is addressable” is too absolute.**
     **Location:** `Language Specification → The namespace`, line 173. ([hyper-markdown.org][1])
 
     Ordinary Markdown links can address files or URLs outside it, and your public Namespaces page explicitly says that. ([hyper-markdown.org][2])
@@ -237,7 +237,7 @@
 
     Normative specifications really need that qualifier.
 
-- [ ] 14. **[MEDIUM] The namespace docs describe `/shared/tokens` as “crossing a module boundary,” but ordinary bare autodiscovery can cross that same boundary.**
+- [x] 14. **[MEDIUM] The namespace docs describe `/shared/tokens` as “crossing a module boundary,” but ordinary bare autodiscovery can cross that same boundary.**
     **Location:** `Features → Modules and namespaces`, line 76. ([hyper-markdown.org][4])
 
     It says explicit paths/imports cross a module boundary “on purpose,” implying bare references do not. But phase 3 does.
@@ -246,7 +246,7 @@
 
     > explicit paths/imports cross module boundaries **without global discovery** and therefore make the dependency explicit.
 
-- [ ] 15. **[MEDIUM] “A module is a resolution boundary” is not really true with autodiscovery enabled.**
+- [x] 15. **[MEDIUM] “A module is a resolution boundary” is not really true with autodiscovery enabled.**
     **Location:** `Namespaces → A module is a folder`, line 89. ([hyper-markdown.org][2])
 
     A boundary generally means something cannot cross it. Your resolver absolutely can cross it via phase 3.
@@ -257,7 +257,7 @@
 
     That describes what the spine actually does.
 
-- [ ] 16. **[MEDIUM] “Folder note makes a directory a module” contradicts the earlier definition that every directory is already a module.**
+- [x] 16. **[MEDIUM] “Folder note makes a directory a module” contradicts the earlier definition that every directory is already a module.**
     **Locations:**
 
     * Language spec line 179: every directory inside the namespace is a module. ([hyper-markdown.org][1])
@@ -268,7 +268,7 @@
 
     Delete it. A directory is a module by definition; `index.hmd` merely provides module-level inherited configuration.
 
-- [ ] 17. **[MEDIUM] Configuration prose says readers never need to know which resolution strategy a card uses — but cards can disable autodiscovery individually.**
+- [x] 17. **[MEDIUM] Configuration prose says readers never need to know which resolution strategy a card uses — but cards can disable autodiscovery individually.**
     **Location:** `Language Specification → Frontmatter`, line 264. ([hyper-markdown.org][1])
 
     It says:
@@ -283,7 +283,7 @@
 
     > The ordering of resolution phases is uniform; a card may disable the final autodiscovery phase.
 
-- [ ] 18. **[MEDIUM] “mode MUST NOT be settable per card because different algorithms are unreadable” conflicts rhetorically with per-card autodiscovery toggling.**
+- [x] 18. **[MEDIUM] “mode MUST NOT be settable per card because different algorithms are unreadable” conflicts rhetorically with per-card autodiscovery toggling.**
     **Location:** `Project configuration`, lines 330–332. ([hyper-markdown.org][1])
 
     Your underlying distinction is sensible:
@@ -293,7 +293,7 @@
 
     Say that. Currently the justification overclaims.
 
-- [ ] 19. **[MEDIUM] Folder-note collision semantics are awkward: “card wins” while simultaneously being an error.**
+- [x] 19. **[MEDIUM] Folder-note collision semantics are awkward: “card wins” while simultaneously being an error.**
     **Location:** `Binding a name in one directory`, line 199. ([hyper-markdown.org][1])
 
     If HMD012 is an error, why must resolution choose the card at all? Perhaps rendering/lint still requires deterministic continuation, which is legitimate—but specify that:
@@ -302,7 +302,7 @@
 
     Otherwise “wins” sounds like the collision is accepted.
 
-- [ ] 20. **[MEDIUM] The public docs repeatedly claim “ambiguity is an error,” which is too broad.**
+- [x] 20. **[MEDIUM] The public docs repeatedly claim “ambiguity is an error,” which is too broad.**
     **Locations:** homepage, Introduction, Features, Tutorial, Namespaces. For example Introduction says “ambiguity is an error rather than a guess.” ([hyper-markdown.org][5])
 
     HMD016 proves that some ambiguity is explicitly resolved by declaration order and only warned. ([hyper-markdown.org][1])
@@ -330,15 +330,15 @@
 
     Right now terminology is fighting the grammar.
 
-- [ ] 22. **[STYLE, but worth fixing] Delete “Four words” entirely.**
+- [x] 22. **[STYLE, but worth fixing] Delete “Four words” entirely.**
     **Location:** `Namespaces → Four words: module, namespace, path, URL`, lines 84–112. ([hyper-markdown.org][2])
 
     The reviewer is right. Worse, because your distinction between **name/path/page_ref** isn't actually stable yet, this section confidently teaches terminology that the normative spec itself muddies.
 
-- [ ] 23. **[STYLE] Remove phrases like “the strict phase”, “whole world”, “the point”, “deliberate”, “what makes it a language”.**
+- [x] 23. **[STYLE] Remove phrases like “the strict phase”, “whole world”, “the point”, “deliberate”, “what makes it a language”.**
     They aren't merely AI-ish: several of them currently conceal imprecision. The most obvious examples occur in Namespaces, Introduction and Tutorial. ([hyper-markdown.org][2])
 
-- [ ] 24. **The order I would fix this in is:**
+- [x] 24. **The order I would fix this in is:**
     **(1)** strict-superset claim → **(2)** bare-name/spine/autodiscovery terminology → **(3)** wildcard stability claim → **(4)** ambiguity policy → **(5)** grammar (`segment`, relative, `heading_text`, `block_id`) → **(6)** strict-mode semantics → **(7)** module/namespace wording → **(8)** stylistic copy pass.
 
 The biggest design question exposed by this audit is actually **#3**. Your current wildcard-import ordering does **not** give you the monotonicity property you're advertising. You need either to drop that promise or alter resolution semantics. Everything else is mostly clarification/correction; that one is a genuine resolver-design choice.

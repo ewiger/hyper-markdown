@@ -9,8 +9,8 @@ something, a document that can be made out of other documents, a page that is
 part of a web rather than a file in a folder.
 
 Hyper-markdown adds that layer and tries to stop there. Cards name each other
-instead of pointing at paths, a name that could mean two documents is an error
-rather than a guess, and a document can be composed out of parts of others.
+instead of pointing at paths, multiple autodiscovery matches require an explicit
+qualification, and a document can be composed out of parts of others.
 Almost none of those ideas are new — the wiki tradition, MediaWiki's
 transclusion, Obsidian's block references, and the wider Markdown ecosystem got
 there first. What is being attempted is a coherent specification of them, in a
@@ -21,7 +21,7 @@ ID names a place to look — `namespace:path/to/card` — and whatever answers f
 that ID serves hyper-markdown, local or remote. Follow it far enough and it is
 the Web again, made of Markdown: independently authored and independently served
 knowledge that humans, tools, and AI read from the same source. That part is
-deliberately unfinished — sketched in
+unfinished — sketched in
 [HMD-0004](../proposals/HMD-0004/README.md), not built — and this page argues for
 it rather than reporting it.
 
@@ -39,8 +39,9 @@ without being told to.
 What it never got is the part HTML had on its first day: a link that means
 something, a page that can be made out of other pages, a document that is part
 of a web rather than a file in a folder. Hyper-markdown (`.hmd`) adds exactly
-that, and stops. Every `.md` file is already valid `.hmd`. You adopt it one file
-at a time, and nothing you have written is ever wrong.
+that, and stops. Every `.md` file is syntactically valid `.hmd`, so you can
+adopt the format one file at a time. HMD preserves CommonMark constructs while
+assigning added semantics to syntax that CommonMark otherwise treats as text.
 
 ## Still just markdown
 
@@ -72,7 +73,7 @@ The step after that is already reserved: **HQL**, a query language that lets a
 card *compute* its content from the graph — every card tagged `area/backend`,
 every page linking here — instead of listing it by hand. The design constraints
 are fixed in [HMD-0003](../proposals/HMD-0003/README.md); the syntax is
-deliberately not.
+not yet defined.
 
 ## It looks like a real website
 
@@ -89,12 +90,11 @@ own folder toward the root and never searches sideways. If it finds nothing,
 autodiscovery may still resolve a unique card in a sibling module; write
 `[[/shared/tokens]]` when that destination should be explicit rather than
 discovered. This is closer to how a programming language treats a package than
-to how a wiki treats a directory, and it is deliberate — a tree of cards should
-be read the way you read an unfamiliar codebase, outward from where you are
-standing, on purpose.
+to how a wiki treats a directory: a tree of cards can be read outward from the
+current card.
 
-Inside one module you can trust the answer, because a name that could mean two
-pages is an **error** rather than a coin flip:
+Autodiscovery has no ranking rule. If it finds two matching pages, the reference
+is an error and must be qualified:
 
 ```text
 specs/auth/login.hmd:14:5: error[HMD002] [[tokens]] matches 2 pages; qualify it

@@ -10,7 +10,7 @@ nav:
 **This page teaches hyper-markdown. Read it start to finish and you can write
 the format; nothing else is required reading.**
 
-It is deliberately not the normative text. Where this page says "forgiving" or
+It is not the normative text. Where this page says "forgiving" or
 "roughly", the exact rule is in [[hmd-lang-spec]], and where the two disagree
 the specification is right. This one is here to be read once, in order, by
 someone who has not written a card before.
@@ -31,8 +31,9 @@ on this page.
 
 A **card** is one `.hmd` file. It explains one idea, and its value is in what it
 links to. Cards live under a single directory — `doc/wiki/` here — and that
-directory is the whole world: a link can reach any card in it and nothing
-outside it.
+directory is the default namespace root. In HMD 0.1 it bounds all HMD
+page-reference resolution. Ordinary Markdown links can still reach files and
+URLs outside it.
 
 A card may open with a metadata block, then it is ordinary Markdown:
 
@@ -85,9 +86,8 @@ and the address in parentheses.
 ```
 
 This one is shown without its result, because live headings would join this
-page's own outline. That outline is exactly the point: heading nesting is what
-gives a card its structure, and it is also what makes parts of a card
-addressable — which is what *Linking into a card* below relies on.
+page's own outline. Heading nesting gives a card its structure and makes parts
+of it addressable, which *Linking into a card* below relies on.
 
 ### Lists
 
@@ -289,7 +289,7 @@ rather than to a blank space or a failed build.
 **Which program renders any of this is not part of the language.** The tools
 change; the syntax above is what you write either way. If you need the current
 implementation — which library, which version, what is gated by which test —
-that is [[hmd-feature-list]], deliberately kept off this page.
+that is [[hmd-feature-list]], which keeps implementation status off this page.
 
 ## The syntax hyper-markdown adds
 
@@ -545,9 +545,8 @@ tags: [area/auth, status/accepted]
 ---
 ```
 
-Tags say what a card is *about*. Folders say where it *lives*. Keeping those two
-axes separate is deliberate: a tag is never a link target, and `[[area/auth]]`
-does not reach one.
+Tags say what a card is *about*. Folders say where it *lives*. A tag is not a
+link target, so `[[area/auth]]` does not reach one.
 
 ### `use` — feature toggles
 
@@ -559,7 +558,7 @@ use: [no_autodiscovery]
 
 `use` switches features on or off for this card. Prefixing `no_` turns one off,
 so the card above is restricted to its imports and its spine: step 3 of *How a
-name is found* never runs for it, and every card it depends on is visible in its
+reference is found* never runs for it, and every card it depends on is visible in its
 own header or in the link itself.
 
 It **inherits** — put it in a folder's `index.hmd` and it governs that whole
@@ -572,7 +571,8 @@ use: [no_autodiscovery]
 ---
 ```
 
-This is what makes a folder a module rather than a naming convention.
+The folder note supplies module-level configuration to the subtree; the folder
+is already a module.
 
 ### `import` — binding a name explicitly
 
@@ -590,8 +590,9 @@ sits right beside this one. The second adds a **search origin**: bare names that
 the walk did not find are tried against `/glossary/` before the sweep runs, and a
 card added there later becomes reachable without editing this header.
 
-An import takes precedence over the search, which is the point — it is how you
-say what you mean when the walk would find something else.
+A named import takes precedence over the spine, so it can select a page that the
+walk would not choose. Wildcard origins run after the spine and before
+autodiscovery.
 
 ### `nav` — where the card is published
 
@@ -663,15 +664,16 @@ glossary/index.hmd:14:5: error[HMD002] [[login]] matches 2 pages; qualify it
   (candidates: admin/login.hmd, specs/auth/login.hmd)
 ```
 
-The distinction is worth internalising, because it is the same one a compiler
-draws. A link to a card that does not exist is a **warning** — you are allowed
-to write forward. A link that is *ambiguous*, that escapes the root, or that is
-malformed is an **error** — the language will not choose for you.
+The distinction is the same one a compiler draws. A link to a card that does not
+exist is a **warning** — you are allowed to write forward. A link that escapes
+the root, is malformed, or has multiple autodiscovery matches is an **error**.
+Ordered wildcard imports use declaration precedence and report shadowing as
+HMD016.
 
 Everything else about a card is left alone. Hyper-markdown checks the graph and
 nothing more: it has no opinion on your prose, your headings, or your Markdown.
 
-## What is deliberately not here
+## What is not here
 
 No inline properties, no highlights, no templates, no query language. Each is
 either postponed to a later specification or turned down; [[hmd-feature-list]]
