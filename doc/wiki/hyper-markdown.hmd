@@ -24,12 +24,14 @@ card in the wiki space, never to a file elsewhere in the repo.
 - **`[[slug]]`** links a concept to its card. The slug is a **name, not a
   filename search**: it is looked for beside the card you are writing, then in
   each folder above it up to the wiki root, each probed without recursion. A
-  card nearby therefore wins over a card far away, and a bare name never
-  reaches sideways into a sibling folder. Only when that walk finds nothing
-  does a sweep of the whole tree run, and if the sweep matches two cards that
-  is an **error** asking you to qualify the link — not a tie-break.
-- **`[[folder/slug]]` and `[[/folder/slug]]`** qualify it when the walk is not
-  enough: relative to this card's own folder, or absolute from the wiki root.
+  card nearby therefore wins over a card far away. That spine never searches
+  sideways into a sibling folder; only when it finds nothing does a sweep of
+  the whole tree run. The sweep may resolve a unique card in a sibling, and if
+  it matches two cards that is an **error** asking you to qualify the link — not
+  a tie-break.
+- **`[[folder/slug]]`** is an unqualified path searched through the same phases
+  as a bare name. **`[[./folder/slug]]`** is explicitly relative to this card's
+  own folder, and **`[[/folder/slug]]`** is absolute from the wiki root.
 - **`[[slug|display text]]`** links while showing different surface text, so the
   sentence still reads naturally.
 - **Forward links are fine** — linking a concept that has no card yet marks it as

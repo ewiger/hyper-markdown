@@ -83,14 +83,15 @@ from this repository.
 
 ## The web, again — made of markdown
 
-A folder is a **module**. It is the home base a set of cards belongs to, and the
-boundary a bare name cannot cross sideways: write inside your own folder and
-`[[tokens]]` reaches you or the folders above you, never a sibling's private
-cards. Reach a sibling on purpose with `[[/shared/tokens]]` and you are naming
-another module rather than hoping a search finds it. That is closer to how a
-programming language treats a package than to how a wiki treats a directory,
-and it is deliberate — a tree of cards should be read the way you read an
-unfamiliar codebase, outward from where you are standing, on purpose.
+A folder is a **module**. It is the home base a set of cards belongs to and one
+step on the spine used to resolve a bare name. That spine walks from the card's
+own folder toward the root and never searches sideways. If it finds nothing,
+autodiscovery may still resolve a unique card in a sibling module; write
+`[[/shared/tokens]]` when that destination should be explicit rather than
+discovered. This is closer to how a programming language treats a package than
+to how a wiki treats a directory, and it is deliberate — a tree of cards should
+be read the way you read an unfamiliar codebase, outward from where you are
+standing, on purpose.
 
 Inside one module you can trust the answer, because a name that could mean two
 pages is an **error** rather than a coin flip:

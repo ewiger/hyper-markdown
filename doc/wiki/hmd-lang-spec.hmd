@@ -121,20 +121,31 @@ rather than invoking one.
 embed        := "!" wikilink
 wikilink     := "[[" target [ "|" display ] "]]"
 target       := page_ref [ fragment ]
-page_ref     := absolute | relative | bare
+page_ref     := absolute | relative | unqualified
 absolute     := "/" segment { "/" segment }
 relative     := ( "./" | "../" ) { segment | ".." } { "/" ( segment | ".." ) }
-bare         := segment { "/" segment }
+unqualified  := bare_name | unqualified_path
+bare_name    := segment
+unqualified_path := segment "/" segment { "/" segment }
 fragment     := "#" heading_text
               | "#^" block_id
-segment      := 1*( any character except reserved )
+segment      := 1*( any character except "/" or reserved )
 display      := 1*( any character except "[" / "]" / newline )
 block_id     := ALPHA / DIGIT *63( ALPHA / DIGIT / "_" / "-" )
 reserved     := "[" | "]" | "|" | "#" | "^" | newline
 ```
 
+- A **bare name** is exactly one `segment`, with no `/`, `./`, `../`, leading
+  `/`, or namespace qualifier. A page reference with two or more segments and
+  no leading path marker is an **unqualified path**. Bare names and unqualified
+  paths are collectively **unqualified references** and use the same search
+  phases below; only a bare name can match a named import.
+- The reserved `namespace:path` form is a **namespace-qualified reference**,
+  not a bare name. Namespace qualification is not part of the 0.1 grammar or
+  resolution algorithm.
 - The **reserved character set** inside a `target` is exactly `[`, `]`, `|`,
   `#`, `^`, and newline. These MUST NOT appear literally in a `segment`.
+- `/` is the segment separator and MUST NOT appear inside a `segment`.
 - **No escape mechanism exists in this version.** A target that needs a reserved
   character is a malformed link, reported as HMD010. This is a known gap rather
   than a design position.
@@ -204,25 +215,27 @@ The namespace is a single rooted subtree. Nothing outside it is addressable.
 
 A directory inside the namespace is a **module**: it is the unit that scopes a
 name and the unit that inherits configuration. A directory MAY carry a **folder
-note**, an `index.hmd`, in which case the directory's name and that card are one
-address.
+note**, an `index.hmd`. A reference to the directory and a reference to its
+explicit `index` path resolve to that one card.
 
 ## Name resolution
 
-A `page_ref` is a **name**, not a path. Resolution turns it into exactly one
-card, or into a diagnosable failure. It never guesses.
+A `page_ref` is a local card reference. An absolute or relative path is followed
+directly. An unqualified reference is searched for and resolves to exactly one
+card or a diagnosable failure.
 
-Resolution runs as a **spine walk** — pure path arithmetic from the card
-outward to the root — and, only if that finds nothing, a single **sweep** of the
-tree. The two phases answer different questions. The spine answers *what does
-this name mean here*, which must be predictable enough to hold in your head. The
-sweep answers *does this name exist anywhere*, which is a convenience and is
-allowed to fail loudly.
+Unqualified resolution checks named imports, then runs a **spine walk** — pure
+path arithmetic from the card outward to the root — followed by imported search
+paths and, only if those find nothing, a single **sweep** of the tree. The spine
+and sweep answer different questions. The spine answers *what does this
+reference mean here*, which must be predictable enough to hold in your head.
+The sweep answers *does this reference exist anywhere*, which is a convenience
+and is allowed to fail loudly.
 
-### Binding a name in one directory
+### Binding an unqualified reference in one directory
 
-Both phases bind a name identically, so a folder note behaves the same
-everywhere.
+Every search phase binds an unqualified reference identically, so a folder note
+behaves the same everywhere.
 
 ```text
 bind(dir, parts) -> Resolved(path) | NotFound
@@ -237,7 +250,8 @@ bind(dir, parts) -> Resolved(path) | NotFound
 ```
 
 - A target naming a directory MUST resolve to that directory's `index.hmd`. The
-  directory name and the explicit `index` name therefore address the same card.
+  directory-form reference and the explicit `index` reference therefore resolve
+  to the same card.
 - If a card and a folder note claim the same name as siblings, the card wins so
   that resolution stays deterministic, and the pair MUST be reported as HMD012.
   Two files claiming one name is a content defect, not a tie to be broken
@@ -262,7 +276,7 @@ resolve(target, source, root) -> Resolved(path) | Unresolved | Ambiguous(paths) 
        if base is outside root: return Escapes
        return bind(dirname(base), [basename(base)]) or Unresolved
 
-  3. BARE — anything else
+  3. UNQUALIFIED — anything else
 
        # Phase 0 — named imports. The most explicit thing wins.
        if size(parts) == 1 and parts[0] in bindings:
@@ -308,17 +322,21 @@ same thing in the sweep as it does on the spine.
   means.
 - The spine MUST run from the card's own directory outward to the root,
   inclusive of both ends, and each directory MUST be probed **non-recursively**.
-  A bare name therefore means exactly *an import, or here, or a folder above me*
-  — it can never reach sideways into a sibling module.
+  The spine never searches sideways into a sibling module. For a bare name it
+  probes the card's own directory and each ancestor directory in turn.
 - Imported search paths MUST be probed in declaration order, non-recursively.
   Where two of them hold the name, the earlier declaration wins; because that is
   easy to write by accident, the shadowed candidate MUST be reported as HMD016.
 - The sweep MUST run only when the earlier phases found nothing, and MUST run at
   most once. Every match it produces is off-spine and off-path by construction,
   so the phases can never disagree.
+- Complete unqualified-reference resolution is not confined to the spine. When
+  the earlier phases find nothing and autodiscovery is enabled, the sweep MAY
+  resolve a unique match in a sibling module or elsewhere in its configured
+  scope.
 - The sweep MUST address folder notes by their directory name, exactly as
-  binding does. Without this, one name would mean two different things depending
-  on where it was written.
+  binding does. Without this, one reference would mean two different things
+  depending on where it was written.
 - In the sweep **all matches rank equally**. A shallower match MUST NOT beat a
   deeper one, and more than one match MUST be reported as HMD002 rather than
   resolved. The remedy is to qualify the link, not to memorise a tie-break.
@@ -397,7 +415,7 @@ nav:
 import_stmt := "from" WS ref WS "import" WS import_list
 import_list := "*" | binding *( "," WS binding )
 binding     := name [ WS "as" WS alias ]
-ref         := absolute | relative          ; never bare
+ref         := absolute | relative          ; never unqualified
 name        := segment
 alias       := segment
 ```
@@ -407,15 +425,15 @@ The two forms do different jobs:
 - **A named binding** binds one name. The local name — the alias if given,
   otherwise the imported name — resolves to that one card and to nothing else.
 - **A wildcard** adds a search origin. That directory joins the list of
-  directories a bare name is probed against, after the spine. It does NOT
-  eagerly bind the directory's contents, so a card added there later becomes
-  reachable without editing the importing card.
+  directories an unqualified reference is probed against, after the spine. It
+  does NOT eagerly bind the directory's contents, so a card added there later
+  becomes reachable without editing the importing card.
 
-- A `ref` MUST be absolute or relative, never bare. A bare `ref` would need
-  resolving by the very algorithm the import feeds.
+- A `ref` MUST be absolute or relative, never unqualified. An unqualified `ref`
+  would need resolving by the very algorithm the import feeds.
 - An imported origin MUST be probed non-recursively, matching the spine, so the
   reachable set stays legible from a directory listing.
-- A named binding applies only to **single-segment** bare targets. A binding
+- A named binding applies only to bare names. A binding
   names a card, not a module, so a multi-segment target falls through it. Search
   origins carry no such restriction.
 - Two named bindings of the same local name MUST be reported as HMD015.
@@ -427,9 +445,10 @@ The two forms do different jobs:
   header regardless of whether the body exercises it.
 - A malformed statement MUST be reported as HMD014.
 - **`import` does NOT inherit.** Unlike `use`, an import in a folder note binds
-  names for that file alone. Inherited bindings would make a bare name in a leaf
-  card resolvable only by reading a file the author may never have opened —
-  precisely the action at a distance that imports exist to eliminate.
+  names for that file alone. Inherited bindings would make an unqualified
+  reference in a leaf card resolvable only by reading a file the author may
+  never have opened — precisely the action at a distance that imports exist to
+  eliminate.
 
 ### `nav` — placement and publication
 
@@ -542,7 +561,7 @@ suppression comments and CI configuration reference them.
 | ID | Severity | Condition |
 | --- | --- | --- |
 | HMD001 | warning | Link target does not resolve |
-| HMD002 | error | A bare name matches more than one card in the sweep |
+| HMD002 | error | An unqualified reference matches more than one card in the sweep |
 | HMD003 | error | A target resolves outside the namespace root |
 | HMD004 | error | A heading fragment is not present in the resolved card |
 | HMD005 | error | A block identifier is not present in the resolved card |
@@ -556,7 +575,7 @@ suppression comments and CI configuration reference them.
 | HMD013 | error | Unrecognised `use` feature, or a malformed `tags` or `nav` value |
 | HMD014 | error | Malformed `import` statement |
 | HMD015 | error | An import `ref` does not resolve, or two named imports bind one local name |
-| HMD016 | warning | A bare name matched two imported search paths; the earlier won |
+| HMD016 | warning | An unqualified reference matched two imported search paths; the earlier won |
 | HMD017 | warning | A published card links to or embeds one that is not published |
 
 The distinction between the two severities is a compiler's, and it is the whole

@@ -8,7 +8,7 @@
 
 * **Transclusion** — embed complete documents, sections, or named blocks using the same addressing model: `![[page]]`, `![[page#Section]]`, `![[page#^block]]`.
 
-* **Modules and namespaces** — the filesystem provides the module structure. A bare name resolves beside the card and then upward through its parent folders, never sideways into a sibling; `[[/shared/tokens]]` and a frontmatter `import` cross a module boundary on purpose, and an ambiguous name is an error rather than a guess. The cross-tree address form `namespace:path/to/document` is reserved and specified in outline only *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*.
+* **Modules and namespaces** — the filesystem provides the module structure. A bare name is searched beside the card and then upward through its parent folders; that spine never searches sideways, but autodiscovery may resolve a unique match elsewhere when the spine finds nothing. `[[/shared/tokens]]` and a frontmatter `import` identify another module explicitly, and ambiguous autodiscovery is an error rather than a guess. The cross-tree address form `namespace:path/to/document` is reserved and specified in outline only *(proposed — [HMD-0004](../proposals/HMD-0004/README.md))*.
 
 * **Metadata** — YAML frontmatter provides tags, imports, feature toggles, navigation hints, and application-specific metadata.
 

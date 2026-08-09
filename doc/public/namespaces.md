@@ -4,8 +4,8 @@
 
 `[[tokens]]` is a **name, not a path**. It is looked up in the card's own
 folder, then in each folder above it up to the root, each probed without
-recursion — so a bare name reaches you or your parents, never sideways into a
-sibling. Resolution runs in a fixed order and stops at the first hit: named
+recursion — so a bare name reaches its own folder or one above it, never
+sideways into a sibling. Resolution runs in a fixed order and stops at the first hit: named
 imports, then that spine walk, then each `from … import *` origin in declaration
 order, then one sweep of the whole tree.
 
