@@ -194,9 +194,15 @@ two never trigger each other.
 
 Publication runs in
 [`release-vsc-ext.yml`](../../.github/workflows/release-vsc-ext.yml): it packages
-one VSIX, checks the tag against `package.json`, and uploads *that file* to both
-registries and to the GitHub release. Packaging twice would publish a build
-nobody verified.
+one VSIX, checks the tag against `package.json`, and uploads *that file* to Open
+VSX and to the GitHub release. Packaging twice would publish a build nobody
+verified.
+
+**The Marketplace step is currently skipped, and the last step of a release is
+manual.** See [below](#the-marketplace-job-is-temporarily-skipped) — the job is
+written and correct, but the gallery has not yet exposed the configuration it
+needs. Tag, let the workflow run, then upload the VSIX from the GitHub release
+by hand.
 
 ```bash
 # 1. version, changelog, and a green tree
@@ -205,21 +211,53 @@ nobody verified.
 #    - add the two link references at the bottom of CHANGELOG.md
 npm run typecheck && HMD_REQUIRE_PARITY=1 npm test && npm run -w hmd-vsc-ext package
 
-# 2. tag and push — the workflow does the rest
+# 2. tag and push — Open VSX and the GitHub release are automatic
 git tag vsc-ext-v0.1.0 && git push origin vsc-ext-v0.1.0
+
+# 3. the Marketplace, by hand, from the release the workflow just cut
+gh release download vsc-ext-v0.1.0 --pattern '*.vsix'
 ```
+
+Upload that file on
+[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hyper-markdown).
+Download rather than repackage: the file on the release is the one every gate ran
+against, and a fresh `vsce package` is bytes nobody verified.
 
 A dry run without minting a tag: **Actions → Release (VS Code extension) →
 Run workflow**. That path packages and verifies and publishes nowhere.
 
-If a registry has to be reached by hand — a token that expired mid-release, or a
-publish job to redo — upload the VSIX the workflow already built rather than
-building a second one:
+If Open VSX has to be reached by hand — a publish job to redo, or a workflow that
+never got the chance to run — it takes a token from anywhere:
 
 ```bash
-npx vsce publish --no-dependencies --packagePath hmd-vsc-ext-0.1.0.vsix
 npx ovsx publish --packagePath hmd-vsc-ext-0.1.0.vsix -p "$OVSX_PAT"
 ```
+
+### The Marketplace job is temporarily skipped
+
+**This is a limitation of the gallery, not of this repository.** The `marketplace`
+job is written, reviewed, and believed correct; what is missing is on Microsoft's
+side.
+
+- `vsce publish --oidc` has shipped, and the workflow uses it.
+- The exchange requires a **trusted publishing policy** on the publisher, naming
+  this repository and `release-vsc-ext.yml`. The Marketplace does not currently
+  expose that configuration for `hyper-markdown`.
+- So the job is gated on the repository variable
+  `MARKETPLACE_TRUSTED_PUBLISHING` and does not run.
+- **To re-enable, once the policy can be configured:** set that variable to
+  `true` in the repository settings. No code change and no release — the job
+  underneath the gate is already the one that should run.
+
+Because a skipped job would otherwise take its dependents with it, the
+`github-release` job runs on `always()` and tolerates `marketplace` being
+skipped, refusing only when it actually failed. That release is where the manual
+upload gets its VSIX, so it is the one job that has to survive.
+
+**Do not route around this** with a `VSCE_PAT`, an Azure DevOps organisation, an
+Azure subscription, or a service principal. Waiting costs one upload per release.
+The alternatives cost a credential that is retired on **2026-12-01** and would
+have to be unwound again — see below.
 
 ### What has to exist first, once
 
@@ -228,11 +266,30 @@ created by CI:
 
 | Registry | Set up | Secret |
 | --- | --- | --- |
-| [VS Marketplace](https://marketplace.visualstudio.com/manage) | An Azure DevOps organisation, then a publisher with ID `hyper-markdown`. The PAT is minted in Azure DevOps for **all accessible organisations**, scope **Marketplace → Manage**. | `VSCE_PAT` |
+| [VS Marketplace](https://marketplace.visualstudio.com/manage) | A publisher with ID `hyper-markdown` — done. Then a **trusted publishing** policy on it naming this repository and `release-vsc-ext.yml` — *not yet offered by the gallery*, which is why uploads are manual. | none |
 | [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hyper-markdown -p <token>`. | `OVSX_PAT` |
 
-Marketplace PATs expire — a year at most, and a release fails with a 401 when
-one has. Regenerate it and update the secret; nothing else changes.
+**The Marketplace holds no secret of ours, and that is the point.** `vsce
+publish --oidc` exchanges a GitHub-issued identity token for a credential that
+lives for minutes, so there is nothing to leak and nothing to rotate. What
+replaces the token is configuration on the publisher: the policy must name the
+workflow *file*, so renaming `release-vsc-ext.yml` breaks publication until the
+policy is updated. There is no PAT fallback — a policy that does not match fails
+the release rather than reaching for a stored token.
+
+This project never had a `VSCE_PAT`, and should not acquire one. Azure DevOps
+retires global PATs on **2026-12-01**, which is the whole reason the older
+recipe — an Azure DevOps organisation, a token scoped to all accessible
+organisations with **Marketplace → Manage** — is not written here. It works
+until it abruptly does not. Microsoft's own
+[publishing docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
+still document that route and an Entra ID managed-identity one, and both drag in
+an Azure DevOps organisation this repository has no other use for.
+
+**`--oidc` is pinned to a prerelease of `vsce`, on purpose.** The flag is not in
+a stable release yet, and the workflow names an exact version rather than
+`@next`, which is a tag that moves. Bumping it is a deliberate edit; when a
+stable `@vscode/vsce` carries the flag, drop the pin.
 
 **Optional, and it is what puts the blue check on the listing:** verify the
 publisher's domain. Marketplace → publisher settings → verify `hyper-markdown.org`
