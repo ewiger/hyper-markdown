@@ -60,7 +60,7 @@ same [conformance corpus](examples/conformance/) the canonical tool does.
 ### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
 [![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+[![VS Marketplace](https://img.shields.io/badge/marketplace-hypermarkdown.hmd-007acc?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hypermarkdown.org/tools/vscode/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
@@ -68,6 +68,11 @@ Live preview that keeps the embed boundary visible, backlinks, red links, and
 diagnostics. Today it is the preview and the viewer, rendered in TypeScript, so
 there is nothing to install to see a card. Completion and the rest of the
 language-server features arrive with the Python server.
+
+Install from the [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+in VS Code, or from [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd)
+in Cursor, Windsurf, and VSCodium. One build is published to both, and the ID is
+the same either way:
 
 ```
 ext install hypermarkdown.hmd
@@ -121,9 +126,10 @@ uv run mkdocs serve   # preview the book and the wiki as you write
 
 Writing `.hmd` in a tree of your own needs none of that today — the [VS Code
 extension](tools/hmd-vsc-ext/) previews a card beside the file you are typing
-in, and the preview is TypeScript end to end. Install it from the marketplace,
-or build the VSIX from this clone: [its
-README](tools/hmd-vsc-ext/README.md#install).
+in, and the preview is TypeScript end to end. Install it from the [VS
+Marketplace](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+or [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd), or build the
+VSIX from this clone: [its README](tools/hmd-vsc-ext/README.md#install).
 
 Before opening a PR, run whichever half you touched:
 

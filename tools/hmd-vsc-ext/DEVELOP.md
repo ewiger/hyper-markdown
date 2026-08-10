@@ -165,14 +165,25 @@ marketplace renders the first two as its Details and Changelog tabs, which is wh
 this tool has its own rather than borrowing the repository's. `DEVELOP.md` does
 not travel: a build guide in front of someone who installed a preview is noise.
 
-**Version and install badges come from `vsmarketplacebadges.dev`, not from
-shields.io.** shields.io retired its whole `visual-studio-marketplace/*` family
-— those URLs now render a grey *retired badge* rather than failing — so a badge
-that looks broken on the listing is the provider, not the extension. Any
-replacement has to be on the trusted-host list `vsce` carries in
-`out/package.js`, or `vsce package` refuses the SVG outright. VS Code's own
-manifest linter flags these URLs anyway; its list is older than `vsce`'s, and
-packaging is the check that decides.
+**There is no working live-version badge for the VS Marketplace, and the badge
+here is deliberately static.** Both providers are gone: shields.io retired its
+whole `visual-studio-marketplace/*` family — those URLs render a grey *retired
+badge* rather than failing — and `vsmarketplacebadges.dev`, which replaced it,
+began answering `500` on 2026-08-11, hours after the listing went up. It had
+served `v0.1.0` correctly earlier the same day, so this is an unreliable host
+rather than a wrong URL, and a retry is not a fix.
+
+So the marketplace badge is a shields *static* badge naming the extension ID,
+which cannot break and cannot go stale. The live version number comes from the
+Open VSX badge beside it, which works and is the same build. The installs badge
+is dropped rather than replaced — it had the same dead provider and no
+substitute exists.
+
+If a live provider appears, it has to be on the trusted-host list `vsce` carries
+in `out/package.js` or `vsce package` refuses the SVG outright; `img.shields.io`
+is on that list, which is why the static badge packages. VS Code's own manifest
+linter flags these URLs anyway; its list is older than `vsce`'s, and packaging is
+the check that decides.
 
 **Every link in `README.md` and `CHANGELOG.md` MUST be absolute.** `vsce`
 rewrites a relative link against the *repository root* and ignores
@@ -219,9 +230,28 @@ gh release download vsc-ext-v0.1.0 --pattern '*.vsix'
 ```
 
 Upload that file on
-[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hypermarkdown).
-Download rather than repackage: the file on the release is the one every gate ran
-against, and a fresh `vsce package` is bytes nobody verified.
+[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hypermarkdown)
+— **New extension → Visual Studio Code** for a listing that does not exist yet,
+the update flow thereafter. Download rather than repackage: the file on the
+release is the one every gate ran against, and a fresh `vsce package` is bytes
+nobody verified. The browser is the whole credential story here; nothing is
+logged in, nothing is stored, nothing expires.
+
+**Verifying the upload is not the same check as Open VSX's.** The Marketplace
+re-zips what it serves, so the VSIX on the CDN never hashes to the asset on the
+release even when the upload was perfect — compare the *members*, not the file:
+
+```bash
+python3 - <<'PY'
+import zipfile, hashlib
+a = zipfile.ZipFile('mkt.vsix'); b = zipfile.ZipFile('hmd-0.1.0.vsix')
+print([n for n in b.namelist()
+       if hashlib.sha256(a.read(n)).digest() != hashlib.sha256(b.read(n)).digest()] or 'identical')
+PY
+```
+
+Open VSX serves the uploaded bytes unchanged, so there a plain `shasum -a 256`
+on both files is the right check. Do not carry one recipe over to the other.
 
 A dry run without minting a tag: **Actions → Release (VS Code extension) →
 Run workflow**. That path packages and verifies and publishes nowhere.
@@ -242,7 +272,7 @@ side.
 - `vsce publish --oidc` has shipped, and the workflow uses it.
 - The exchange requires a **trusted publishing policy** on the publisher, naming
   this repository and `release-vsc-ext.yml`. The Marketplace does not currently
-  expose that configuration for `HyperMarkDown`.
+  expose that configuration for the `hypermarkdown` publisher.
 - So the job is gated on the repository variable
   `MARKETPLACE_TRUSTED_PUBLISHING` and does not run.
 - **To re-enable, once the policy can be configured:** set that variable to
@@ -253,6 +283,14 @@ Because a skipped job would otherwise take its dependents with it, the
 `github-release` job runs on `always()` and tolerates `marketplace` being
 skipped, refusing only when it actually failed. That release is where the manual
 upload gets its VSIX, so it is the one job that has to survive.
+
+**`--oidc` cannot be run from a laptop, and that is not a gap to work around.**
+The flag asks the *runner* for a token — GitHub Actions injects
+`ACTIONS_ID_TOKEN_REQUEST_URL` under `id-token: write`, and the policy on the far
+side trusts a repository and a workflow file, not a person. A developer machine
+has no such claim to present, and `vsce` deliberately does not fall back to a PAT
+when the exchange fails. So the choice is CI or the browser, never local
+automation; until the policy exists, it is the browser.
 
 **Do not route around this** with a `VSCE_PAT`, an Azure DevOps organisation, an
 Azure subscription, or a service principal. Waiting costs one upload per release.

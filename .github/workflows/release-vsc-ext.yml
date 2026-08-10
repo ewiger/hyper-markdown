@@ -120,6 +120,12 @@ jobs:
   # Azure DevOps organisation, or a service principal to route around this: those
   # credentials are retired on 2026-12-01 and would have to be unwound again.
   #
+  # The manual workaround is exercised and fine, not a hole in the release path.
+  # 0.1.0 went up that way on 2026-08-11 and the listing is live. It costs one
+  # browser upload per release and needs no credential at all, which is a better
+  # trade than any of the alternatives above. Leave it alone until the gallery
+  # offers the policy.
+  #
   # TO RE-ENABLE, once the policy can be configured: set the repository variable
   # `MARKETPLACE_TRUSTED_PUBLISHING` to `true`. No code change, no release.
   marketplace:
