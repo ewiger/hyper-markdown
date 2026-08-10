@@ -231,5 +231,5 @@ jobs:
           " || true
           [ -s notes.md ] || echo "See tools/hmd-ts-core/CHANGELOG.md for what changed." > notes.md
           gh release create "$GITHUB_REF_NAME" pack/*.tgz \
-            --title "TypeScript core $version" \
+            --title "@hypermarkdown/core $version" \
             --notes-file notes.md
