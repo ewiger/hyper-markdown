@@ -5,8 +5,9 @@ into a knowledge graph. Every `.md` file is already valid `.hmd`.
 
 !!! tip "Want to see it in action?"
 
-    [The HMD Tutorial](wiki/hmd-tutorial.hmd) is the whole language in one
-    sitting — every construct, with its source shown beside what it renders.
+    - *Tools for HyperMarkDown*: the [Quick start](tools/index.md) is two
+      installs — the VS Code-compatible editor extension, then the `hmd` command — and what each one gets you.
+    - *How to write HyperMarkDown*: [The HMD Tutorial](wiki/hmd-tutorial.hmd) is the whole language in one go — every construct, with its source shown beside what it renders.
 
 ## TL;DR
 
@@ -142,6 +143,9 @@ graph. A missing target is a warning, because writing forward is how a wiki
 grows. Malformed references and multiple autodiscovery matches are errors;
 ordered wildcard imports resolve by declaration order and report shadowing.
 
+Installing rather than reading: the editor extension, the package, and what each
+one gets you is the [Quick start](tools/index.md).
+
 There are three of them, one directory each under `tools/` in the repository,
 each carrying its own version, README, and changelog:
 
@@ -161,6 +165,9 @@ each carrying its own version, README, and changelog:
 * **[`hmd-vsc-ext`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-vsc-ext)**
   — the VS Code extension, in development: live preview that keeps the embed
   boundary visible, plus backlinks, red links, and diagnostics.
+
+Those are the sources. Getting them running — the extension, then the package,
+and what each one is for — is the [Quick start](tools/index.md).
 
 Presentation is not part of the language. A card is plain text, so an editor,
 GitHub, or a chat window already shows it. The MkDocs plugin builds a tree of
