@@ -1,0 +1,48 @@
+{#-
+  The site's footer, overriding Material's own `partials/copyright.html`.
+
+  This site *is* `doc/`, and `doc/` is CC BY 4.0 while the tools it documents
+  are MIT. A visitor quoting the language specification needs both terms on the
+  page they are quoting from, and two licenses do not fit in `copyright:`, which
+  is a single string — hence a template override rather than a longer setting.
+
+  The `©` line is the attribution string `LICENSE-DOCS` asks for, in the one
+  place a reader quoting a page will look: holder, year, license, link. The
+  holder and the year are copied from the license files rather than derived, and
+  the holder links `CONTRIBUTORS.md` the way they do — `build_date_utc.year` is
+  the build year rather than the year of publication, and would put this line in
+  disagreement with all five of them the moment the year turns. Bump it here
+  when they bump.
+
+  Three things here are load-bearing, and all three are easy to lose on a
+  Material upgrade. The `md-copyright` and `md-copyright__highlight` classes are
+  what the footer's CSS styles; without them the line inherits nothing. The
+  generator branch is kept verbatim from the partial this replaces, so
+  `extra.generator` still means what it says rather than being silently ignored.
+  And every link here is absolute: the license files and `CONTRIBUTORS.md` live
+  outside `docs_dir` and never reach the built site, so `{{ 'LICENSE' | url }}`
+  would resolve to a page that does not exist. `rel="license"` is the machine-readable half of the
+  attribution CC BY asks for.
+
+  Re-diff this against
+  `site-packages/material/templates/partials/copyright.html` when the theme is
+  upgraded.
+-#}
+<div class="md-copyright">
+  <div class="md-copyright__highlight">
+    © 2026
+    <a href="https://github.com/ewiger/hypermarkdown/blob/main/CONTRIBUTORS.md">HyperMarkDown Contributors</a>
+    ·
+    Code
+    <a href="https://github.com/ewiger/hypermarkdown/blob/main/LICENSE">MIT</a>
+    ·
+    Docs &amp; Specifications
+    <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>
+  </div>
+  {% if not config.extra.generator == false %}
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  {% endif %}
+</div>

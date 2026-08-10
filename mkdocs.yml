@@ -17,7 +17,11 @@ repo_url: https://github.com/ewiger/hypermarkdown
 repo_name: ewiger/hypermarkdown
 edit_uri: edit/main/doc/
 
-copyright: MIT-licensed — HyperMarkDown
+# No `copyright:` here on purpose. This site is `doc/`, which is CC BY 4.0,
+# while the tools it documents are MIT — two claims, and `copyright:` is one
+# string. The footer is `overrides/partials/copyright.html` instead, and keeping
+# a setting here that the override ignores would be a second claim free to
+# drift away from the first.
 
 # The site covers the whole documentation tree, while the `[[…]]` namespace is
 # restricted to `doc/wiki` by the plugin's `root` below. The book and the wiki
@@ -44,6 +48,14 @@ use_directory_urls: true
 
 theme:
   name: material
+
+  # Exactly one template is overridden: `partials/copyright.html`, which carries
+  # the two-license footer. The directory is a sibling of `mkdocs.yml` rather
+  # than anything under `docs_dir`, because these are theme sources and not
+  # pages. Anything added here shadows a Material template of the same path, so
+  # a new file is a fork of that template and has to be re-diffed on a theme
+  # upgrade — worth doing rarely and on purpose.
+  custom_dir: overrides
 
   # The bolt from the README, as a real asset rather than an emoji character —
   # `⚡` is drawn differently by every platform's font and cannot be a favicon
@@ -152,9 +164,10 @@ nav:
 not_in_nav: |
   proposals/
 
-# `generator: false` drops Material's own footer credit so the copyright above
-# is the only line there — the footer is small enough that two claims on it
-# read as clutter.
+# `generator: false` drops Material's own footer credit so the license line in
+# `overrides/partials/copyright.html` is the only one there — the footer is
+# small enough that two claims on it read as clutter. The override keeps the
+# branch this setting controls, so it still does something.
 extra:
   generator: false
   social:
@@ -188,8 +201,10 @@ validation:
 markdown_extensions:
   - admonition
   # Lets a heading carry a class, which is how the cover marks itself as the
-  # one page that gets the hero treatment — cheaper than a `custom_dir` and a
-  # template override just to put a class on `<body>`.
+  # one page that gets the hero treatment. There is a `custom_dir` above now,
+  # but this stays authored rather than templated: a class on `<body>` would
+  # mean forking `main.html` and re-diffing it on every theme upgrade, which is
+  # a standing cost for a marker one page uses once.
   - attr_list
   - footnotes
   - tables
