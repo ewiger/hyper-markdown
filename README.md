@@ -9,7 +9,8 @@
 [![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/)
 [![Spec](https://img.shields.io/badge/spec-0.1-blue)](https://hypermarkdown.org/wiki/hmd-lang-spec/)
 [![CI](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](LICENSE)
+[![Docs: CC BY 4.0](https://img.shields.io/badge/docs-CC%20BY%204.0-ef9421.svg)](LICENSE-DOCS)
 
 </div>
 
@@ -103,6 +104,9 @@ diagram.](https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/assets
   and updated in the same commit that changes the code.
 - **Kanban board** - in `doc/issues/**`, for the repository's own work, and for the language and the
   website, as well as the tools. The board is public, but the issues are owned by the contributors team.
+- **[CONTRIBUTORS.md](CONTRIBUTORS.md)** — add yourself in the same commit as
+  your first merged change. Every license file here names *HyperMarkDown
+  Contributors* and points at that list, so this is where credit lives.
 
 ### Getting set up
 
@@ -139,4 +143,27 @@ Once accepted, a PR should be merged into the `main` branch, and the issue close
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Two licenses, split on the one boundary this repository already has.
+
+- **The code is MIT** — see [LICENSE](LICENSE). The three tools under
+  [`tools/`](tools/), the fixture wikis and the conformance corpus under
+  [`examples/`](examples/), the guards under [`tests/`](tests/), and the
+  configuration at the root. Each tool carries its own identical copy.
+- **The documentation is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)**
+  — see [LICENSE-DOCS](LICENSE-DOCS). Everything under [`doc/`](doc/): the book,
+  the `.hmd` wiki, the language specification, and the numbered proposals.
+
+The specification exists to be quoted, translated, and reimplemented — the
+conformance corpus is an invitation to write a third implementation. MIT is a
+software license and asks for nothing when prose is reused; CC BY asks for
+credit and nothing else, which is the right trade for a document. The corpus
+itself stays MIT deliberately, because it gets vendored into implementations and
+an attribution clause on fixture data is friction with no upside.
+
+Attribute the documentation as:
+
+> HyperMarkDown documentation, © 2026 HyperMarkDown Contributors, CC BY 4.0 —
+> https://hypermarkdown.org/
+
+The copyright holder is the project rather than a person; the people are named
+in [CONTRIBUTORS.md](CONTRIBUTORS.md).

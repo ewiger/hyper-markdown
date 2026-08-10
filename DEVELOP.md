@@ -129,6 +129,17 @@ must have **Settings → Pages → Source** set to *GitHub Actions* — with the
 `--strict` is the same gate the test workflow applies. A build that warns is not
 published, which keeps the site and the lint result describing the same tree.
 
+The site is `doc/`, and `doc/` is CC BY 4.0 while the tools it documents are
+MIT, so the footer states both. That does not fit in `copyright:`, which is one
+string — it lives in
+[`overrides/partials/copyright.html`](overrides/partials/copyright.html), the
+only Material template this site shadows. Treat it as a fork of the theme's own
+partial: re-diff it against
+`site-packages/material/templates/partials/copyright.html` when the theme is
+upgraded, because a partial that is renamed upstream stops being included and
+takes the license claim off every page without failing `--strict`. That is what
+the footer guard in `tests/test_docs.py` is for.
+
 **When a deploy fails, dispatch a fresh run — do not re-run the failed one.**
 `upload-pages-artifact` writes an artifact named `github-pages`, and a re-run
 adds a *second* one to the same run rather than replacing it; `deploy-pages`
@@ -166,10 +177,26 @@ examples/cs-alg-sorting/  a larger fixture wiki, exercised by both lines
 examples/conformance/     the language-neutral corpus both implementations run
 doc/                      the documentation tree — also the site's docs_dir
 mkdocs.yml                the site
+overrides/                Material templates this site shadows — the footer
 pyproject.toml            uv workspace root and pytest config; not a distribution
 README.md                 the front page: what this is, and the three tools
 CHANGELOG.md              the language's history — not any tool's
+LICENSE                   MIT — the code
+LICENSE-DOCS              CC BY 4.0 — everything under doc/
+CONTRIBUTORS.md           the copyright holder, named once
 ```
+
+**The four `LICENSE` files are byte-identical MIT and must stay that way** —
+the root's, and one copy in each tool, because a wheel, an npm tarball, and a
+VSIX each ship their own and travel without the rest of this repository. All
+four name *HyperMarkDown Contributors* rather than a person and link
+[`CONTRIBUTORS.md`](CONTRIBUTORS.md) by absolute URL, on a single line. That
+last detail is load-bearing: GitHub identifies a license with `licensee`, which
+strips the copyright line and scores the remainder against the canonical text
+at a 98% threshold, so a holder's name is free but a second line is not —
+splitting the attribution note onto its own line measures 93.9% and costs the
+repository its detected license entirely. A new tool copies the file unchanged;
+`tests/test_docs.py` fails if any of the four drifts.
 
 **Every tool carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, and
 `DEVELOP.md`, and none of them is a symlink.** The first three were symlinks into

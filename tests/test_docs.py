@@ -257,9 +257,155 @@ def test_the_cover_renders_its_hero(built_home):
 
 def test_the_site_names_its_repository(built_home):
     assert "ewiger/hypermarkdown" in built_home
-    # `extra.generator: false` leaves the project's own copyright alone in the
-    # footer.
+    # `extra.generator: false` leaves the project's own license line alone in
+    # the footer.
     assert "Made with" not in built_home
+
+
+# -- two licenses --------------------------------------------------------
+#
+# The code is MIT; everything under `doc/` is CC BY 4.0. Five files carry that
+# claim and all five have to agree — the shape that rots the first time one of
+# them is edited alone.
+
+#: The MIT files: the root, plus one byte-identical copy per distributable
+#: tool. Each of those copies ships *inside* an artifact — the wheel and sdist,
+#: the npm tarball's `files`, the VSIX — where nothing else from this
+#: repository is present.
+MIT_LICENSES = (
+    "LICENSE",
+    "tools/hmd/LICENSE",
+    "tools/hmd-ts-core/LICENSE",
+    "tools/hmd-vsc-ext/LICENSE",
+)
+
+CONTRIBUTORS_URL = (
+    "https://github.com/ewiger/hypermarkdown/blob/main/CONTRIBUTORS.md"
+)
+
+#: The one copyright line, in every license file.
+#:
+#: It is folded onto a single line rather than split across two, and that is
+#: load-bearing rather than cosmetic. GitHub identifies a license with
+#: `licensee`, which strips lines beginning with a copyright symbol and then
+#: scores what remains against the canonical text by word overlap, at a 98%
+#: threshold. A holder's name costs nothing because the whole line is stripped
+#: — but a note on a line of its own is *not* stripped, and adds a dozen novel
+#: words to a 93-word set. Measured: 93.9%, which is GitHub reporting no
+#: detected license at all. Keep the note on this line.
+COPYRIGHT_LINE = (
+    "Copyright (c) 2026 HyperMarkDown Contributors —"
+    f" see {CONTRIBUTORS_URL} for full attribution."
+)
+
+#: Any line opening a copyright claim, whoever it names. `licensee` strips by
+#: roughly this shape, which is why every one of them has to be
+#: `COPYRIGHT_LINE`. The year is required rather than optional: CC BY's
+#: legalcode wraps its prose onto lines that begin with the bare word
+#: "copyright", and those are sentences rather than claims.
+COPYRIGHT_CLAIM = re.compile(
+    r"^\s*copyright\s*(?:\(c\)|©)?\s*\d{4}.*$", re.I | re.M
+)
+
+
+def test_every_license_names_the_contributors():
+    """One holder, named once, in all five license files.
+
+    A personal name in a copyright line gets less true with every merged pull
+    request, and the alternative to fixing that early is renegotiating it file
+    by file later. `CONTRIBUTORS.md` is the list; the license files point at it
+    by absolute URL because the three packaged copies travel without it.
+    """
+    for rel in (*MIT_LICENSES, "LICENSE-DOCS"):
+        path = ROOT / rel
+        assert path.is_file(), f"{rel} is missing"
+        text = path.read_text(encoding="utf-8")
+
+        claims = COPYRIGHT_CLAIM.findall(text)
+        assert claims, f"{rel} makes no copyright claim"
+        offenders = [c.strip() for c in claims if c.strip() != COPYRIGHT_LINE]
+        assert not offenders, (
+            f"{rel} carries a copyright line that is not the project's."
+            " Every license file names `HyperMarkDown Contributors` and links"
+            f" {CONTRIBUTORS_URL}, on one line — see COPYRIGHT_LINE above for"
+            f" why the line may not be split:\n  " + "\n  ".join(offenders)
+        )
+
+    # The four MIT files are copies, not variations. A tool whose license has
+    # drifted is a tool shipping different terms than the repository claims.
+    digests = {(ROOT / rel).read_bytes() for rel in MIT_LICENSES}
+    assert len(digests) == 1, (
+        "the MIT license files have diverged; they are byte-identical copies of"
+        f" the root LICENSE, one per tool: {', '.join(MIT_LICENSES)}"
+    )
+
+    # The URL those five files point at has to resolve to something.
+    assert (ROOT / "CONTRIBUTORS.md").is_file(), (
+        f"every license file links {CONTRIBUTORS_URL}, and CONTRIBUTORS.md is"
+        " not there — the link is dead in three published artifacts"
+    )
+
+
+def test_the_documentation_is_cc_by_4():
+    """`doc/` is CC BY 4.0: the book, the wiki, the language specification, and
+    the proposals. The corpus under `examples/` deliberately is *not* — it gets
+    vendored into other implementations, and an attribution clause on fixture
+    data is friction with no upside.
+
+    The legalcode is asserted section by section rather than by length. A
+    truncated paste is the failure that looks fine: the header still says CC BY
+    4.0, and the terms that were actually granted are gone.
+    """
+    text = (ROOT / "LICENSE-DOCS").read_text(encoding="utf-8")
+    assert "Attribution 4.0 International" in text
+    assert "doc/" in text, "LICENSE-DOCS does not say what it covers"
+    sections = re.findall(r"^Section \d+ -- ", text, re.M)
+    assert len(sections) == 8, (
+        f"the CC BY 4.0 legalcode has 8 sections, LICENSE-DOCS has"
+        f" {len(sections)} — it was truncated somewhere in the paste"
+    )
+
+    # Both files have to be reachable from the front page, or the split is a
+    # claim only someone already looking for it will find.
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for target in ("LICENSE-DOCS", "CONTRIBUTORS.md"):
+        assert f"({target})" in readme, f"README.md does not link {target}"
+
+
+def test_the_footer_states_both_licenses(built_site: Path):
+    """The site *is* `doc/`, so every page on it is CC BY 4.0 while the tools it
+    documents are MIT. A reader quoting the specification needs both terms on
+    the page they are quoting from.
+
+    Terms alone are not attribution, so the footer also carries the notice: the
+    same holder and year as the five license files, linking the same
+    `CONTRIBUTORS.md`. That makes the footer a sixth place stating the claim,
+    which is why the year is asserted here rather than left to a template.
+
+    Asserted on the built markup, and on a deep page as well as the cover, for
+    the standing reason: `custom_dir` is a setting. A typo in the directory
+    name, or a Material upgrade that renames `partials/copyright.html`, leaves
+    `--strict` green and the claim silently absent from every page.
+    """
+    for page in ("index.html", "wiki/hmd-lang-spec/index.html"):
+        html = (built_site / page).read_text(encoding="utf-8")
+        match = re.search(r'<footer class="md-footer".*?</footer>', html, re.S)
+        assert match is not None, f"{page} has no footer"
+        footer = match.group(0)
+
+        for claim in (
+            "© 2026",
+            ">HyperMarkDown Contributors</a>",
+            CONTRIBUTORS_URL,
+            ">MIT</a>",
+            "blob/main/LICENSE",
+            ">CC BY 4.0</a>",
+            "creativecommons.org/licenses/by/4.0/",
+        ):
+            assert claim in footer, (
+                f"{page} footer is missing {claim!r} — check"
+                " `overrides/partials/copyright.html` still shadows the theme's"
+            )
 
 
 # -- being found ---------------------------------------------------------
