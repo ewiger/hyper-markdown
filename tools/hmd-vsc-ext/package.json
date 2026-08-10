@@ -6,7 +6,23 @@
   "license": "MIT",
   "icon": "media/logo.png",
   "publisher": "hyper-markdown",
-  "private": true,
+  "preview": true,
+  "galleryBanner": {
+    "color": "#1c1c1c",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://img.shields.io/badge/docs-hyper--markdown.org-ffb300",
+      "href": "https://hyper-markdown.org/tools/vscode/",
+      "description": "Documentation at hyper-markdown.org"
+    },
+    {
+      "url": "https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg",
+      "href": "https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml",
+      "description": "CI status"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ewiger/hyper-markdown.git",
@@ -15,7 +31,8 @@
   "bugs": {
     "url": "https://github.com/ewiger/hyper-markdown/issues"
   },
-  "homepage": "https://github.com/ewiger/hyper-markdown",
+  "homepage": "https://hyper-markdown.org/tools/vscode/",
+  "qna": "https://github.com/ewiger/hyper-markdown/issues",
   "engines": {
     "vscode": "^1.90.0",
     "node": ">=20"
@@ -38,7 +55,10 @@
       "supported": "limited",
       "description": "Indexing and preview are read-only and run in untrusted workspaces. Creating a missing card requires trust."
     },
-    "virtualWorkspaces": true
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Cards render from the workspace file system. D2 diagrams need a local `d2` binary, so they show their source instead."
+    }
   },
   "activationEvents": [
     "workspaceContains:**/*.hmd",
@@ -175,7 +195,7 @@
     "example:sorting": "node ../../scripts/launch-example.mjs cs-alg-sorting",
     "example:small": "node ../../scripts/launch-example.mjs small",
     "example:wiki": "node ../../scripts/launch-example.mjs wiki",
-    "package": "npm run build && npx --yes @vscode/vsce package --no-dependencies"
+    "package": "npm run build && vsce package --no-dependencies"
   },
   "dependencies": {
     "@hyper-markdown/core": "^0.1.0"
@@ -183,8 +203,10 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.24.0",
     "jsdom": "^25.0.0",
+    "ovsx": "^1.1.1",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   }

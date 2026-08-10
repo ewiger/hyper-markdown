@@ -1,5 +1,6 @@
 # The VSIX ships two bundles and the static assets they need, nothing else
-# (HMD-0021 §12).
+# (HMD-0021 §12). README.md, CHANGELOG.md, and LICENSE stay: the marketplace
+# renders the first two as its Details and Changelog tabs.
 
 src/**
 test/**
@@ -11,3 +12,9 @@ vitest.config.ts
 **/*.map
 **/*.tsbuildinfo
 .vscodeignore
+
+# Contributor-facing, and shipping it puts a build guide in front of a reader
+# who installed a preview.
+DEVELOP.md
+.gitignore
+*.vsix

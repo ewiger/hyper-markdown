@@ -11,7 +11,7 @@ each package keeps its own history:
 | --- | --- | --- |
 | [`tools/hmd/`](tools/hmd/) | [CHANGELOG.md](tools/hmd/CHANGELOG.md) | [`hyper-markdown`](https://pypi.org/project/hyper-markdown/) on PyPI, tagged `vX.Y.Z` |
 | [`tools/hmd-ts-core/`](tools/hmd-ts-core/) | [CHANGELOG.md](tools/hmd-ts-core/CHANGELOG.md) | `@hyper-markdown/core` — not published yet |
-| [`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/) | [CHANGELOG.md](tools/hmd-vsc-ext/CHANGELOG.md) | `hyper-markdown.hmd-vsc-ext` — not published yet |
+| [`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/) | [CHANGELOG.md](tools/hmd-vsc-ext/CHANGELOG.md) | [`hyper-markdown.hmd-vsc-ext`](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext) on the VS Marketplace and Open VSX, tagged `vsc-ext-vX.Y.Z` |
 
 The dependency runs one way. A tool depends on the specification; the
 specification does not depend on a tool, and a decision recorded here is never

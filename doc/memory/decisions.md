@@ -375,3 +375,40 @@ sitemap — ten of twenty-two URLs at the time of writing, all of them internal
 tool specifications competing with the language's own specification for the
 same queries. Keeping them out of search is a different decision from keeping
 them out of the nav, and it needs an argument rather than a default.
+
+## A tag says which tool it releases
+
+Four versions means four release lines, and a tag is how one is started. The
+Python tool keeps `vX.Y.Z`; the extension takes `vsc-ext-vX.Y.Z`. The prefix is
+not decoration — `release.yml` used to trigger on `tags: ["v*"]`, and every
+extension tag begins with a `v`, so an extension release would have started a
+PyPI build, checked `vsc-ext-v0.1.0` against `hyper_markdown.__version__`, and
+gone red on a workflow that had no business running. The glob is now `v[0-9]*`,
+which is the narrowest thing that still admits every version the Python tool can
+have.
+
+What the extension's own workflow does differently from `release.yml` is package
+once. Both registries refuse to replace a version they have accepted, so the
+VSIX that CI gated is the file uploaded to the marketplace, to Open VSX, and to
+the GitHub release — a second `vsce package` in the publish job would ship bytes
+no gate had seen. The publish jobs sit behind GitHub environments for the same
+reason the PyPI one does, except that neither registry offers trusted publishing:
+these are long-lived tokens, and the marketplace's expires within a year, so a
+release failing with a 401 usually means a token to regenerate rather than a
+build to fix.
+
+## The extension is the one tool with a page in the book
+
+The `Tools` nav points at GitHub, on the reasoning that a tool documents itself
+next to its code and a copy in the book is a second thing to keep true. The
+extension breaks that rule, and the reason it does is that it is the only tool a
+reader *installs* rather than reads. An install button on a GitHub tree view is
+a button nobody arrives at, and the marketplace listing is not ours to link
+people to before they know the format exists.
+
+`doc/tools/vscode.md` is therefore a landing page and deliberately nothing more:
+what the extension is, two install buttons, the screenshot, and links out. Every
+claim that can go stale — settings, commands, the ledger of divergences — stays
+in the extension's own README, which is also what the marketplace renders. The
+listing and the site page say the same thing twice only where the sentence is
+"install this", which cannot drift.

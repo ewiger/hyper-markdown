@@ -18,7 +18,9 @@ and the one this file is the standing exception to.
 `ready` specified, unblocked, not started · `blocked` waiting on a decision ·
 `unspec` no normative text exists yet.
 
-**Snapshot** (2026-08-08): C1–C7 and E1–E5, E7 done. 151 tests green, including
+**Snapshot** (2026-08-10): C1–C7, E1–E5, E7 done; E8 — the first marketplace
+release — is wip and waits only on the two publisher accounts, which cannot be
+created from CI. C1–C7 and E1–E5, E7 as of 2026-08-08: 151 tests green, including
 diagnostic parity with `hmd lint` on `examples/small`, `examples/cs-alg-sorting`
 and `doc/wiki` — byte-identical on every rule except HMD017, which is ledgered
 as unimplemented and currently fires nowhere (see below). Callouts, math, and D2
@@ -45,6 +47,7 @@ Python corpus runner are the next blocks.
 | E5 | Packaging | **done** | `npm run -w hmd-vsc-ext package` |
 | E6 | Graph tab | **ready** | HMD-0021 §10 |
 | E7 | Editor-column surface, logo | **done** | `test/panel.test.ts` |
+| E8 | First marketplace release, `0.1.0` | **wip** | `release-vsc-ext.yml` on `vsc-ext-v*` |
 
 ## Work points
 
@@ -101,8 +104,29 @@ Python corpus runner are the next blocks.
 | E7.4 | `WebviewPanelSerializer` restores card and pin | §3 | done |
 | E7.5 | The ⚡ as tab icon, title-bar icon, and gallery PNG | issue 0104 | done |
 | E7.6 | Preview follows the editor and its own links; pin toggle in the title bar | §3 | done |
+| E8.1 | Gallery metadata: `preview`, `galleryBanner`, `badges`, `qna`, `homepage` | §1 | done |
+| E8.2 | README and CHANGELOG as the Details and Changelog tabs, links absolute | HMD-0024 | done |
+| E8.3 | `release-vsc-ext.yml`: one VSIX to Marketplace, Open VSX, and the release | §12 | done |
+| E8.4 | Publisher accounts and the `VSCE_PAT` / `OVSX_PAT` secrets | — | **blocked** — see below |
+| E8.5 | `hyper-markdown.org/tools/vscode/` landing page | — | done |
 
 ## Open
+
+- **E8.4 — the two accounts.** Everything else on E8 is committed and runs; the
+  release workflow cannot mint an identity. The VS Marketplace needs an Azure
+  DevOps organisation, a publisher with the ID `hyper-markdown`, and a PAT
+  scoped to Marketplace → Manage across all accessible organisations, stored as
+  `VSCE_PAT`. Open VSX needs a GitHub login, the signed publisher agreement, and
+  `ovsx create-namespace hyper-markdown`, stored as `OVSX_PAT`. Until both
+  exist, `vsc-ext-v0.1.0` fails in the publish jobs rather than in the build —
+  the VSIX is still built, gated, and attached to the release, so a tag pushed
+  early is recoverable by re-running the two jobs.
+
+  Two things worth taking at the same time and neither blocking: verifying the
+  domain `hyper-markdown.org` on the publisher, which is what puts the check
+  beside the name on the listing; and deciding whether the `preview` flag comes
+  off at E6 (the graph tab) or at C4.2 (the publication model). Today it names
+  both.
 
 - **E5.2 — integration tests.** Written, compiling, and **parked on
   `feat/vsc-ext-1`** (commit `cb8c6e4`). Two blockers, neither in our code:

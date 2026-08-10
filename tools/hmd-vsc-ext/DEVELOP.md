@@ -162,12 +162,102 @@ is ~440 KB, mostly KaTeX's fonts, and carries no `node_modules`:
 [`.vscodeignore`](.vscodeignore) keeps it to the two bundles and the static
 assets they need. `README.md`, `CHANGELOG.md`, and `LICENSE` travel too — the
 marketplace renders the first two as its Details and Changelog tabs, which is why
-this tool has its own rather than borrowing the repository's.
+this tool has its own rather than borrowing the repository's. `DEVELOP.md` does
+not travel: a build guide in front of someone who installed a preview is noise.
 
-**The identifier is `hyper-markdown.hmd-vsc-ext` and is permanent from the first
-publish.** Renaming afterwards means a second listing and every install of the
-first one stranded on it. Nothing is published yet, so nothing needs a rename —
-but do not change `name` or `publisher` casually now that they are settled.
+**Version and install badges come from `vsmarketplacebadges.dev`, not from
+shields.io.** shields.io retired its whole `visual-studio-marketplace/*` family
+— those URLs now render a grey *retired badge* rather than failing — so a badge
+that looks broken on the listing is the provider, not the extension. Any
+replacement has to be on the trusted-host list `vsce` carries in
+`out/package.js`, or `vsce package` refuses the SVG outright. VS Code's own
+manifest linter flags these URLs anyway; its list is older than `vsce`'s, and
+packaging is the check that decides.
+
+**Every link in `README.md` and `CHANGELOG.md` MUST be absolute.** `vsce`
+rewrites a relative link against the *repository root* and ignores
+`repository.directory`, so `../../doc/…` ships as
+`…/blob/HEAD/../../doc/…` and 404s on the listing. Nothing catches this locally
+except reading the packaged file, which is what the check below does.
+
+**The identifier is `hyper-markdown.hmd-vsc-ext` and is permanent.** Renaming
+means a second listing and every install of the first one stranded on it, so do
+not change `name` or `publisher`.
+
+## Release it
+
+The extension carries **its own version**. It is not the language's and not the
+`hmd` tool's: a release here never implies either, and neither waits for it. The
+tags say so — `vsc-ext-v0.1.0` here, `v0.1.0` for PyPI, and
+[`release.yml`](../../.github/workflows/release.yml) filters on `v[0-9]*` so the
+two never trigger each other.
+
+Publication runs in
+[`release-vsc-ext.yml`](../../.github/workflows/release-vsc-ext.yml): it packages
+one VSIX, checks the tag against `package.json`, and uploads *that file* to both
+registries and to the GitHub release. Packaging twice would publish a build
+nobody verified.
+
+```bash
+# 1. version, changelog, and a green tree
+#    - bump "version" in package.json
+#    - move the [Unreleased] entries into a new [X.Y.Z] section with today's date
+#    - add the two link references at the bottom of CHANGELOG.md
+npm run typecheck && HMD_REQUIRE_PARITY=1 npm test && npm run -w hmd-vsc-ext package
+
+# 2. tag and push — the workflow does the rest
+git tag vsc-ext-v0.1.0 && git push origin vsc-ext-v0.1.0
+```
+
+A dry run without minting a tag: **Actions → Release (VS Code extension) →
+Run workflow**. That path packages and verifies and publishes nowhere.
+
+If a registry has to be reached by hand — a token that expired mid-release, or a
+publish job to redo — upload the VSIX the workflow already built rather than
+building a second one:
+
+```bash
+npx vsce publish --no-dependencies --packagePath hmd-vsc-ext-0.1.0.vsix
+npx ovsx publish --packagePath hmd-vsc-ext-0.1.0.vsix -p "$OVSX_PAT"
+```
+
+### What has to exist first, once
+
+Both registries are accounts, not repository settings, and neither can be
+created by CI:
+
+| Registry | Set up | Secret |
+| --- | --- | --- |
+| [VS Marketplace](https://marketplace.visualstudio.com/manage) | An Azure DevOps organisation, then a publisher with ID `hyper-markdown`. The PAT is minted in Azure DevOps for **all accessible organisations**, scope **Marketplace → Manage**. | `VSCE_PAT` |
+| [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hyper-markdown -p <token>`. | `OVSX_PAT` |
+
+Marketplace PATs expire — a year at most, and a release fails with a 401 when
+one has. Regenerate it and update the secret; nothing else changes.
+
+**Optional, and it is what puts the blue check on the listing:** verify the
+publisher's domain. Marketplace → publisher settings → verify `hyper-markdown.org`
+with the TXT record it gives you.
+
+### Reading the listing before it is public
+
+The gallery page is built from `package.json` and the two markdown files, so most
+of it can be checked from the VSIX:
+
+```bash
+npm run -w hmd-vsc-ext package
+cd tools/hmd-vsc-ext && unzip -o -d /tmp/vsix hmd-vsc-ext-*.vsix >/dev/null
+grep -c 'blob/HEAD/\.\.' /tmp/vsix/extension/readme.md   # MUST be 0
+```
+
+| On the listing | From |
+| --- | --- |
+| Title, blurb, icon, banner | `displayName`, `description`, `icon`, `galleryBanner` |
+| Body and the Changelog tab | `README.md`, `CHANGELOG.md` |
+| Badges under the title | `badges[]` — from a host on `vsce`'s trusted list, or packaging fails |
+| Categories, tags | `categories`, `keywords` |
+| Resources: Repository, Issues, Homepage, License, Q&A | `repository`, `bugs`, `homepage`, `license`, `qna` |
+| "Preview" flag | `preview` — drop it when the graph tab lands |
+| Feature Contributions tab | `contributes` — settings and commands, rendered by VS Code itself |
 
 ## Regenerating the gallery icon
 
