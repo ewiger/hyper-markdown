@@ -77,8 +77,14 @@ jobs:
         env:
           HMD_REQUIRE_PARITY: "1"
 
+      # `--pack-destination` does not create the directory, and fails with a
+      # bare ENOENT on the tarball path rather than saying so. A local dry run
+      # will not reproduce it: any scratch directory you already made is a
+      # directory the runner does not have.
       - name: Pack
-        run: npm pack -w @hypermarkdown/core --pack-destination "$RUNNER_TEMP/pack"
+        run: |
+          mkdir -p "$RUNNER_TEMP/pack"
+          npm pack -w @hypermarkdown/core --pack-destination "$RUNNER_TEMP/pack"
 
       # `dist` is gitignored and built, and `files` ships it, so a tarball packed
       # without a build is four files with no code and a `main` pointing at
