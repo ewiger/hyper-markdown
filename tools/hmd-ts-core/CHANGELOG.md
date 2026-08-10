@@ -9,13 +9,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) with
 the usual `0.x` caveat: **the format itself may change between minor versions.**
 
-**Not published to npm yet.** `0.1.0` is the version the VS Code extension
-resolves from the workspace, so everything so far is unreleased. Implementation
-state is tracked per work point in
+Published to npm as
+[`@hypermarkdown/core`](https://www.npmjs.com/package/@hypermarkdown/core), and
+released on its own tag — `ts-core-vX.Y.Z`, where the extension uses
+`vsc-ext-vX.Y.Z` and the Python tool `vX.Y.Z`. The VS Code extension resolves
+this package from the workspace and bundles it, so a version here is not
+something the extension waits for. Implementation state is tracked per work
+point in
 [`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
 ## [Unreleased]
+
+## [0.1.1] — 2026-08-10
+
+### Fixed
+
+- **Every link in the README is absolute.** Nine were relative, and all nine
+  were dead on the package page from the moment `0.1.0` published: npm rewrites
+  a rendered README's relative links against the *repository root* and ignores
+  `repository.directory`, so `../../doc/…` from this subdirectory resolves above
+  the root. The release workflow now extracts the packed tarball and fails if
+  any link is relative, which is the same guard the extension already had for
+  `vsce` and the same rule the Python distribution records for PyPI.
+
+  A README is re-rendered only when a version is published, so this is what
+  replaces `0.1.0`'s page rather than a fix that could be applied in place.
+
+### Changed
+
+- Packing builds first, via `prepack`, and `publishConfig.access` is `public`.
+  `dist` is gitignored and `files` ships it, so a pack without a build was four
+  files with no code and a `main` pointing at nothing.
+
+## [0.1.0] — 2026-08-10
+
+First release, published by hand: npm's trusted publishing is configured per
+package and a package has to exist before it can be configured, so the bootstrap
+could not be tokenless. Every version after this one is published by
+`release-ts-core.yml` with no stored credential.
+
 
 ### Added
 
@@ -67,4 +100,6 @@ character; and math is typeset by KaTeX rather than by the site's MathJax.
 - This package carries its own README, changelog, and license, rather than
   borrowing the repository's.
 
-[Unreleased]: https://github.com/ewiger/hypermarkdown/commits/main/tools/hmd-ts-core
+[Unreleased]: https://github.com/ewiger/hypermarkdown/compare/ts-core-v0.1.1...HEAD
+[0.1.1]: https://github.com/ewiger/hypermarkdown/compare/ts-core-v0.1.0...ts-core-v0.1.1
+[0.1.0]: https://github.com/ewiger/hypermarkdown/releases/tag/ts-core-v0.1.0
