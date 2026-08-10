@@ -197,7 +197,7 @@ wants to run it clones the repository.
 
 - The extension's npm and manifest name is `hmd-vsc-ext`, and its publisher
   stays `HyperMarkDown`. Together these form the marketplace identifier
-  `hypermarkdown.hmd-vsc-ext`.
+  `hypermarkdown.hmd`.
 - The identifier is permanent from the first publish. Renaming afterwards means
   a second listing, and every install of the first one stranded on it. The
   rename is therefore taken now, while nothing is published, and MUST NOT be

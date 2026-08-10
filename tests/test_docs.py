@@ -347,6 +347,7 @@ RETIRED_NAME_ALLOWED = {
     ".github/workflows/release-vsc-ext.yml",
     "doc/memory/decisions.md",
     "doc/memory/2026-08-06-typescript-editor-line.md",
+    "doc/memory/2026-08-10-hypermarkdown-identity.md",
     # Names the retired VS Marketplace publisher, which is deliberately kept
     # registered and unused: a publisher name returned to the pool is one an
     # impostor can publish under. The setup table has to say which one that is.

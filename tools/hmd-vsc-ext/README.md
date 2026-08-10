@@ -4,9 +4,9 @@
 
 # HyperMarkDown for VS Code
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd-vsc-ext.svg?color=ffb300&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
-[![Installs](https://vsmarketplacebadges.dev/installs-short/hypermarkdown.hmd-vsc-ext.svg?color=555555&label=installs)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
-[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd-vsc-ext?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=ffb300&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/hypermarkdown.hmd.svg?color=555555&label=installs)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
 [![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/tools/vscode/)
 
 </div>
@@ -28,14 +28,14 @@ about the extension.
 ## Install
 
 ```
-ext install hypermarkdown.hmd-vsc-ext
+ext install hypermarkdown.hmd
 ```
 
 - **VS Code** —
-  [the marketplace listing](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext),
+  [the marketplace listing](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd),
   or search *HyperMarkDown* in the Extensions view.
 - **Cursor, Windsurf, VSCodium** —
-  [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext).
+  [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd).
 - **From a VSIX** — every CI run attaches one, and each release carries it:
   [releases](https://github.com/ewiger/hypermarkdown/releases?q=vsc-ext).
 

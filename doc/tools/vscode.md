@@ -5,11 +5,11 @@ on the right, keeping up as you type. It is the one place where a card looks
 like a card while you are writing it — embeds stay embeds, links resolve as you
 type, and a link to nothing is red.
 
-[Install from the VS Marketplace](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext){ .md-button .md-button--primary }
-[Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext){ .md-button }
+[Install from the VS Marketplace](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd){ .md-button .md-button--primary }
+[Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd){ .md-button }
 
 ```
-ext install hypermarkdown.hmd-vsc-ext
+ext install hypermarkdown.hmd
 ```
 
 Cursor, Windsurf, and VSCodium install from Open VSX; stock VS Code from the

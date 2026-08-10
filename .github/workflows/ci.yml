@@ -138,7 +138,7 @@ jobs:
           HMD_REQUIRE_PARITY: "1"
 
       - name: Package the extension
-        run: npm run -w hmd-vsc-ext package
+        run: npm run -w tools/hmd-vsc-ext package
 
       - uses: actions/upload-artifact@v4
         with:

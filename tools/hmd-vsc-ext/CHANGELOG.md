@@ -24,7 +24,7 @@ against
 ## [0.1.0] — 2026-08-10
 
 First public release, on the VS Marketplace and Open VSX as
-`hypermarkdown.hmd-vsc-ext`. Flagged **preview**: the preview surface is
+`hypermarkdown.hmd`. Flagged **preview**: the preview surface is
 complete and gated by tests, the graph tab and the publication model are not
 built yet, and the flag comes off when they are.
 
@@ -76,7 +76,7 @@ built yet, and the flag comes off when they are.
 
 - **Renamed from `vscode-hyper-markdown` to `hmd-vsc-ext`**, published under the
   `hypermarkdown` publisher, making the marketplace identifier
-  `hypermarkdown.hmd-vsc-ext`. That identifier is
+  `hypermarkdown.hmd`. That identifier is
   permanent from the first publish — renaming afterwards means a second listing
   and every install of the first one stranded on it — so the rename was taken
   while nothing was published. Only the identity moved: the displayed name, the

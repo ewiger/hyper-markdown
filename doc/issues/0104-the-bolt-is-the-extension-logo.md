@@ -52,7 +52,7 @@ frozen; a copy is cheaper than a merge conflict.
 - `media/logo.svg` is byte-identical to `feat/mvp`'s
   `doc/wiki/assets/logo.svg`, and `media/icon.svg` is gone.
 - The manifest carries `"icon": "media/logo.png"`, and
-  `npm run -w hmd-vsc-ext package` builds a VSIX that accepts it.
+  `npm run -w tools/hmd-vsc-ext package` builds a VSIX that accepts it.
 - A preview tab shows the bolt, and so does the editor title-bar button.
 - `tools/hmd-vsc-ext/DEVELOP.md` records the `rsvg-convert` invocation, so the
   PNG can be regenerated without anyone having to reconstruct the padding.

@@ -59,8 +59,8 @@ same [conformance corpus](examples/conformance/) the canonical tool does.
 
 ### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd-vsc-ext.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
-[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd-vsc-ext?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
+[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hypermarkdown.org/tools/vscode/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
@@ -70,7 +70,7 @@ there is nothing to install to see a card. Completion and the rest of the
 language-server features arrive with the Python server.
 
 ```
-ext install hypermarkdown.hmd-vsc-ext
+ext install hypermarkdown.hmd
 ```
 
 ![The VS Code extension previewing a card: source on the left, rendered card on

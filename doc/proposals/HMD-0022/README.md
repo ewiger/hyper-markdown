@@ -266,7 +266,7 @@ Unit tests MUST include:
 
 ```bash
 npm run -w @hypermarkdown/core test
-npm run -w hmd-vsc-ext test
+npm run -w tools/hmd-vsc-ext test
 ```
 
 ## Open Questions

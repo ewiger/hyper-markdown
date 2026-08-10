@@ -1,6 +1,6 @@
 name: Release (VS Code extension)
 
-# Publication of `hypermarkdown.hmd-vsc-ext` to the VS Marketplace and to Open
+# Publication of `hypermarkdown.hmd` to the VS Marketplace and to Open
 # VSX, driven by a tag. The extension carries its own version, so it carries its
 # own tag prefix: `vsc-ext-vX.Y.Z` here, `vX.Y.Z` for the Python tool in
 # `release.yml`. Neither triggers the other.
@@ -79,7 +79,7 @@ jobs:
           HMD_REQUIRE_PARITY: "1"
 
       - name: Package
-        run: npm run -w hmd-vsc-ext package
+        run: npm run -w tools/hmd-vsc-ext package
 
       # `vsce` rewrites relative links in the packaged README against the
       # repository root and ignores `repository.directory`, so a `../../doc/…`
@@ -134,7 +134,7 @@ jobs:
       id-token: write
     environment:
       name: vscode-marketplace
-      url: https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext
+      url: https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -169,13 +169,17 @@ jobs:
     # what this job named until the rename.
     environment:
       name: open-vsx
-      url: https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext
+      url: https://open-vsx.org/extension/hypermarkdown/hmd
     steps:
       - uses: actions/checkout@v7
 
+      # 24, where `build` above stays on 20. Same split as `release-ts-core.yml`:
+      # the build matches CI so it tests what CI tested, and the publish job
+      # takes the current runtime — it compiles nothing, and 20 is deprecated on
+      # GitHub's runners.
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
 
       - run: npm ci
@@ -185,8 +189,17 @@ jobs:
           name: vsix
           path: vsix/
 
+      # `--no` is what makes this deterministic, and it is the opposite of the
+      # `vsce` line above. `ovsx` is a devDependency in the lockfile, so the
+      # `npm ci` above already put the pinned version on the path; `--no` runs
+      # that one and *fails* rather than falling back to a registry download.
+      # Bare `npx` would silently fetch the latest if the dependency were ever
+      # dropped from the manifest — in the one job that is past every gate,
+      # where a failure burns a version number no registry will let us reuse.
+      # `vsce` needs the explicit version for the mirror-image reason: the
+      # prerelease carrying `--oidc` is deliberately not in the lock.
       - name: Publish
-        run: npx ovsx publish --packagePath vsix/*.vsix
+        run: npx --no ovsx publish --packagePath vsix/*.vsix
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
@@ -234,5 +247,5 @@ jobs:
           " || true
           [ -s notes.md ] || echo "See tools/hmd-vsc-ext/CHANGELOG.md for what changed." > notes.md
           gh release create "$GITHUB_REF_NAME" vsix/*.vsix \
-            --title "hypermarkdown.hmd-vsc-ext $version" \
+            --title "hypermarkdown.hmd $version" \
             --notes-file notes.md

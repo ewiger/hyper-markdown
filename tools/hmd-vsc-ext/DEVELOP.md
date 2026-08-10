@@ -27,7 +27,7 @@ uv sync --locked     # only for the core's parity check
 ```bash
 npm run build                  # core (tsc) then this extension (esbuild)
 npm run typecheck              # both packages, no emit
-npm run -w hmd-vsc-ext watch   # rebuild both bundles on save
+npm run -w tools/hmd-vsc-ext watch   # rebuild both bundles on save
 ```
 
 Two bundles come out, both gitignored: `dist/extension.js` for the Node
@@ -38,7 +38,7 @@ protocol between them is the whole interface.
 ## Test
 
 ```bash
-npm run -w hmd-vsc-ext test    # renderer under jsdom, protocol, panel, CSP
+npm run -w tools/hmd-vsc-ext test    # renderer under jsdom, protocol, panel, CSP
 ```
 
 The unit suites cover the parts that can be exercised without an editor: the
@@ -83,7 +83,7 @@ warnings that do not exist when each tree is linted on its own.
 While a host window is running:
 
 - **Cmd+R** reloads the extension after a rebuild. Much faster than relaunching,
-  but it does not rebuild — keep `npm run -w hmd-vsc-ext watch` in a terminal for
+  but it does not rebuild — keep `npm run -w tools/hmd-vsc-ext watch` in a terminal for
   a tight loop.
 - **Help → Toggle Developer Tools** shows the extension host's console, including
   anything the extension logs or throws.
@@ -152,8 +152,8 @@ astral-plane characters — and the full list with reasons is
 ## Package the VSIX
 
 ```bash
-npm run -w hmd-vsc-ext package
-code --install-extension tools/hmd-vsc-ext/hmd-vsc-ext-0.1.0.vsix
+npm run -w tools/hmd-vsc-ext package
+code --install-extension tools/hmd-vsc-ext/hmd-0.1.0.vsix
 ```
 
 Reload the window afterwards, and uninstall from the Extensions panel when you
@@ -180,7 +180,7 @@ rewrites a relative link against the *repository root* and ignores
 `…/blob/HEAD/../../doc/…` and 404s on the listing. Nothing catches this locally
 except reading the packaged file, which is what the check below does.
 
-**The identifier is `hypermarkdown.hmd-vsc-ext` and is permanent.** Renaming
+**The identifier is `hypermarkdown.hmd` and is permanent.** Renaming
 means a second listing and every install of the first one stranded on it, so do
 not change `name` or `publisher`.
 
@@ -209,7 +209,7 @@ by hand.
 #    - bump "version" in package.json
 #    - move the [Unreleased] entries into a new [X.Y.Z] section with today's date
 #    - add the two link references at the bottom of CHANGELOG.md
-npm run typecheck && HMD_REQUIRE_PARITY=1 npm test && npm run -w hmd-vsc-ext package
+npm run typecheck && HMD_REQUIRE_PARITY=1 npm test && npm run -w tools/hmd-vsc-ext package
 
 # 2. tag and push — Open VSX and the GitHub release are automatic
 git tag vsc-ext-v0.1.0 && git push origin vsc-ext-v0.1.0
@@ -230,7 +230,7 @@ If Open VSX has to be reached by hand — a publish job to redo, or a workflow t
 never got the chance to run — it takes a token from anywhere:
 
 ```bash
-npx ovsx publish --packagePath hmd-vsc-ext-0.1.0.vsix -p "$OVSX_PAT"
+npx ovsx publish --packagePath hmd-0.1.0.vsix -p "$OVSX_PAT"
 ```
 
 ### The Marketplace job is temporarily skipped
@@ -301,7 +301,7 @@ The gallery page is built from `package.json` and the two markdown files, so mos
 of it can be checked from the VSIX:
 
 ```bash
-npm run -w hmd-vsc-ext package
+npm run -w tools/hmd-vsc-ext package
 cd tools/hmd-vsc-ext && unzip -o -d /tmp/vsix hmd-vsc-ext-*.vsix >/dev/null
 grep -c 'blob/HEAD/\.\.' /tmp/vsix/extension/readme.md   # MUST be 0
 ```
@@ -348,7 +348,7 @@ is why `media/logo.svg` still ships.
 ```bash
 npm run typecheck && npm run build
 HMD_REQUIRE_PARITY=1 npm test        # both TypeScript suites
-npm run -w hmd-vsc-ext package       # the VSIX is a CI gate too
+npm run -w tools/hmd-vsc-ext package       # the VSIX is a CI gate too
 ```
 
 Then walk the manual list above if you touched the preview, the protocol, or the

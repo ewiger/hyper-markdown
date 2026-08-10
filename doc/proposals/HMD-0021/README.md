@@ -84,7 +84,7 @@ aliases       ["HyperMarkDown", "hmd"]
 ```
 
 - `name` and `publisher` together form the marketplace identifier
-  `hypermarkdown.hmd-vsc-ext`, which is permanent from the first publish. The
+  `hypermarkdown.hmd`, which is permanent from the first publish. The
   extension was `vscode-HyperMarkDown` while the repository used a `packages/`
   layout, and was renamed with the move to `tools/`. Nothing has been published,
   which is the only window in which this rename is free.
@@ -531,9 +531,9 @@ Integration tests (`@vscode/test-cli`) MUST include:
 
 ```bash
 npm ci
-npm run -w hmd-vsc-ext typecheck
-npm run -w hmd-vsc-ext test
-npm run -w hmd-vsc-ext package
+npm run -w tools/hmd-vsc-ext typecheck
+npm run -w tools/hmd-vsc-ext test
+npm run -w tools/hmd-vsc-ext package
 ```
 
 ## Open Questions

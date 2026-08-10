@@ -40,11 +40,11 @@ Python corpus runner are the next blocks.
 | C5 | Conformance corpus and ledger | **done** | `test/corpus.test.ts` |
 | C6 | IR, expansion, markdown-it renderer | **done** | `test/render.test.ts` |
 | C7 | Callouts, math, D2 diagrams | **done** | `test/extensions.test.ts` |
-| E1 | Extension skeleton, language, grammar | **done** | `npm run -w hmd-vsc-ext build` |
+| E1 | Extension skeleton, language, grammar | **done** | `npm run -w tools/hmd-vsc-ext build` |
 | E2 | Index, watchers, diagnostics | **done** | `test/protocol.test.ts` |
 | E3 | Rendered tab, embeds, scroll sync | **done** | `test/renderer.test.ts` |
 | E4 | Backlinks, breadcrumb, create-card, pin | **done** | `test/renderer.test.ts` |
-| E5 | Packaging | **done** | `npm run -w hmd-vsc-ext package` |
+| E5 | Packaging | **done** | `npm run -w tools/hmd-vsc-ext package` |
 | E6 | Graph tab | **ready** | HMD-0021 §10 |
 | E7 | Editor-column surface, logo | **done** | `test/panel.test.ts` |
 | E8 | First marketplace release, `0.1.0` | **wip** | `release-vsc-ext.yml` on `vsc-ext-v*` |

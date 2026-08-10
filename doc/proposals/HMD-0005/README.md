@@ -215,7 +215,7 @@ workspace root's own private name follows for consistency.
 
 ### The extension's identity on both galleries
 
-The extension ID becomes `hypermarkdown.hmd-vsc-ext`.
+The extension ID becomes `hypermarkdown.hmd`.
 
 - The publisher `hypermarkdown` MUST be created on the VS Marketplace before any
   `vsc-ext-v*` tag is pushed. It does not exist yet; the old `hyper-markdown`
