@@ -144,17 +144,38 @@ jobs:
       name: npm
       url: https://www.npmjs.com/package/@hypermarkdown/core
     steps:
+      # Node 24, not the 20 the rest of the project builds on, and this is the
+      # one place the difference matters. Trusted publishing needs npm 11.5.1 or
+      # newer: Node 20 ships npm 10 and Node 22 ships npm 10.9, so neither can
+      # publish without a token, while Node 24 bundles npm 11.17 and needs no
+      # upgrade step at all. Nothing is built here — this job uploads a tarball
+      # another job packed — so the runtime version is free to differ.
+      #
+      # An earlier revision installed `npm@latest` on Node 20 instead. That is a
+      # tag that moves: it resolved to npm 12, which requires Node 22.22 or 24.15
+      # and refused to install, failing the release on a dependency nobody
+      # changed. Pinning the platform and using what it ships removes the moving
+      # part rather than chasing it.
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           registry-url: https://registry.npmjs.org
 
-      # Node 20 ships npm 10, which has neither trusted publishing nor the
-      # provenance flag this relies on. Upgrading the CLI is what makes the
-      # tokenless path available at all, so this step is load-bearing rather
-      # than hygiene.
-      - name: Use an npm that can publish without a token
-        run: npm install -g npm@latest
+      # Fails loudly if a future runner image ships an npm that cannot do OIDC,
+      # rather than letting `publish` fail with an authentication error that
+      # points at the trusted publisher policy instead of at the CLI.
+      - name: Check npm can publish without a token
+        run: |
+          version=$(npm --version)
+          echo "npm $version"
+          node -e "
+          const [maj, min, patch] = process.argv[1].split('.').map(Number);
+          const ok = maj > 11 || (maj === 11 && (min > 5 || (min === 5 && patch >= 1)));
+          if (!ok) {
+            console.error('::error::npm ' + process.argv[1] + ' cannot use trusted publishing; 11.5.1+ required');
+            process.exit(1);
+          }
+          " "$version"
 
       - uses: actions/download-artifact@v4
         with:
