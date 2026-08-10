@@ -98,6 +98,24 @@ jobs:
           done
           echo "tarball carries dist/, types, README, and LICENSE"
 
+      # npm rewrites relative links in the rendered README against the
+      # *repository root* and ignores `repository.directory`, so a `../../doc/…`
+      # link from this subdirectory resolves above the root and 404s on the
+      # package page. Nothing else catches it: the file renders correctly on
+      # GitHub and wrongly on npm, and the README is only re-rendered when a
+      # version is published, so a bad link is frozen until the next release.
+      # This is the same defect `release-vsc-ext.yml` guards against for `vsce`,
+      # and the same rule `tools/hmd/pyproject.toml` records for PyPI.
+      - name: Check the packed README has only absolute links
+        run: |
+          cd "$RUNNER_TEMP/pack"
+          tar xzf ./*.tgz package/README.md
+          if grep -nE '\]\((\.|/)[^)]*\)' package/README.md; then
+            echo "::error::README.md has relative links, which 404 on the npm page" >&2
+            exit 1
+          fi
+          echo "every README link is absolute"
+
       - uses: actions/upload-artifact@v4
         with:
           name: npm-tarball

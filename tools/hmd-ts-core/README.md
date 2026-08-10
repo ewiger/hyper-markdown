@@ -3,11 +3,11 @@
 Parser, resolver, and renderer for [HyperMarkDown](https://github.com/ewiger/hypermarkdown),
 in TypeScript, with no Python and no editor API.
 
-Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md). The Python
-package under [`tools/hmd/`](../hmd/) is **canonical**: where the two disagree,
+Specified by [HMD-0020](https://github.com/ewiger/hypermarkdown/blob/main/doc/proposals/HMD-0020/README.md). The Python
+package under [`tools/hmd/`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd) is **canonical**: where the two disagree,
 Python is right and this one carries the bug.
 
-One of three tools in the [HyperMarkDown monorepo](../../README.md); the format
+One of three tools in the [HyperMarkDown monorepo](https://github.com/ewiger/hypermarkdown); the format
 itself is documented at [hypermarkdown.org](https://hypermarkdown.org/). Not
 published to npm yet — the VS Code extension resolves it from the workspace.
 
@@ -63,21 +63,21 @@ makes scroll sync and click-through possible at all.
 ## Conformance
 
 `npm test` runs the shared corpus at
-[`examples/conformance/`](../../examples/conformance/) plus a
+[`examples/conformance/`](https://github.com/ewiger/hypermarkdown/tree/main/examples/conformance) plus a
 parity check that shells out to `hmd lint` and requires byte-identical
 diagnostics on `examples/small` and `doc/wiki`. Known divergences are listed in
-[`conformance-xfail.json`](conformance-xfail.json); a ledgered case that starts
+[`conformance-xfail.json`](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/conformance-xfail.json); a ledgered case that starts
 passing fails the build.
 
 Work points are tracked in
-[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), and what has changed is
-in [CHANGELOG.md](CHANGELOG.md).
+[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hypermarkdown/blob/main/doc/vsc-ext/STATUS.md), and what has changed is
+in [CHANGELOG.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/CHANGELOG.md).
 
 ## Working on it
 
-[DEVELOP.md](DEVELOP.md) is this package's guide — build, the two constraints
+[DEVELOP.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/DEVELOP.md) is this package's guide — build, the two constraints
 that are easy to break, and how the ledger is kept honest.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/LICENSE).
