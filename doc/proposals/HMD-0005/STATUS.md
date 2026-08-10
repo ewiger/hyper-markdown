@@ -48,6 +48,8 @@ Nothing is implemented. The record is the only deliverable so far.
 | D20 | `HyperMarkDownPlugin` tracks the prose capitalisation, resolving Q3 | What deliberately keeps its current spelling |
 | D21 | `test_the_retired_name_is_gone` guards every tracked text file against both retired spellings, case-insensitively, with a twelve-file allowlist that is exactly the set where the old name is still *true*. It caught two classes of defect the same hour it was written: a `Hyper-markdown` variant the display-name pass missed, and eleven identifier positions a blanket replace had wrongly given the prose spelling — PyPI URLs, badge images, and `.hmd` link targets | Test Plan |
 | D22 | `0.2.0` cut: version bumped, changelog section written with the rename as its headline, and the accumulated unreleased entries folded into it | The Python distribution, its module, and the project left behind |
+| D27 | `@hypermarkdown/core` on npm — `0.1.0` hand-published as the bootstrap, `0.1.1` through `release-ts-core.yml` on the trusted publisher, tokenless and with provenance. Verified by installing from the registry: the module imports and the rendered README carries no relative links | The TypeScript package |
+| D26 | `hypermarkdown` 0.2.0 on PyPI through the trusted publisher, verified by installing from the registry in a clean environment — `hmd 0.2.0`, `import hypermarkdown`, and both MkDocs entry-point keys resolving, so the compatibility alias holds on a genuinely published wheel | The Python distribution, its module, and the project left behind |
 | D25 | DNS settled: the `hypermarkdown.org` apex resolves to exactly the four GitHub Pages addresses, the certificate issued, and all four serve HTTPS 200. `www` redirects to the apex, and the sitemap's every `<loc>` is under the new host. Closes W1 and W2 | The canonical host, and the state DNS has to reach |
 | D24 | VS Marketplace publisher `hypermarkdown` created, so both galleries now carry the new namespace and the extension's identity is consistent end to end. The old `hyper-markdown` publisher is retained unused rather than released — a publisher name returned to the pool is one an impostor can register under. Closes W4 | The extension's identity on both galleries |
 | D23 | `origin` repointed to the renamed repository. One worktree exists, so there is no second clone to follow | The repository and the URLs that point at it |
@@ -132,6 +134,16 @@ either tag is pushed, since W4 and W5 fail only at publish time.
   release path is whole: a `v*` tag would now build and publish. What remains
   is npm (W9), the site and manifest URLs behind the certificate (W10, W11),
   and prose (W12–W14).
+- 2026-08-10: D26 and D27 — both packages released and verified from their
+  registries rather than from the build. The npm release took three runs, and
+  the two failures are worth keeping: `npm pack --pack-destination` does not
+  create its directory, which no local dry run could catch because every one of
+  them made the directory first; and `npm install -g npm@latest` resolved to a
+  major that refused to install on Node 20, in a repository that had already
+  written down why a moving tag has no place in a release path. Both were caught
+  by the build gate with nothing published, so the version was never burnt — the
+  tag moved instead. The fix for the second removed the upgrade step rather than
+  pinning it: Node 24 already ships an npm that can publish tokenlessly.
 - 2026-08-10: D24 and D25. The Marketplace publisher exists, so both galleries
   carry the new namespace; DNS is settled and the site serves HTTPS on all four
   Pages addresses under the new name. An earlier reading of the apex showed two
