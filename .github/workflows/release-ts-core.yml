@@ -1,0 +1,190 @@
+name: Release (TypeScript core)
+
+# Publication of `@hypermarkdown/core` to npm, driven by a tag.
+#
+# Four tools, four versions, four release lines, and a tag says which one it
+# starts. This is `ts-core-vX.Y.Z`; the extension is `vsc-ext-vX.Y.Z` in
+# `release-vsc-ext.yml`, and the Python tool is `vX.Y.Z` in `release.yml`.
+# The Python workflow filters on `v[0-9]*` rather than `v*` precisely so a tag
+# from another line cannot start a PyPI build — this prefix begins with `t`, so
+# it does not match, and none of the three triggers another.
+#
+# `workflow_dispatch` runs every gate and packs the tarball, publishing nowhere,
+# so the packaging path can be exercised without minting a tag.
+on:
+  push:
+    tags: ["ts-core-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never cancel a publication in flight. npm refuses to replace a version it has
+# accepted, so a half-finished release is worse than a queued one.
+concurrency:
+  group: release-ts-core-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # Python is here for the same reason it is in CI's `js` job and in the
+      # extension's release: the parity suite asks the canonical implementation
+      # what the right answer is, and a release is the last place to skip the
+      # only cross-implementation gate the project has.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install
+        run: |
+          npm ci
+          uv sync --locked
+
+      # The tag is a promise about the contents of the tarball. Checking it here
+      # turns a mistyped tag into a red build instead of a wrong version on the
+      # registry — npm will not let a version be republished.
+      - name: Check the tag matches the packed version
+        if: startsWith(github.ref, 'refs/tags/ts-core-v')
+        run: |
+          tagged="${GITHUB_REF_NAME#ts-core-v}"
+          packed=$(node -p "require('./tools/hmd-ts-core/package.json').version")
+          echo "tag=$tagged packed=$packed"
+          if [ "$tagged" != "$packed" ]; then
+            echo "::error::tag ts-core-v$tagged does not match version $packed" >&2
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+        env:
+          HMD_REQUIRE_PARITY: "1"
+
+      - name: Pack
+        run: npm pack -w @hypermarkdown/core --pack-destination "$RUNNER_TEMP/pack"
+
+      # `dist` is gitignored and built, and `files` ships it, so a tarball packed
+      # without a build is four files with no code and a `main` pointing at
+      # nothing — published under a version number npm never lets you reuse.
+      # `prepack` builds, and this proves it did: nothing else in the pipeline
+      # looks inside the tarball.
+      - name: Check the tarball carries the entry points
+        run: |
+          cd "$RUNNER_TEMP/pack"
+          tar tzf ./*.tgz > listing
+          for entry in package/dist/index.js package/dist/index.d.ts package/README.md package/LICENSE; do
+            if ! grep -qx "$entry" listing; then
+              echo "::error::packed tarball is missing $entry" >&2
+              cat listing >&2
+              exit 1
+            fi
+          done
+          echo "tarball carries dist/, types, README, and LICENSE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: ${{ runner.temp }}/pack/*.tgz
+          if-no-files-found: error
+
+  npm:
+    name: publish to npm
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/ts-core-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Trusted publishing and provenance both need this: the job proves its
+      # identity to npm with a short-lived OIDC token, so there is no automation
+      # token in repository secrets to leak or rotate. Job-level permissions
+      # replace the workflow's block outright, so `contents: read` is restated.
+      id-token: write
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@hypermarkdown/core
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: https://registry.npmjs.org
+
+      # Node 20 ships npm 10, which has neither trusted publishing nor the
+      # provenance flag this relies on. Upgrading the CLI is what makes the
+      # tokenless path available at all, so this step is load-bearing rather
+      # than hygiene.
+      - name: Use an npm that can publish without a token
+        run: npm install -g npm@latest
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-tarball
+          path: pack/
+
+      # The artifact from `build`, not a fresh pack: publishing a second build
+      # would ship bytes no gate ran against. Publishing a tarball by path also
+      # means `prepack` does not run again here — the tarball is taken as-is,
+      # which is the point.
+      #
+      # Requires a trusted publisher configured on npm for this package, naming
+      # this repository and this workflow file. That configuration is per
+      # package and the package must exist first, so the FIRST version is
+      # published by hand; every one after it comes through here. There is
+      # deliberately no `NPM_TOKEN` fallback — a missing policy fails the
+      # release rather than quietly reaching for a stored credential, which is
+      # the same stance `release.yml` takes with PyPI.
+      - name: Publish
+        run: npm publish ./pack/*.tgz --provenance --access public
+
+  github-release:
+    name: github release
+    needs: npm
+    if: startsWith(github.ref, 'refs/tags/ts-core-v')
+    runs-on: ubuntu-latest
+    # The one job that writes to the repository, and it writes only the release.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-tarball
+          path: pack/
+
+      # Notes come from the package's changelog rather than from generated
+      # commit titles: the changelog is the edited account. `tools/hmd-ts-core/`,
+      # not the root one — the root file is the language's.
+      - name: Cut the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#ts-core-v}"
+          python3 -c "
+          import pathlib, re
+          text = pathlib.Path('tools/hmd-ts-core/CHANGELOG.md').read_text()
+          section = re.search(
+              r'^## \[$version\][^\n]*\n(.*?)(?=^## |\Z)', text, re.S | re.M
+          )
+          pathlib.Path('notes.md').write_text((section.group(1) if section else '').strip())
+          " || true
+          [ -s notes.md ] || echo "See tools/hmd-ts-core/CHANGELOG.md for what changed." > notes.md
+          gh release create "$GITHUB_REF_NAME" pack/*.tgz \
+            --title "TypeScript core $version" \
+            --notes-file notes.md

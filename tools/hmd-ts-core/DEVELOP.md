@@ -101,5 +101,50 @@ covers — the contract has two sides, and only one of them is enforced from her
 tracked in [`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
 [HMD-0020](../../doc/proposals/HMD-0020/README.md).
 
-Not published to npm yet: the extension resolves the package from the workspace,
-so a version bump here is a bump the extension picks up on its next build.
+## Release it
+
+The package carries **its own version**, and its own tag prefix:
+`ts-core-vX.Y.Z` here, `vsc-ext-vX.Y.Z` for the extension, `vX.Y.Z` for the
+Python tool. `release.yml` filters on `v[0-9]*` rather than `v*` so a tag from
+one line cannot start another line's build, and this prefix begins with `t`.
+
+Publishing here is **not** what gets the code into the extension. The extension
+resolves this package from the workspace and esbuild bundles it, so a version
+bump is picked up on the next build whether or not npm ever sees it. What a
+publish buys is the second implementation existing as a public artifact.
+
+1. Write the changelog section and date it.
+2. Bump `version` in [`package.json`](package.json).
+3. Merge, with CI green.
+4. Tag `main` and push the tag; the tag is what publishes.
+
+```bash
+git tag -a ts-core-v0.1.0 -m "@hypermarkdown/core 0.1.0"
+git push origin ts-core-v0.1.0
+```
+
+[`release-ts-core.yml`](../../.github/workflows/release-ts-core.yml) runs the
+gates, checks the tag against `package.json`, packs **one** tarball, and
+publishes that file — packing twice would ship bytes no gate ran against.
+
+**The first version is published by hand.** npm's trusted publishing is
+configured per package and the package has to exist before it can be configured,
+so the bootstrap cannot be tokenless:
+
+```bash
+npm publish -w @hypermarkdown/core --access public
+```
+
+Then set the trusted publisher on the package's npm settings, naming this
+repository and `release-ts-core.yml`, and every later version comes through the
+workflow with no credential stored anywhere. There is deliberately no
+`NPM_TOKEN` fallback — a missing policy fails the release rather than quietly
+reaching for a stored token, which is the stance `release.yml` takes with PyPI.
+
+**Two things make a publish safe, and neither is obvious.** `dist` is gitignored
+and built, and `files` ships it, so a tarball packed without a build is four
+files with no code and a `main` pointing at nothing — under a version npm never
+lets you reuse. `prepack` builds for that reason, and the workflow looks inside
+the tarball afterwards to prove it did. And `publishConfig.access` is `public`
+because a scoped package is **restricted** by default, which a free account
+cannot publish.

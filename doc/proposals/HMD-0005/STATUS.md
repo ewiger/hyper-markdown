@@ -48,6 +48,7 @@ Nothing is implemented. The record is the only deliverable so far.
 | D20 | `HyperMarkDownPlugin` tracks the prose capitalisation, resolving Q3 | What deliberately keeps its current spelling |
 | D21 | `test_the_retired_name_is_gone` guards every tracked text file against both retired spellings, case-insensitively, with a twelve-file allowlist that is exactly the set where the old name is still *true*. It caught two classes of defect the same hour it was written: a `Hyper-markdown` variant the display-name pass missed, and eleven identifier positions a blanket replace had wrongly given the prose spelling — PyPI URLs, badge images, and `.hmd` link targets | Test Plan |
 | D22 | `0.2.0` cut: version bumped, changelog section written with the rename as its headline, and the accumulated unreleased entries folded into it | The Python distribution, its module, and the project left behind |
+| D25 | DNS settled: the `hypermarkdown.org` apex resolves to exactly the four GitHub Pages addresses, the certificate issued, and all four serve HTTPS 200. `www` redirects to the apex, and the sitemap's every `<loc>` is under the new host. Closes W1 and W2 | The canonical host, and the state DNS has to reach |
 | D24 | VS Marketplace publisher `hypermarkdown` created, so both galleries now carry the new namespace and the extension's identity is consistent end to end. The old `hyper-markdown` publisher is retained unused rather than released — a publisher name returned to the pool is one an impostor can register under. Closes W4 | The extension's identity on both galleries |
 | D23 | `origin` repointed to the renamed repository. One worktree exists, so there is no second clone to follow | The repository and the URLs that point at it |
 
@@ -55,14 +56,10 @@ Nothing is implemented. The record is the only deliverable so far.
 
 ### Planned work
 
-Everything inside the repository is done, and the registries are configured.
-What remains is DNS — W1 through W3, one record set and the redirect that
-follows from it.
+One work point left, and it is the retired domain rather than the new one.
 
 | ID | Work point | Blocked on |
 | --- | --- | --- |
-| W1 | Remove `3.33.130.190` and `15.197.148.33` from the `hypermarkdown.org` apex, leaving exactly the four GitHub Pages addresses; set the Pages custom domain to `hypermarkdown.org` | nothing |
-| W2 | Confirm the certificate issued, enable *Enforce HTTPS*, and verify `https://hypermarkdown.org/` serves the site | W1 |
 | W3 | Configure the path-preserving redirect from `hyper-markdown.org` to `hypermarkdown.org` | W1 |
 
 ### Broken
@@ -71,8 +68,8 @@ follows from it.
 | --- | --- | --- |
 | ~~B1~~ | ~~The extension release is dead on arrival: it publishes to an Open VSX namespace that does not exist.~~ **Fixed** 2026-08-10 by D8. The manifest now names `hypermarkdown`, which is the namespace that exists | fixed |
 | ~~B2~~ | ~~The Python release is dead on arrival: the PyPI trusted publisher names a repository that no longer exists under that name.~~ **Fixed** 2026-08-10 by D9 and D11 together — a publisher was registered against the new repository, and the wheel is now built under the project name that publisher authorises. Either half alone would still have failed | fixed |
-| B3 | `https://hypermarkdown.org/` fails TLS — no certificate covers the apex, because two non-GitHub A records sit alongside the four Pages ones. HTTP serves the site correctly, which makes this easy to miss from a browser that upgrades silently | DNS was configured |
-| B4 | `hyper-markdown.org` answers 404 over both HTTP and HTTPS. It resolves to GitHub Pages, but Pages serves one custom domain per site and that domain is now the new one, so the intended redirect is not in place | the Pages custom domain moved |
+| ~~B3~~ | ~~`https://hypermarkdown.org/` fails TLS: two non-GitHub A records sit alongside the four Pages ones.~~ **Fixed** 2026-08-10 by D25. The apex carries only the Pages addresses and all four serve 200 | fixed |
+| B4 | `hyper-markdown.org` answers 404. It no longer resolves to GitHub Pages — its records now point at a forwarding service, so the registrar side is half-configured — but neither address redirects, so the forwarding *rule* is absent or has not taken effect. Every link published under the old host is still dead | the Pages custom domain moved |
 
 ### Limitations
 
@@ -135,6 +132,11 @@ either tag is pushed, since W4 and W5 fail only at publish time.
   release path is whole: a `v*` tag would now build and publish. What remains
   is npm (W9), the site and manifest URLs behind the certificate (W10, W11),
   and prose (W12–W14).
+- 2026-08-10: D24 and D25. The Marketplace publisher exists, so both galleries
+  carry the new namespace; DNS is settled and the site serves HTTPS on all four
+  Pages addresses under the new name. An earlier reading of the apex showed two
+  stray records still present and was wrong — that was a cached resolver, not
+  the zone, and the authoritative answer had already been correct.
 - 2026-08-10: D15–D23 landed; W9–W15 done and the repository half of the rename
   is complete. `0.2.0` is cut and ready to tag. The one decision reversed along
   the way is D18: the record had gated `site_url` on the certificate, which the
