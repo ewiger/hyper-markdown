@@ -183,23 +183,37 @@ def _tabs(home: str) -> str:
     return match.group(0)
 
 
+def _drawer(home: str) -> str:
+    """The whole nav tree. `navigation.tabs` lifts the sidebar to show only the
+    open tab's pages, but the primary nav is still rendered in full for the
+    drawer — which is the only place one page can see every section's entries.
+    It ends where the page's own table of contents is nested into it."""
+    start = home.find('<nav class="md-nav md-nav--primary')
+    end = home.rfind('<nav class="md-nav md-nav--secondary')
+    assert start != -1 and end > start, "the theme emitted no primary nav"
+    return home[start:end]
+
+
 def test_the_top_bar_offers_the_language_specification(built_home):
     """The site's headline deliverable is the specification of the *language*,
-    so it gets a tab of its own rather than only a row in the wiki section.
+    so the top bar has to reach it rather than leave it a row in the wiki
+    section.
 
-    The title is asserted, not just the href, because it is easy to get wrong:
-    MkDocs reuses the `Page` built from a file's **first** appearance in the nav
-    and silently discards the title given at any later one. The card is listed
-    twice on purpose — here and inside the derived wiki section — so this entry
-    has to stay above `Wiki` in `mkdocs.yml` for its title to be the one that
-    survives.
+    It is the first page of the `Language` section, and a section tab takes its
+    href from the first page beneath it — so the tab reads `Language` and leads
+    here. The href is asserted in the tab bar and the title in the tree, because
+    the two fail separately: regrouping the nav moves the href, while the title
+    is lost to MkDocs building a page's `Page` from its **first** nav appearance
+    and silently discarding any title given at a later one.
     """
-    tabs = _tabs(built_home)
+    tab = re.search(r'<a href="wiki/hmd-lang-spec/"[^>]*>', _tabs(built_home))
+    assert tab is not None, "the top bar no longer reaches the specification"
+
     entry = re.search(
-        r'<a href="(wiki/hmd-lang-spec/)"[^>]*>(.*?)</a>', tabs, re.S
+        r'<a href="wiki/hmd-lang-spec/"[^>]*>(.*?)</a>', _drawer(built_home), re.S
     )
-    assert entry is not None, "no language specification tab"
-    assert "Language Specification" in re.sub(r"<[^>]+>", "", entry.group(2))
+    assert entry is not None, "the nav has no language specification entry"
+    assert "Language Specification" in re.sub(r"<[^>]+>", "", entry.group(1))
 
 
 def test_the_top_bar_does_not_advertise_the_internal_proposals(built_home):

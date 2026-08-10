@@ -82,7 +82,9 @@ theme:
     - navigation.top
     - navigation.indexes
     - navigation.tracking
-    # The nav is four flat sections, which is what a top bar is for.
+    # The nav is four sections, which is what a top bar is for. Each one holds
+    # its pages rather than being one, so a tab is a subject and the sidebar
+    # under it is that subject's chapters.
     - navigation.tabs
     - toc.follow
     - search.suggest
@@ -117,18 +119,23 @@ plugins:
 # the book keeps its own order and still says where the cards belong.
 nav:
   - Home: index.md
-  - Introduction: public/introduction.md
-  - Namespaces: public/namespaces.md
-  - Features: public/features.md
-  - Presentation: public/presentation.md
-  - Vision: public/vision.md
-  # The tutorial comes first because it is the one that can be read cold; the
-  # specification behind it is normative and assumes you have. Both are listed
-  # here as well as inside the derived wiki section, and MkDocs keeps the title
-  # from a page's *first* appearance in the nav — so both entries have to stay
-  # above `Wiki` for these titles to be the ones that survive.
-  - Tutorial: wiki/hmd-tutorial.md
-  - Language Specification: wiki/hmd-lang-spec.md
+  # Two subjects rather than seven pages. A flat nav made every chapter its own
+  # tab, so the top bar was a table of contents and said nothing about which
+  # pages belong together — a visitor had to read all seven titles to find the
+  # one they wanted. `Learn` is the prose you read cold, in the order you read
+  # it; `Language` is what you consult afterwards, led by the normative text.
+  #
+  # A section tab links to the first page beneath it, so these open on
+  # `Introduction` and on the specification respectively.
+  - Learn:
+      - Introduction: public/introduction.md
+      - Tutorial: wiki/hmd-tutorial.md
+      - Features: public/features.md
+      - Presentation: public/presentation.md
+  - Language:
+      - Language Specification: wiki/hmd-lang-spec.md
+      - Namespaces: public/namespaces.md
+      - Vision: public/vision.md
   - Wiki:
       - Overview: wiki/README.md
       - hmd://wiki
