@@ -4,9 +4,9 @@
 
 # HyperMarkDown for VS Code
 
+[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
 [![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=ffb300&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
 [![Installs](https://vsmarketplacebadges.dev/installs-short/hypermarkdown.hmd.svg?color=555555&label=installs)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
-[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
 [![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/tools/vscode/)
 
 </div>

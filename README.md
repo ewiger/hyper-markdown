@@ -39,7 +39,7 @@ Each carries its own version, README, changelog, and license.
 ### [`hmd`](tools/hmd/) — the CLI, the library, the MkDocs plugin
 
 [![PyPI](https://img.shields.io/pypi/v/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
-[![Python versions](https://img.shields.io/pypi/pyversions/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
+[![Python versions](https://img.shields.io/pypi/pyversions/hypermarkdown?color=blue&label=python)](https://pypi.org/project/hypermarkdown/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd-informational)](tools/hmd/CHANGELOG.md)
 
 The Python line, published to PyPI as
@@ -59,8 +59,8 @@ same [conformance corpus](examples/conformance/) the canonical tool does.
 
 ### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
 [![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hypermarkdown.org/tools/vscode/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
@@ -114,7 +114,7 @@ preview on `127.0.0.1:8000` that rebuilds as you edit.
 
 ```bash
 git clone https://github.com/ewiger/hypermarkdown
-cd HyperMarkDown
+cd hypermarkdown
 uv sync --locked      # MkDocs, the plugin, and the `hmd` command
 uv run mkdocs serve   # preview the book and the wiki as you write
 ```
