@@ -48,21 +48,22 @@ Nothing is implemented. The record is the only deliverable so far.
 | D20 | `HyperMarkDownPlugin` tracks the prose capitalisation, resolving Q3 | What deliberately keeps its current spelling |
 | D21 | `test_the_retired_name_is_gone` guards every tracked text file against both retired spellings, case-insensitively, with a twelve-file allowlist that is exactly the set where the old name is still *true*. It caught two classes of defect the same hour it was written: a `Hyper-markdown` variant the display-name pass missed, and eleven identifier positions a blanket replace had wrongly given the prose spelling — PyPI URLs, badge images, and `.hmd` link targets | Test Plan |
 | D22 | `0.2.0` cut: version bumped, changelog section written with the rename as its headline, and the accumulated unreleased entries folded into it | The Python distribution, its module, and the project left behind |
+| D24 | VS Marketplace publisher `hypermarkdown` created, so both galleries now carry the new namespace and the extension's identity is consistent end to end. The old `hyper-markdown` publisher is retained unused rather than released — a publisher name returned to the pool is one an impostor can register under. Closes W4 | The extension's identity on both galleries |
 | D23 | `origin` repointed to the renamed repository. One worktree exists, so there is no second clone to follow | The repository and the URLs that point at it |
 
 ## TODO
 
 ### Planned work
 
-Everything inside the repository is done. What remains is W1–W4: four pieces of
-external configuration, none of which a commit can carry.
+Everything inside the repository is done, and the registries are configured.
+What remains is DNS — W1 through W3, one record set and the redirect that
+follows from it.
 
 | ID | Work point | Blocked on |
 | --- | --- | --- |
 | W1 | Remove `3.33.130.190` and `15.197.148.33` from the `hypermarkdown.org` apex, leaving exactly the four GitHub Pages addresses; set the Pages custom domain to `hypermarkdown.org` | nothing |
 | W2 | Confirm the certificate issued, enable *Enforce HTTPS*, and verify `https://hypermarkdown.org/` serves the site | W1 |
 | W3 | Configure the path-preserving redirect from `hyper-markdown.org` to `hypermarkdown.org` | W1 |
-| W4 | Create the VS Marketplace publisher `hypermarkdown`. The Open VSX namespace of the same name is confirmed to exist | nothing |
 
 ### Broken
 
