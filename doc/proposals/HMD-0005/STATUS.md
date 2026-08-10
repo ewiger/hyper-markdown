@@ -53,6 +53,7 @@ Nothing is implemented. The record is the only deliverable so far.
 | D25 | DNS settled: the `hypermarkdown.org` apex resolves to exactly the four GitHub Pages addresses, the certificate issued, and all four serve HTTPS 200. `www` redirects to the apex, and the sitemap's every `<loc>` is under the new host. Closes W1 and W2 | The canonical host, and the state DNS has to reach |
 | D24 | VS Marketplace publisher `hypermarkdown` created, so both galleries now carry the new namespace and the extension's identity is consistent end to end. The old `hyper-markdown` publisher is retained unused rather than released — a publisher name returned to the pool is one an impostor can register under. Closes W4 | The extension's identity on both galleries |
 | D23 | `origin` repointed to the renamed repository. One worktree exists, so there is no second clone to follow | The repository and the URLs that point at it |
+| D28 | Open VSX namespace `hypermarkdown` claimed and now `verified: true`, granted through [open-vsx.org#12443](https://github.com/EclipseFdn/open-vsx.org/issues/12443) on a DNS TXT record — the same domain control D25 established. The extension will therefore list without the unverified-publisher warning on its first publish. The mechanical half matters more than the badge: a verified namespace admits only its members, so the account holding `OVSX_PAT` has to be the one that filed the claim, where before the grant any account could have published into it | The extension's identity on both galleries |
 
 ## TODO
 
@@ -149,6 +150,13 @@ either tag is pushed, since W4 and W5 fail only at publish time.
   Pages addresses under the new name. An earlier reading of the apex showed two
   stray records still present and was wrong — that was a cached resolver, not
   the zone, and the authoritative answer had already been correct.
+- 2026-08-10: D28. The Open VSX namespace is verified, which upgrades what B1
+  was closed on: D8 pointed the manifest at a namespace that merely existed,
+  and it is now one this project owns. Nothing in the repository changes as a
+  result — the publisher string was already right — so the only edit is the
+  setup table in the extension's `DEVELOP.md`, which described the namespace as
+  unverified and told a reader to create it. The extension is still unpublished
+  on both galleries: no `vsc-ext-v*` tag has ever been pushed.
 - 2026-08-10: D15–D23 landed; W9–W15 done and the repository half of the rename
   is complete. `0.2.0` is cut and ready to tag. The one decision reversed along
   the way is D18: the record had gated `site_url` on the certificate, which the

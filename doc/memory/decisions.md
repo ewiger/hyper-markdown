@@ -102,7 +102,7 @@ gets the URL for free and gets the link checked. Emitting the finished URL made
 MkDocs report every wikilink as an unrecognized relative link — it was correct
 output that bypassed validation.
 
-Two settings a hyper-markdown site needs, both non-obvious: `exclude_docs:
+Two settings a HyperMarkDown site needs, both non-obvious: `exclude_docs:
 "*.hmd"`, or MkDocs copies the raw sources in as static files beside the pages
 the plugin generated; and `validation.links.not_found: info`, because cards link
 out to the repository with ordinary relative links whose targets are real files
@@ -291,7 +291,7 @@ trees, and still arbitrates between them.
 One packaging consequence that is not derivable and bites silently: a bare
 `uv build` at a workspace root with no `[project]` table does not fail — it
 builds an empty `unknown-0.0.0` and exits zero — so the release path names
-`uv build --package hyper-markdown` explicitly.
+`uv build --package hypermarkdown` explicitly.
 
 The full record is [HMD-0024](../proposals/HMD-0024/README.md), which also
 decides the language server: Python on `pygls`, living with the canonical
@@ -324,7 +324,7 @@ it" is about a *claim* being restated, not about two audiences being addressed.
 The root of the repository is the language — the spec, the numbered records, and
 the site they publish as. `tools/` holds packages that implement it. The
 dependency runs one way, with one deliberate exception: this repository's own
-documentation is a hyper-markdown wiki built by the plugin the Python tool ships,
+documentation is a HyperMarkDown wiki built by the plugin the Python tool ships,
 so the project's specification is exercised by its own publication.
 
 Four independent versions follow, each with exactly one literal: the language's,
@@ -339,10 +339,40 @@ second literal would be a number free to disagree with the thing it names.
 `CHANGELOG.md`, which is the language's, has no section for it. That mirrors what
 `tools/hmd/tests/test_cli.py` already does for the tool.
 
+What the rename exposed about that arrangement: the guard parses a sentence of
+ordinary prose, so re-spelling the project's name in the specification changed
+the pattern the guard matches, and the two had to move together. Nothing broke,
+because a mismatch is a failing test rather than a wrong number. But the version
+lives in a sentence someone may edit for reasons that have nothing to do with
+versioning, which is a different fragility from the one the design was chosen to
+avoid.
+
 The consequence that is easy to misread: the Python tool's `0.x` caveat is not a
 second format version. It says a minor release of that tool may be the one that
 implements a breaking language change — the change belongs to the language and
 carries the language's number.
+
+The rename on 2026-08-10 was the first time all of this was load-bearing rather
+than theoretical, and it came out as four numbers that do not line up: the
+language stayed at `0.1`, the Python tool went to `0.2.0`, the TypeScript core
+to `0.1.1`, and the extension stayed unreleased. Nothing had to be reconciled,
+which is the whole point of keeping the numbers apart.
+
+The version that needed an argument was the Python tool's. `0.1.2` was the
+instinct — a rename sounds like packaging, and packaging sounds like a patch.
+But the same release turned `nav: 10` into `nav: {order: 10}` and moved the
+import package, so under the caveat above it was a minor, and the reason has
+nothing to do with the rename that prompted it. A patch would also have been
+unrecoverable in a way an ordinary mistake is not: a version number is
+permanent on both registries, so publishing `0.1.2` would have spent the number
+and left `0.2.0` as the only way to correct the claim.
+
+The trap underneath, worth stating plainly because it is invisible until it is
+expensive: a distribution name on PyPI cannot be changed. `hypermarkdown` is a
+new project rather than a moved one, `hyper-markdown` keeps `0.1.1` forever, and
+the old project is *held* rather than deleted — a freed name can be registered
+by anyone and served to whatever still pins it. The same reasoning retired the
+VS Marketplace publisher without releasing it.
 
 ## The sitemap is core; what was missing is `robots.txt`
 
@@ -382,7 +412,7 @@ Four versions means four release lines, and a tag is how one is started. The
 Python tool keeps `vX.Y.Z`; the extension takes `vsc-ext-vX.Y.Z`. The prefix is
 not decoration — `release.yml` used to trigger on `tags: ["v*"]`, and every
 extension tag begins with a `v`, so an extension release would have started a
-PyPI build, checked `vsc-ext-v0.1.0` against `hyper_markdown.__version__`, and
+PyPI build, checked `vsc-ext-v0.1.0` against `hypermarkdown.__version__`, and
 gone red on a workflow that had no business running. The glob is now `v[0-9]*`,
 which is the narrowest thing that still admits every version the Python tool can
 have.

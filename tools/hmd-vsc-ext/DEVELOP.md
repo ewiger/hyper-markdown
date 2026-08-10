@@ -267,7 +267,7 @@ created by CI:
 | Registry | Set up | Secret |
 | --- | --- | --- |
 | [VS Marketplace](https://marketplace.visualstudio.com/manage) | A publisher with ID `hypermarkdown` — done. The old `hyper-markdown` publisher is retained unused rather than released, because a publisher name returned to the pool is one an impostor can register under. Then a **trusted publishing** policy on the new one naming this repository and `release-vsc-ext.yml` — *not yet offered by the gallery*, which is why uploads are manual. | none |
-| [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hypermarkdown -p <token>`. The `hypermarkdown` namespace already exists, empty and unverified; `HyperMarkDown` never did. | `OVSX_PAT` |
+| [Open VSX](https://open-vsx.org/) | Log in with GitHub and sign the publisher agreement. No `ovsx create-namespace` is needed: `hypermarkdown` already exists — `hyper-markdown` never did — and as of 2026-08-10 it is **verified**, claimed through [open-vsx.org#12443](https://github.com/EclipseFdn/open-vsx.org/issues/12443) against a DNS TXT record on `hypermarkdown.org`. Verification closes the namespace to non-members, so `OVSX_PAT` MUST belong to the account that filed that claim. | `OVSX_PAT` |
 
 **The Marketplace holds no secret of ours, and that is the point.** `vsce
 publish --oidc` exchanges a GitHub-issued identity token for a credential that
