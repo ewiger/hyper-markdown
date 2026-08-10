@@ -186,5 +186,5 @@ jobs:
           " || true
           [ -s notes.md ] || echo "See tools/hmd/CHANGELOG.md for what changed." > notes.md
           gh release create "$GITHUB_REF_NAME" dist/* \
-            --title "hypermarkdown $version" \
+            --title "hypermarkdown $version (python)" \
             --notes-file notes.md
