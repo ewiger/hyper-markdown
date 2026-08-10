@@ -1,6 +1,6 @@
 /**
  * The workspace and the four-phase resolver (HMD-0001 §5) — a port of
- * `tools/hmd/src/hyper_markdown/resolve.py`.
+ * `tools/hmd/src/hypermarkdown/resolve.py`.
  *
  * Resolution order is named import, then spine, then imported search paths,
  * then autodiscovery. Precedence follows explicitness: a named import may

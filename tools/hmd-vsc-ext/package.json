@@ -1,11 +1,11 @@
 {
   "name": "hmd-vsc-ext",
-  "displayName": "Hyper-Markdown",
-  "description": "Live preview, embeds, backlinks, and diagnostics for hyper-markdown (.hmd) knowledge bases.",
+  "displayName": "HyperMarkDown",
+  "description": "Live preview, embeds, backlinks, and diagnostics for HyperMarkDown (.hmd) knowledge bases.",
   "version": "0.1.0",
   "license": "MIT",
   "icon": "media/logo.png",
-  "publisher": "hyper-markdown",
+  "publisher": "hypermarkdown",
   "preview": true,
   "galleryBanner": {
     "color": "#1c1c1c",
@@ -13,26 +13,26 @@
   },
   "badges": [
     {
-      "url": "https://img.shields.io/badge/docs-hyper--markdown.org-ffb300",
-      "href": "https://hyper-markdown.org/tools/vscode/",
-      "description": "Documentation at hyper-markdown.org"
+      "url": "https://img.shields.io/badge/docs-hypermarkdown.org-ffb300",
+      "href": "https://hypermarkdown.org/tools/vscode/",
+      "description": "Documentation at hypermarkdown.org"
     },
     {
-      "url": "https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg",
-      "href": "https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml",
+      "url": "https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml/badge.svg",
+      "href": "https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml",
       "description": "CI status"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ewiger/hyper-markdown.git",
+    "url": "https://github.com/ewiger/hypermarkdown.git",
     "directory": "tools/hmd-vsc-ext"
   },
   "bugs": {
-    "url": "https://github.com/ewiger/hyper-markdown/issues"
+    "url": "https://github.com/ewiger/hypermarkdown/issues"
   },
-  "homepage": "https://hyper-markdown.org/tools/vscode/",
-  "qna": "https://github.com/ewiger/hyper-markdown/issues",
+  "homepage": "https://hypermarkdown.org/tools/vscode/",
+  "qna": "https://github.com/ewiger/hypermarkdown/issues",
   "engines": {
     "vscode": "^1.90.0",
     "node": ">=20"
@@ -43,7 +43,7 @@
     "Notebooks"
   ],
   "keywords": [
-    "hyper-markdown",
+    "hypermarkdown",
     "hmd",
     "wiki",
     "wikilinks",
@@ -70,7 +70,7 @@
       {
         "id": "hmd",
         "aliases": [
-          "Hyper-Markdown",
+          "HyperMarkDown",
           "hmd"
         ],
         "extensions": [
@@ -93,30 +93,30 @@
       {
         "command": "hyperMarkdown.openPreview",
         "title": "Open Preview in This Column",
-        "category": "Hyper-Markdown",
+        "category": "HyperMarkDown",
         "icon": "media/logo.svg"
       },
       {
         "command": "hyperMarkdown.openPreviewToSide",
         "title": "Open Preview to the Side",
-        "category": "Hyper-Markdown",
+        "category": "HyperMarkDown",
         "icon": "$(open-preview)"
       },
       {
         "command": "hyperMarkdown.togglePin",
         "title": "Pin Preview to This Card",
-        "category": "Hyper-Markdown",
+        "category": "HyperMarkDown",
         "icon": "$(pin)"
       },
       {
         "command": "hyperMarkdown.createCardFromLink",
         "title": "Create Missing Card",
-        "category": "Hyper-Markdown"
+        "category": "HyperMarkDown"
       },
       {
         "command": "hyperMarkdown.refreshIndex",
         "title": "Rebuild Index",
-        "category": "Hyper-Markdown",
+        "category": "HyperMarkDown",
         "icon": "$(refresh)"
       }
     ],
@@ -153,7 +153,7 @@
       ]
     },
     "configuration": {
-      "title": "Hyper-Markdown",
+      "title": "HyperMarkDown",
       "properties": {
         "hyperMarkdown.root": {
           "type": "string",
@@ -198,7 +198,7 @@
     "package": "npm run build && vsce package --no-dependencies"
   },
   "dependencies": {
-    "@hyper-markdown/core": "^0.1.0"
+    "@hypermarkdown/core": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

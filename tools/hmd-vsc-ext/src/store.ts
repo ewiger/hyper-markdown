@@ -18,7 +18,7 @@ import {
   type BacklinkEntry,
   type Diagnostic,
   type DocumentIR,
-} from "@hyper-markdown/core";
+} from "@hypermarkdown/core";
 
 import { DiagramEngine } from "./diagram/engine.js";
 import { VsCodeHost, discoverRoot } from "./workspaceHost.js";

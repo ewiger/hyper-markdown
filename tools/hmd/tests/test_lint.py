@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from hyper_markdown.lint import check, format_json, format_text, summarize
+from hypermarkdown.lint import check, format_json, format_text, summarize
 
 BASE = {
     "index.hmd": "# Root\n",
@@ -181,8 +181,8 @@ def test_json_output_matches_text_content(build_workspace):
 
 
 def test_json_output_is_byte_identical_across_runs(build_workspace, tmp_path):
-    from hyper_markdown import config
-    from hyper_markdown.resolve import Workspace
+    from hypermarkdown import config
+    from hypermarkdown.resolve import Workspace
 
     tree = {**BASE, "a.hmd": "# A\n\n[[nope]] [[dup]]\n", "x/dup.hmd": "# X\n", "y/dup.hmd": "# Y\n"}
     first = format_json(check(build_workspace(tree)))

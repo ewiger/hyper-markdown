@@ -5,7 +5,7 @@
  * construction lives in `render.ts`; this file is the wiring.
  */
 
-import { IR_VERSION } from "@hyper-markdown/core";
+import { IR_VERSION } from "@hypermarkdown/core";
 
 import type { HostMessage, PreviewMode, WebviewMessage } from "../src/protocol.js";
 import {

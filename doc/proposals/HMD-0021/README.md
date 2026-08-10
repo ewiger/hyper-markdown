@@ -1,12 +1,12 @@
-# HMD-0021: The VS Code extension — the hyper-markdown preview surface
+# HMD-0021: The VS Code extension — the HyperMarkDown preview surface
 
 **Status**: drafted
 **Created**: 2026-08-06
-**Source**: [Hyper-markdown in the editor — Requirements](../../models/requirements/vscode-extension.md)
+**Source**: [HyperMarkDown in the editor — Requirements](../../models/requirements/vscode-extension.md)
 
 ## Companion notes
 
-- [HMD-0020](../HMD-0020/README.md) — `@hyper-markdown/core`, which owns the
+- [HMD-0020](../HMD-0020/README.md) — `@hypermarkdown/core`, which owns the
   grammar, the resolver, and the document IR this extension renders. Nothing
   semantic is decided here.
 
@@ -75,17 +75,17 @@ the user's editor. §11 is not boilerplate.
 ```text
 directory     tools/hmd-vsc-ext/
 name          hmd-vsc-ext
-publisher     hyper-markdown
-displayName   Hyper-Markdown
+publisher     HyperMarkDown
+displayName   HyperMarkDown
 engines.vscode ^1.90.0
 language id   hmd
 extensions    .hmd
-aliases       ["Hyper-Markdown", "hmd"]
+aliases       ["HyperMarkDown", "hmd"]
 ```
 
 - `name` and `publisher` together form the marketplace identifier
-  `hyper-markdown.hmd-vsc-ext`, which is permanent from the first publish. The
-  extension was `vscode-hyper-markdown` while the repository used a `packages/`
+  `hypermarkdown.hmd-vsc-ext`, which is permanent from the first publish. The
+  extension was `vscode-HyperMarkDown` while the repository used a `packages/`
   layout, and was renamed with the move to `tools/`. Nothing has been published,
   which is the only window in which this rename is free.
 - The extension MUST contribute the `hmd` language rather than reusing
@@ -98,11 +98,11 @@ aliases       ["Hyper-Markdown", "hmd"]
 
 | Command | Title |
 | --- | --- |
-| `hyperMarkdown.openPreview` | Hyper-Markdown: Open Preview |
-| `hyperMarkdown.openPreviewToSide` | Hyper-Markdown: Open Preview to the Side |
-| `hyperMarkdown.togglePin` | Hyper-Markdown: Pin Preview to This Card |
-| `hyperMarkdown.createCardFromLink` | Hyper-Markdown: Create Missing Card |
-| `hyperMarkdown.refreshIndex` | Hyper-Markdown: Rebuild Index |
+| `hyperMarkdown.openPreview` | HyperMarkDown: Open Preview |
+| `hyperMarkdown.openPreviewToSide` | HyperMarkDown: Open Preview to the Side |
+| `hyperMarkdown.togglePin` | HyperMarkDown: Pin Preview to This Card |
+| `hyperMarkdown.createCardFromLink` | HyperMarkDown: Create Missing Card |
+| `hyperMarkdown.refreshIndex` | HyperMarkDown: Rebuild Index |
 
 - Settings contributed, all under `hyperMarkdown.`:
 
@@ -197,7 +197,7 @@ webview is deliberately kept incapable of reaching either.
 ```text
 extension host                          webview
 ──────────────────────────────          ─────────────────────────
-@hyper-markdown/core                    renderer.ts
+@hypermarkdown/core                    renderer.ts
   WorkspaceHost → vscode.workspace.fs     IR → DOM
   index, resolve, expand                  tab strip, scroll sync
   Document IR  ───── postMessage ─────►   click handling
@@ -339,8 +339,8 @@ Click-through:
 
 ### 7. Diagnostics
 
-- The extension owns one `DiagnosticCollection` named `hyper-markdown`.
-- Diagnostics come from `@hyper-markdown/core` and are mapped one-for-one:
+- The extension owns one `DiagnosticCollection` named `HyperMarkDown`.
+- Diagnostics come from `@hypermarkdown/core` and are mapped one-for-one:
   rule ID into `Diagnostic.code`, HMD-0001 severity into
   `DiagnosticSeverity.Error` or `.Warning`, and the 1-indexed
   `(line, column)` span into a zero-indexed `Range`.
@@ -458,7 +458,7 @@ HMD-0001 rather than an extension of it.
 1. **E1 — skeleton.** Package, `hmd` language, TextMate grammar, view container
    and an empty webview, esbuild, the CI job. No core dependency yet; this step
    is verifiable by opening a `.hmd` file and seeing it highlighted.
-2. **E2 — index and diagnostics.** Wire `@hyper-markdown/core` to
+2. **E2 — index and diagnostics.** Wire `@hypermarkdown/core` to
    `vscode.workspace.fs`, build the index, publish diagnostics. Proves the
    whole host-side stack with no rendering at all.
 3. **E3 — the rendered tab.** IR delivery, the renderer, embed cards, red
@@ -544,7 +544,7 @@ npm run -w hmd-vsc-ext package
 - Should an untitled or out-of-workspace `.hmd` buffer preview at all, with no
   namespace root to resolve against? Rendering with every link red is honest
   but noisy.
-- Does the extension bundle `@hyper-markdown/core` from the workspace or depend
+- Does the extension bundle `@hypermarkdown/core` from the workspace or depend
   on the published npm package? Bundling is simpler until the package has
   external consumers, and painful afterwards.
 - What is the marketplace publisher identity, and does the extension ID match

@@ -58,7 +58,7 @@ native. The fallback policy below only has to cover the markdown targets.
 
 It is also the only target that is *purely* one-directional. `md → hmd`
 conversion can read plain markdown or GFM back; nothing reads HTML back into
-hyper-markdown, and nothing should try. That asymmetry is a feature — it makes
+HyperMarkDown, and nothing should try. That asymmetry is a feature — it makes
 HTML unambiguously a build product, which is the same argument
 [the memory note](../memory/decisions.md) makes for erasure generally.
 

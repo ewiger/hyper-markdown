@@ -17,7 +17,7 @@ import {
   MAX_SOURCE_BYTES,
   RENDER_TIMEOUT_MS,
   diagramKey,
-} from "@hyper-markdown/core";
+} from "@hypermarkdown/core";
 
 /** The one exception to the shared timeout: the fallback may pull an image. */
 const DOCKER_TIMEOUT_MS = 20_000;

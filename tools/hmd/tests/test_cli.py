@@ -16,10 +16,10 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from hyper_markdown import __version__
-from hyper_markdown.cli import app
+from hypermarkdown import __version__
+from hypermarkdown.cli import app
 
-#: `tools/hmd`, the project that builds the `hyper-markdown` distribution — and,
+#: `tools/hmd`, the project that builds the `HyperMarkDown` distribution — and,
 #: since 2026-08-08, the owner of the changelog it releases from. The repository
 #: root keeps only an index of the three tools' changelogs, so a version section
 #: looked for there would never be found again.
@@ -53,7 +53,7 @@ def test_the_version_is_declared_once():
 
     assert "version" not in pyproject["project"], "pyproject pins a literal version; it must stay dynamic"
     assert "version" in pyproject["project"]["dynamic"]
-    assert pyproject["tool"]["setuptools"]["dynamic"]["version"] == {"attr": "hyper_markdown.__version__"}
+    assert pyproject["tool"]["setuptools"]["dynamic"]["version"] == {"attr": "hypermarkdown.__version__"}
 
 
 def test_the_changelog_has_an_entry_for_the_current_version():

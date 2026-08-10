@@ -7,12 +7,12 @@ nav:
 
 # HMD Language Specification
 
-**This document specifies hyper-markdown 0.1, a syntactic extension of
+**This document specifies HyperMarkDown 0.1, a syntactic extension of
 [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/).**
 
 ## Status of this document
 
-This is the normative text for the language. It defines what a hyper-markdown
+This is the normative text for the language. It defines what a HyperMarkDown
 document is, what its constructs mean, and what an implementation must do with
 them. It does not describe any particular program, and no program's behaviour
 overrides it.
@@ -45,9 +45,9 @@ there. An implementation MAY provide constructs beyond this specification, but
 MUST NOT assign a different meaning to any construct defined here.
 
 **CommonMark compatibility.** Every document CommonMark 0.31.2 accepts is
-syntactically valid hyper-markdown. CommonMark constructs retain their
-CommonMark meaning except where their bytes form a hyper-markdown construct
-defined by this specification; hyper-markdown also assigns semantics to some
+syntactically valid HyperMarkDown. CommonMark constructs retain their
+CommonMark meaning except where their bytes form a HyperMarkDown construct
+defined by this specification; HyperMarkDown also assigns semantics to some
 sequences CommonMark treats as literal text. Where this document and CommonMark
 0.31.2 disagree about inherited syntax, CommonMark is right; the inherited
 syntax is specified at <https://spec.commonmark.org/0.31.2/> and is not restated
@@ -56,8 +56,8 @@ here.
 The consequence worth stating plainly: renaming a `.md` file to `.hmd`
 preserves its syntactic validity, but can change how it is interpreted. For
 example, `[[foo]]` is literal text in CommonMark and a wikilink in
-hyper-markdown, while a leading `---` block that matches the grammar below is
-frontmatter in hyper-markdown.
+HyperMarkDown, while a leading `---` block that matches the grammar below is
+frontmatter in HyperMarkDown.
 
 **Arbitration.** Where two implementations disagree about behaviour this
 document leaves under-determined, the language-neutral conformance corpus at
@@ -70,7 +70,7 @@ A **card** is one file with the `.hmd` extension. It MUST be valid UTF-8.
 
 A card consists of an OPTIONAL frontmatter block followed by CommonMark content.
 Nothing else is structurally required: a card with no frontmatter and no
-hyper-markdown construct is a well-formed card.
+HyperMarkDown construct is a well-formed card.
 
 Cards are addressed within a single rooted subtree of the filesystem, the
 **namespace root**, defined under *The namespace*. A file is a member of the
@@ -82,7 +82,7 @@ part of it.
 
 ## Lexical model
 
-Hyper-markdown constructs are extracted by **scanning**, not by fully parsing
+HyperMarkDown constructs are extracted by **scanning**, not by fully parsing
 the document as CommonMark. An implementation extracts only the constructs this
 specification owns and leaves every other byte to whatever renders the document.
 

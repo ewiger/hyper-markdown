@@ -8,7 +8,7 @@
 
 import * as vscode from "vscode";
 
-import { SUFFIX, dirnameRel, joinRel, split, withHmdSuffix } from "@hyper-markdown/core";
+import { SUFFIX, dirnameRel, joinRel, split, withHmdSuffix } from "@hypermarkdown/core";
 
 import { isSafeRelativePath } from "../protocol.js";
 import type { Store } from "../store.js";
@@ -43,7 +43,7 @@ export async function createCard(
 ): Promise<void> {
   if (!vscode.workspace.isTrusted) {
     void vscode.window.showWarningMessage(
-      "Hyper-Markdown: creating a card requires a trusted workspace.",
+      "HyperMarkDown: creating a card requires a trusted workspace.",
     );
     return;
   }
@@ -51,7 +51,7 @@ export async function createCard(
   const rel = suggestedPath(sourceRel, target);
   if (rel === null || !isSafeRelativePath(rel) || !rel.endsWith(SUFFIX)) {
     void vscode.window.showWarningMessage(
-      `Hyper-Markdown: cannot derive a path for ${target}.`,
+      `HyperMarkDown: cannot derive a path for ${target}.`,
     );
     return;
   }
@@ -65,7 +65,7 @@ export async function createCard(
   edit.insert(uri, new vscode.Position(0, 0), `# ${title}\n`);
 
   if (!(await vscode.workspace.applyEdit(edit))) {
-    void vscode.window.showErrorMessage(`Hyper-Markdown: could not create ${rel}.`);
+    void vscode.window.showErrorMessage(`HyperMarkDown: could not create ${rel}.`);
     return;
   }
 

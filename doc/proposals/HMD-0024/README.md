@@ -11,9 +11,9 @@ under `tools/`, and decides that the language server will be written in Python
 against `pygls` and will live with the Python implementation. `tools/hmd` is
 the Python line — parser, resolver, linter, graph checker, MkDocs plugin, and
 the future language server — and owns the `pyproject.toml` that builds the
-`hyper-markdown` distribution. `tools/hmd-ts-core` is the TypeScript
+`HyperMarkDown` distribution. `tools/hmd-ts-core` is the TypeScript
 implementation of the same format. `tools/hmd-vsc-ext` is the VS Code
-extension, renamed from `vscode-hyper-markdown`. The repository root becomes a
+extension, renamed from `vscode-HyperMarkDown`. The repository root becomes a
 uv workspace root that is not itself a distribution, and everything shared by
 more than one tool — the example trees, the conformance corpus filed among
 them, the documentation, the site, the repository's own test guards — stays at
@@ -34,7 +34,7 @@ products, and it had three specific costs.
   "the Python library" nor "a JavaScript package", and a repository whose
   top-level directories are named after languages has no answer for it beyond
   adding a fourth convention.
-- **It buried a second implementation inside a client.** `@hyper-markdown/core`
+- **It buried a second implementation inside a client.** `@hypermarkdown/core`
   is not extension code. It is the TypeScript half of the conformance contract
   that replaced the project's old one-implementation principle, and the corpus
   that arbitrates between the two is the only thing keeping the format from
@@ -66,7 +66,7 @@ failure mode.
 
 ## Non-goals
 
-- **Renaming the PyPI distribution.** It stays `hyper-markdown`.
+- **Renaming the PyPI distribution.** It stays `HyperMarkDown`.
 - **Publishing the extension.** The rename below happens *before* a publish,
   deliberately, and no publish is proposed here.
 - **Building the language server.** This record decides its language and its
@@ -84,7 +84,7 @@ Three directories, and the rule that decides what may go in one.
 ```text
 tools/hmd/            Python: parse, resolve, embed, urls, lint, graph,
                       the MkDocs plugin, and the language server to come
-tools/hmd-ts-core/    @hyper-markdown/core — the TypeScript implementation
+tools/hmd-ts-core/    @hypermarkdown/core — the TypeScript implementation
 tools/hmd-vsc-ext/    the VS Code extension
 ```
 
@@ -117,7 +117,7 @@ documentation about the work rather than a shippable unit, so it lives at
   tool owns the specification, and a tool MUST NOT be the place a question about
   the format is settled — the dependency runs from tool to specification and
   never back. The one exception is deliberate and is the project exercising its
-  own format: this repository's documentation is a hyper-markdown wiki, built by
+  own format: this repository's documentation is a HyperMarkDown wiki, built by
   the plugin the Python tool ships, so a specification that made the site
   unbuildable would be caught by its own publication.
 
@@ -141,12 +141,12 @@ A test belongs to whatever it makes a claim about.
 
 - The root `pyproject.toml` MUST NOT declare a `[project]` table. It carries
   the uv workspace, the pytest configuration, and a dependency group naming
-  `hyper-markdown[mkdocs,dev]` so that a bare `uv sync` installs the tool with
+  `HyperMarkDown[mkdocs,dev]` so that a bare `uv sync` installs the tool with
   everything the gates need.
 - One `.venv` and one `uv.lock` serve the whole checkout, so `uv run hmd`,
   `uv run mkdocs`, and `uv run python -m pytest` all keep working from the root
   with no arguments and no `--directory`.
-- Building the distribution MUST be spelled `uv build --package hyper-markdown`.
+- Building the distribution MUST be spelled `uv build --package HyperMarkDown`.
   A bare `uv build` at a workspace root with no `[project]` table does not
   fail: it builds an empty distribution named `unknown-0.0.0` and exits zero.
   That artifact passes a metadata check, so on the release path it would travel
@@ -196,8 +196,8 @@ wants to run it clones the repository.
 ### The extension's identity
 
 - The extension's npm and manifest name is `hmd-vsc-ext`, and its publisher
-  stays `hyper-markdown`. Together these form the marketplace identifier
-  `hyper-markdown.hmd-vsc-ext`.
+  stays `HyperMarkDown`. Together these form the marketplace identifier
+  `hypermarkdown.hmd-vsc-ext`.
 - The identifier is permanent from the first publish. Renaming afterwards means
   a second listing, and every install of the first one stranded on it. The
   rename is therefore taken now, while nothing is published, and MUST NOT be
@@ -261,8 +261,8 @@ never been written to disk.
 ## Backwards Compatibility
 
 - **Nothing a user installs by name changes.** The distribution stays
-  `hyper-markdown`, the console script stays `hmd`, and the MkDocs plugin entry
-  point stays `hyper-markdown`. A folder name was never any of those.
+  `HyperMarkDown`, the console script stays `hmd`, and the MkDocs plugin entry
+  point stays `HyperMarkDown`. A folder name was never any of those.
 - **The extension's identifier changes**, which is free exactly once and is
   being spent here, before any publish.
 - **Every repository-relative path changes**, so anything pinned to the old
@@ -312,8 +312,8 @@ The layout moves no trust boundary. Two small notes:
   upward for the fixtures the callers need, replacing a fixed `../../..` that
   resolved somewhere wrong rather than erroring when the nesting depth changed.
 - `.github/workflows/release.yml` and `ci.yml` — `uv build --package
-  hyper-markdown`, and the version check reading `tools/hmd/src`.
-- `tools/hmd/src/hyper_markdown/resolve.py` — where the text-override
+  HyperMarkDown`, and the version check reading `tools/hmd/src`.
+- `tools/hmd/src/hypermarkdown/resolve.py` — where the text-override
   requirement lands; the workspace is the one layer that ingests from disk.
 
 ## Test Plan
@@ -330,7 +330,7 @@ uv run hmd lint --root doc/wiki --strict
 uv run hmd lint --root examples/small
 uv run hmd lint --root examples/cs-alg-sorting --strict
 uv run mkdocs build --strict
-uv build --package hyper-markdown
+uv build --package HyperMarkDown
 ```
 
 - The cross-implementation parity suite MUST fail rather than skip when
@@ -348,7 +348,7 @@ uv build --package hyper-markdown
 - Does the language server share a process with anything, or is `hmd lsp` a
   subcommand of the existing CLI?
 - Is `pygls` added to the base dependencies or to an `lsp` extra? An extra
-  keeps `pip install hyper-markdown` small; a base dependency means the server
+  keeps `pip install HyperMarkDown` small; a base dependency means the server
   is always there when the CLI is.
 - What is the ordering and the fallback when the extension becomes a client of
   the Python server — which features move first, and how does the UI say "the

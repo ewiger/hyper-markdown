@@ -7,8 +7,8 @@
 
 ## Symptom
 
-From the Wiki overview page, the link to the hyper-markdown card went to
-`/wiki/hyper-markdown.hmd` and 404'd.
+From the Wiki overview page, the link to the HyperMarkDown card went to
+`/wiki/hypermarkdown.hmd` and 404'd.
 
 ## Cause
 
@@ -16,7 +16,7 @@ A page *outside* the namespace cannot use `[[wikilinks]]`, so it links to a card
 the only way it can — an ordinary relative markdown link to the real file:
 
 ```markdown
-see [hyper-markdown.hmd](hyper-markdown.hmd) for the format itself
+see [hypermarkdown.hmd](hypermarkdown.hmd) for the format itself
 ```
 
 That path is correct in the repository, and it is what makes the link work when
@@ -28,8 +28,8 @@ Three links were affected, all of them 404s:
 
 | Page | Link |
 | --- | --- |
-| `doc/wiki/README.md` | `hyper-markdown.hmd` |
-| `doc/proposals/HMD-0001/README.md` | `../../wiki/hyper-markdown.hmd` |
+| `doc/wiki/README.md` | `hypermarkdown.hmd` |
+| `doc/proposals/HMD-0001/README.md` | `../../wiki/hypermarkdown.hmd` |
 | `doc/proposals/HMD-0002/README.md` | `../../wiki/md-hmd-interop.hmd` |
 
 MkDocs did report each one as `contains a link to '…' which is excluded from the

@@ -24,17 +24,17 @@ you have to install to get it:
   property the whole format exists to protect.
 
 * **The MkDocs plugin** —
-  [`tools/hmd`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd),
+  [`tools/hmd`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd),
   shipped inside the Python package
-  [`hyper-markdown`](https://pypi.org/project/hyper-markdown/) beside the
+  [`hypermarkdown`](https://pypi.org/project/hypermarkdown/) beside the
   `hmd render` converter. It builds a tree of cards into a published site — a
   hand-ordered book with a generated wiki inside it, this one — and erases the
   embed boundary the way conversion does.
 
 * **The VS Code extension** —
-  [`tools/hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext),
+  [`tools/hmd-vsc-ext`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-vsc-ext),
   on the TypeScript document model in
-  [`tools/hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core).
+  [`tools/hmd-ts-core`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-ts-core).
   Under construction. It keeps that boundary, showing embedded content as
   visibly embedded with its source attached.
 
@@ -117,7 +117,7 @@ docs_dir: doc
 use_directory_urls: true          # required
 
 plugins:
-  - hyper-markdown:
+  - HyperMarkDown:
       root: doc/wiki              # the namespace, restricted
 
 nav:
@@ -182,9 +182,9 @@ For a site that is the correct answer.
 
 The other viewer under construction is a VS Code extension, developed on the
 `feat/vsc-ext` branch: a TypeScript document model
-([`tools/hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core),
+([`tools/hmd-ts-core`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-ts-core),
 HMD-0020), the extension and its preview surface
-([`tools/hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext),
+([`tools/hmd-vsc-ext`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-vsc-ext),
 HMD-0021), and D2 rendering inside the webview's content security policy
 (HMD-0022).
 

@@ -1,4 +1,4 @@
-"""Core data model for hyper-markdown documents.
+"""Core data model for HyperMarkDown documents.
 
 Every construct carries an exact source `Span`, so a diagnostic can point at it
 and a future language server can reuse the same positions (HMD-0001 §1).

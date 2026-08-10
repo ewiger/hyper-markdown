@@ -9,7 +9,7 @@
 
 import * as vscode from "vscode";
 
-import { SUFFIX } from "@hyper-markdown/core";
+import { SUFFIX } from "@hypermarkdown/core";
 
 import type { Store } from "../store.js";
 import { PreviewController } from "./controller.js";
@@ -17,7 +17,7 @@ import { shellFor } from "./html.js";
 
 export const VIEW_TYPE = "hyperMarkdown.previewPanel";
 
-const UNTITLED = "Hyper-Markdown Preview";
+const UNTITLED = "HyperMarkDown Preview";
 
 /**
  * State persisted by the webview and handed back on window reload.
@@ -140,7 +140,7 @@ export class PreviewPanel implements vscode.Disposable {
    * Name the tab after its card.
    *
    * A column holding four previews is unreadable when all four tabs say
-   * "Hyper-Markdown Preview".
+   * "HyperMarkDown Preview".
    */
   private retitle(card: string | null): void {
     this.panel.title = card === null ? UNTITLED : basename(card);

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from hyper_markdown import config
-from hyper_markdown.resolve import Workspace
+from hypermarkdown import config
+from hypermarkdown.resolve import Workspace
 
 # `tools/hmd/tests` → `tools/hmd` → `tools` → the repository. `examples/` is
 # shared: the TypeScript parity suite lints the same trees, so the fixture

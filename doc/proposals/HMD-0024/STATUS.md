@@ -22,14 +22,14 @@ the single layer that ingests documents.
 | ID | Work point | Spec |
 | --- | --- | --- |
 | W1.1 | Three units moved under `tools/` with history preserved — `tools/hmd`, `tools/hmd-ts-core`, `tools/hmd-vsc-ext` | What each tool owns |
-| W1.2 | `@hyper-markdown/core` kept as its own tool rather than folded into the extension | What each tool owns |
+| W1.2 | `@hypermarkdown/core` kept as its own tool rather than folded into the extension | What each tool owns |
 | W1.3 | Conformance corpus moved from `conformance/` to `examples/conformance/`, with the corpus runner, the root-marker search, and every path in the documentation and in HMD-0020 §10 repointed | What each tool owns |
-| W2.1 | `tools/hmd/pyproject.toml` builds the `hyper-markdown` distribution; name, script, and MkDocs entry point unchanged | The repository root is a workspace, not a project |
+| W2.1 | `tools/hmd/pyproject.toml` builds the `HyperMarkDown` distribution; name, script, and MkDocs entry point unchanged | The repository root is a workspace, not a project |
 | W2.2 | Root `pyproject.toml` is a uv workspace root with no `[project]` table, a `dev` group, and both test roots in `testpaths` | The repository root is a workspace, not a project |
 | W2.3 | Every tool carries its own `README.md`, `CHANGELOG.md`, `LICENSE`, and `DEVELOP.md`, none of them a symlink. `tools/hmd/README.md` is the PyPI long description and is about the `hmd` command, with absolute links; `release.yml` and `test_cli.py` read `tools/hmd/CHANGELOG.md`. `examples/` stays at the root, so the sdist still does not ship the fixture | A tool's front matter is its own |
 | W2.5 | The root's three files are the language's: `README.md` names both halves and points at the site, `CHANGELOG.md` is the language's history under a `## [0.1]` section, and `DEVELOP.md` covers the specification, the four versions, and publishing the site — the Python loop, dependency policy, packaging, and the release having moved to `tools/hmd/DEVELOP.md`. `doc/DEVELOPER.md` is an index of the four guides | The root owns the language |
 | W2.6 | `tests/test_docs.py` reads the language version out of the spec card's opening sentence and fails when the root changelog has no section for it, mirroring the tool's own changelog guard | The root owns the language |
-| W2.4 | `uv build --package hyper-markdown` on both the release path and the pull-request package check | The repository root is a workspace, not a project |
+| W2.4 | `uv build --package HyperMarkDown` on both the release path and the pull-request package check | The repository root is a workspace, not a project |
 | W3.1 | Python suite split: nine unit files plus the CLI and worked-example suites to `tools/hmd/tests`, the prose and site guards left at `tests/` | Where tests live, and what they answer for |
 | W4.1 | Extension renamed to `hmd-vsc-ext`; publisher, display name, language id, commands, and settings unchanged | The extension's identity |
 | W4.2 | `repoRoot` in the core's tests searches upward for `examples/conformance/cases` and `examples/small` and throws with the search printed, replacing a fixed `../../..`; the ledger is named relative to the package | Test Plan |
@@ -45,7 +45,7 @@ the single layer that ingests documents.
 | W5 | Text overrides on the Python workspace index: per-path text supplied by a caller, consulted ahead of any read | nothing — see L1 |
 | W6 | Per-card invalidation on the Python workspace index, replacing the whole-tree load performed once at construction | W5 |
 | W7 | `pygls` server in `tools/hmd`, and where it is declared as a dependency | W5, W6, Q2 |
-| W8 | Rename the package in the parked integration suite on `feat/vsc-ext-1`, which still says `packages/vscode-hyper-markdown` | that branch being unparked |
+| W8 | Rename the package in the parked integration suite on `feat/vsc-ext-1`, which still says `packages/vscode-HyperMarkDown` | that branch being unparked |
 
 ### Broken
 
@@ -75,7 +75,7 @@ here rather than mirroring the list.
 | ID | Question |
 | --- | --- |
 | Q1 | Is the server a subcommand of the existing CLI (`hmd lsp`), or its own console script? |
-| Q2 | Is `pygls` a base dependency or an `lsp` extra? An extra keeps `pip install hyper-markdown` small; a base dependency means the server exists wherever the CLI does |
+| Q2 | Is `pygls` a base dependency or an `lsp` extra? An extra keeps `pip install HyperMarkDown` small; a base dependency means the server exists wherever the CLI does |
 | Q3 | ~~Does the VS Code extension stay on TypeScript permanently, or gain an opt-in Python path?~~ **Answered 2026-08-08: it becomes a client of the Python server** for language features, while the preview keeps rendering without Python. What remains open is the sequencing — which features move first, and how the UI reports an absent server without implying the preview failed |
 | Q4 | Does canonicity move if a Rust implementation appears, and what is the procedure? Inherited unresolved; the layout does not settle it |
 | Q5 | Should `doc/vsc-ext/STATUS.md` split into per-proposal trackers, or does the interleaving justify the standing exception? |
@@ -90,7 +90,7 @@ uv run hmd lint --root doc/wiki --strict
 uv run hmd lint --root examples/small
 uv run hmd lint --root examples/cs-alg-sorting --strict
 uv run mkdocs build --strict
-uv build --package hyper-markdown
+uv build --package HyperMarkDown
 ```
 
 ## Changelog

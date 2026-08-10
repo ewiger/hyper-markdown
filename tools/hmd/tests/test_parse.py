@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from hyper_markdown.parse import parse
+from hypermarkdown.parse import parse
 
 PATH = Path("/tmp/page.hmd")
 

@@ -1,4 +1,4 @@
-# Changelog — `@hyper-markdown/core`
+# Changelog — `@hypermarkdown/core`
 
 Notable changes to the TypeScript implementation, newest first. This file covers
 **this package only**; the other tools in the monorepo version themselves and
@@ -32,7 +32,7 @@ state is tracked per work point in
 - **Lint rules `HMD001`–`HMD016`**, sorted, emitting no rule ID the canonical
   implementation does not define.
 - **The document IR, embed expansion, and a `markdown-it` renderer.** Ordinary
-  GFM is an opaque HTML island; every hyper-markdown construct survives as a
+  GFM is an opaque HTML island; every HyperMarkDown construct survives as a
   typed node, so no consumer can lose an embed boundary by treating it as text.
   Blocks are keyed by content and sibling occurrence rather than by line number,
   which is what lets a live view be patched instead of rebuilt, and every
@@ -67,4 +67,4 @@ character; and math is typeset by KaTeX rather than by the site's MathJax.
 - This package carries its own README, changelog, and license, rather than
   borrowing the repository's.
 
-[Unreleased]: https://github.com/ewiger/hyper-markdown/commits/main/tools/hmd-ts-core
+[Unreleased]: https://github.com/ewiger/hypermarkdown/commits/main/tools/hmd-ts-core

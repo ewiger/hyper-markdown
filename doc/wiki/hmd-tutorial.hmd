@@ -7,7 +7,7 @@ nav:
 
 # HMD Tutorial
 
-**This page teaches hyper-markdown. Read it start to finish and you can write
+**This page teaches HyperMarkDown. Read it start to finish and you can write
 the format; nothing else is required reading.**
 
 It is not the normative text. Where this page says "forgiving" or
@@ -17,11 +17,11 @@ someone who has not written a card before.
 
 The baseline is [CommonMark 0.31.2](https://spec.commonmark.org/0.31.2/), taken
 whole. Every document CommonMark accepts is syntactically valid
-hyper-markdown. CommonMark constructs keep their meaning unless their bytes
-form a hyper-markdown construct, and some text CommonMark treats as literal
-gains hyper-markdown semantics.
+HyperMarkDown. CommonMark constructs keep their meaning unless their bytes
+form a HyperMarkDown construct, and some text CommonMark treats as literal
+gains HyperMarkDown semantics.
 
-Hyper-markdown is Markdown with **wiki** links, **html** richness, and more added.
+HyperMarkDown is Markdown with **wiki** links, **html** richness, and more added.
 Everything you already know about Markdown constructs stays true. Rename a
 `.md` file to `.hmd` and it remains syntactically valid, but existing text such
 as `[[foo]]` or a leading frontmatter-shaped block can gain the meanings taught
@@ -142,7 +142,7 @@ def resolve(name: str) -> Page:
 ```
 
 Fenced blocks are **literal**. Nothing inside one is interpreted — not Markdown,
-and not any of the hyper-markdown syntax below. That is how this page is able to
+and not any of the HyperMarkDown syntax below. That is how this page is able to
 show you syntax without using it, and it is the escape hatch to reach for
 whenever you need to write a construct rather than invoke one.
 
@@ -158,15 +158,15 @@ Renders as:
 
 ---
 
-None of this is hyper-markdown's. It is CommonMark 0.31.2, it is specified
+None of this is HyperMarkDown's. It is CommonMark 0.31.2, it is specified
 better at <https://spec.commonmark.org/0.31.2/> than it could be here, and
-hyper-markdown neither redefines nor restricts it. Where this page and that
+HyperMarkDown neither redefines nor restricts it. Where this page and that
 specification disagree about inherited syntax, that specification is right.
 
 ## The syntax you inherit from the wider Markdown world
 
-A second tier sits between CommonMark and the constructs hyper-markdown defines:
-they are not in CommonMark 0.31.2, they are not hyper-markdown's either, and they
+A second tier sits between CommonMark and the constructs HyperMarkDown defines:
+they are not in CommonMark 0.31.2, they are not HyperMarkDown's either, and they
 have become conventional across GitHub, Obsidian, Pandoc, and most documentation
 tools. They are assumed available, and they behave the way you expect them to.
 Same shape as before: the source, then what it produces.
@@ -271,7 +271,7 @@ between them:
 ````markdown
 ```d2
 direction: right
-markdown -> hyper-markdown: adds a graph
+markdown -> HyperMarkDown: adds a graph
 ```
 ````
 
@@ -279,7 +279,7 @@ Renders as:
 
 ```d2
 direction: right
-markdown -> hyper-markdown: adds a graph
+markdown -> HyperMarkDown: adds a graph
 ```
 
 The diagram lives in the file, in version control, and in a diff you can read.
@@ -291,9 +291,9 @@ change; the syntax above is what you write either way. If you need the current
 implementation — which library, which version, what is gated by which test —
 that is [[hmd-feature-list]], which keeps implementation status off this page.
 
-## The syntax hyper-markdown adds
+## The syntax HyperMarkDown adds
 
-Here is the part hyper-markdown defines, and the reason it exists. Six
+Here is the part HyperMarkDown defines, and the reason it exists. Six
 constructs, and they are all variations on one idea: **naming another card, or a
 part of one.**
 
@@ -430,7 +430,7 @@ The rule, pulled in rather than repeated:
 
 ## How a reference is found
 
-This is the part that makes hyper-markdown feel like a language rather than a
+This is the part that makes HyperMarkDown feel like a language rather than a
 convention: card references are resolved by rules you can predict. The form you
 write determines which rules apply.
 
@@ -670,7 +670,7 @@ the root, is malformed, or has multiple autodiscovery matches is an **error**.
 Ordered wildcard imports use declaration precedence and report shadowing as
 HMD016.
 
-Everything else about a card is left alone. Hyper-markdown checks the graph and
+Everything else about a card is left alone. HyperMarkDown checks the graph and
 nothing more: it has no opinion on your prose, your headings, or your Markdown.
 
 ## What is not here

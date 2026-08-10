@@ -54,11 +54,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand("hyperMarkdown.togglePin", () => {
       const preview = PreviewPanel.active;
       if (preview === undefined) {
-        void vscode.window.setStatusBarMessage("Hyper-Markdown: no preview tab is focused", 2000);
+        void vscode.window.setStatusBarMessage("HyperMarkDown: no preview tab is focused", 2000);
         return;
       }
       void vscode.window.setStatusBarMessage(
-        preview.togglePin() ? "Hyper-Markdown: preview pinned" : "Hyper-Markdown: preview following",
+        preview.togglePin() ? "HyperMarkDown: preview pinned" : "HyperMarkDown: preview following",
         2000,
       );
     }),
@@ -89,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await store.initialize();
   } catch (exc) {
     void vscode.window.showErrorMessage(
-      `Hyper-Markdown could not index this workspace: ${
+      `HyperMarkDown could not index this workspace: ${
         exc instanceof Error ? exc.message : String(exc)
       }`,
     );

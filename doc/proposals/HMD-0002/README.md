@@ -6,7 +6,7 @@
 
 ## Abstract
 
-This proposal maps a hyper-markdown namespace onto a MkDocs site. It pins the
+This proposal maps a HyperMarkDown namespace onto a MkDocs site. It pins the
 output URL for a card, derives the nav from the namespace tree with an optional
 `nav` frontmatter key, fixes embed expansion at `on_page_markdown` so the `toc`
 extension sees the finished document, and defines how unresolved links and plain
@@ -160,10 +160,10 @@ detection, which the plugin inherits rather than reimplements.
 
 ## Reference Implementation
 
-- `tools/hmd/src/hyper_markdown/embed.py` — expansion, cycle detection, depth limit
-- `tools/hmd/src/hyper_markdown/render/flat.py` — the flat-markdown emitter
-- `tools/hmd/src/hyper_markdown/mkdocs_plugin.py` — `on_files`, nav, `on_page_markdown`
-- `tools/hmd/src/hyper_markdown/urls.py` — §1, the one place a URL is computed
+- `tools/hmd/src/hypermarkdown/embed.py` — expansion, cycle detection, depth limit
+- `tools/hmd/src/hypermarkdown/render/flat.py` — the flat-markdown emitter
+- `tools/hmd/src/hypermarkdown/mkdocs_plugin.py` — `on_files`, nav, `on_page_markdown`
+- `tools/hmd/src/hypermarkdown/urls.py` — §1, the one place a URL is computed
 - `pyproject.toml` — `[project.entry-points."mkdocs.plugins"]`
 
 No `render/markdown_ext.py`. Once §3 fixed expansion at `on_page_markdown`, a

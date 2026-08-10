@@ -14,7 +14,7 @@ of cards, addressable as a whole: a project's own tree is its default
 namespace, unnamed because nothing yet needs to be told apart from it, and any
 other tree becomes reachable by binding a namespace ID to whatever provides it
 — a folder, a server, or anything else able to resolve and serve
-hyper-markdown for that ID, static or dynamic, local or remote. A card names a
+HyperMarkDown for that ID, static or dynamic, local or remote. A card names a
 page in another namespace with the form `namespace:path/to/card`, a namespace
 ID in front of the path resolution HMD-0001 already defines. The binding is
 declared in the project's own `.hmd/config.toml` and never inferred from a
@@ -25,7 +25,7 @@ constraints any future mechanism for either must satisfy.
 
 ## Motivation
 
-Hyper-markdown is named for hypertext, and a single tree resolved against
+HyperMarkDown is named for hypertext, and a single tree resolved against
 itself is not yet hypertext in the sense the name claims — it is one document
 with good internal cross-references, not a web of documents. Three things push
 this record to exist now, even unbuilt:
@@ -108,7 +108,7 @@ already has one: its own tree, the default namespace, unnamed because there is
 nothing yet to tell it apart from. A namespace that is *not* the project's own
 becomes addressable by binding a **namespace ID** to whatever provides that
 tree — a **namespace provider**, meaning anything able to resolve and serve
-hyper-markdown for that ID, static or dynamic. A project's published site is
+HyperMarkDown for that ID, static or dynamic. A project's published site is
 already an unnamed instance: its MkDocs build is a static-enough provider,
 serving the default namespace out of the project's own tree — the right tool
 for exactly that job today. What this record adds is that the binding does not
@@ -122,7 +122,7 @@ have to be singular, local, or fixed:
   tree at all.
 - The binding from an ID to a provider MAY be **static** — a fixed table
   mapping an ID to a location — or **dynamic** — resolved at request or build
-  time by something that understands hyper-markdown well enough to serve it.
+  time by something that understands HyperMarkDown well enough to serve it.
   Both satisfy the same address form; which one backs a given ID is a
   deployment detail a card's links never need to know.
 - Rebinding a namespace ID to a different provider MUST NOT change the meaning

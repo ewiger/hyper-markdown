@@ -1,6 +1,6 @@
 /**
  * Frontmatter and the three reserved keys (HMD-0001 §2, §5.3) — a port of
- * `tools/hmd/src/hyper_markdown/frontmatter.py`.
+ * `tools/hmd/src/hypermarkdown/frontmatter.py`.
  *
  * `tags`, `use`, and `import` are reserved for the toolchain. The set is closed
  * and enumerated here; every other key stays user-owned and unexamined (P3).

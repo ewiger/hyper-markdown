@@ -1,6 +1,6 @@
 # Conformance corpus
 
-Language-neutral fixtures shared by every implementation of hyper-markdown.
+Language-neutral fixtures shared by every implementation of HyperMarkDown.
 Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md) §10.
 
 This corpus is what replaces principle P5 (*one implementation*). Two
@@ -9,7 +9,7 @@ this is the something.
 
 ## Canonicity
 
-The Python package under [`tools/hmd/src/hyper_markdown/`](../../tools/hmd/src/hyper_markdown/) is
+The Python package under [`tools/hmd/src/hypermarkdown/`](../../tools/hmd/src/hypermarkdown/) is
 **canonical**. Where implementations disagree on a case this corpus covers,
 Python defines the correct answer and the other implementation carries the bug.
 Canonicity is about arbitration, not quality: it exists so that "which one is
@@ -47,9 +47,9 @@ leaks into the contract.
 ## Runners
 
 - **TypeScript** — `tools/hmd-ts-core/test/corpus.test.ts`, part of
-  `npm run -w @hyper-markdown/core test`.
+  `npm run -w @hypermarkdown/core test`.
 - **Python** — not yet written; it belongs to the branch that owns
-  `tools/hmd/src/hyper_markdown/` and `tools/hmd/tests/`.
+  `tools/hmd/src/hypermarkdown/` and `tools/hmd/tests/`.
 
 ## The ledger
 

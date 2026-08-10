@@ -46,7 +46,7 @@ export function buildShell(options: ShellOptions): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="${options.katexUri}" rel="stylesheet">
 <link href="${options.styleUri}" rel="stylesheet">
-<title>Hyper-Markdown</title>
+<title>HyperMarkDown</title>
 </head>
 <body>
 <header class="hmd-chrome">

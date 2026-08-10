@@ -1,4 +1,4 @@
-# Changelog — `hyper-markdown` (the `hmd` command)
+# Changelog — `hypermarkdown` (the `hmd` command)
 
 Notable changes to the Python tool, newest first. This file covers **this
 distribution only** — the version on PyPI, the `hmd` CLI, the library, and the
@@ -13,8 +13,20 @@ only for the Python API.
 
 ## [Unreleased]
 
-### Added
+## [0.2.0] — 2026-08-10
 
+**The distribution is renamed.** `pip install hypermarkdown` replaces
+`pip install hyper-markdown`, and the import package is `hypermarkdown` rather
+than `hyper_markdown`. PyPI has no rename, so this is a new project: `0.1.1`
+stays installable under the old name, receives no further release, and is
+retired deliberately later.
+
+A minor bump rather than a patch, for two reasons that are about `.hmd` sources
+and about the library rather than about the name: `nav` becomes a mapping, and
+the import package moves. Under this project's `0.x` rule a minor release is
+where the format is allowed to move, so that is where these belong.
+
+### Added
 - **`nav.visibility` gates publication, and the default is private.** A card
   reaches a built site only with `nav: {visibility: public}`; absent that there
   is no page and no URL. Visibility inherits the way `use` does — the card, then
@@ -31,6 +43,19 @@ only for the Python API.
   blocked link gets.
 
 ### Changed
+- **The MkDocs plugin key is `hypermarkdown`.** The old `hyper-markdown` key is
+  retained as an alias resolving to the same class, so an existing `mkdocs.yml`
+  keeps building untouched — that key is the one renamed identifier that appears
+  inside files this project does not own, and dropping it would be a hard build
+  failure whose cause the site's author never saw. `hypermarkdown` is the
+  supported spelling; the alias is a compatibility measure with an end date yet
+  to be set.
+- **`import hyper_markdown` becomes `import hypermarkdown`.** No alias is
+  provided here. The library API was never the documented interface — the `hmd`
+  command and the plugin key were — and the package is `0.x`.
+- The project's name is written **HyperMarkDown** in prose and `hypermarkdown`
+  in identifiers, its site is `hypermarkdown.org`, and its repository is
+  `github.com/ewiger/hypermarkdown`.
 
 - **`nav` is a mapping, not an integer.** `nav: 10` becomes
   `nav: {order: 10}`; the known keys are `order` and `visibility`. Ordering was
@@ -190,6 +215,7 @@ Deliberate, and tracked per proposal under `doc/proposals/HMD-NNNN/STATUS.md`:
 Both specifications — the format and the site — are still `drafted`. Expect the
 format to move before `1.0`.
 
-[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/ewiger/hyper-markdown/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/ewiger/hyper-markdown/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ewiger/hypermarkdown/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ewiger/hypermarkdown/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/ewiger/hypermarkdown/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/ewiger/hypermarkdown/releases/tag/v0.1.0

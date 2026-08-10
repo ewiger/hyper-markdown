@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
+<img src="https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
 
-# hyper-markdown
+# HyperMarkDown
 
 **Build your own local wiki knowledge base**
 
-[![Documentation](https://img.shields.io/badge/docs-hyper--markdown.org-ffb300)](https://hyper-markdown.org/)
-[![Spec](https://img.shields.io/badge/spec-0.1-blue)](https://hyper-markdown.org/wiki/hmd-lang-spec/)
-[![CI](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/)
+[![Spec](https://img.shields.io/badge/spec-0.1-blue)](https://hypermarkdown.org/wiki/hmd-lang-spec/)
+[![CI](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
 
-📖 **[hyper-markdown.org](https://hyper-markdown.org/) — the documentation.**
+📖 **[hypermarkdown.org](https://hypermarkdown.org/) — the documentation.**
 What the format is, why it exists, and every construct in it. Start there.
 
-Hyper-markdown (`.hmd`) is ordinary markdown plus links to knowledge graph: you
+HyperMarkDown (`.hmd`) is ordinary markdown plus links to knowledge graph: you
 write the *name* of a card and it is resolved for you, a card can be built out of
 other cards, and a linter checks the whole graph. Every `.md` file is already
 valid `.hmd`, so a tree is adopted one rename at a time.
@@ -38,17 +38,17 @@ Each carries its own version, README, changelog, and license.
 
 ### [`hmd`](tools/hmd/) — the CLI, the library, the MkDocs plugin
 
-[![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
-[![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
+[![PyPI](https://img.shields.io/pypi/v/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
+[![Python versions](https://img.shields.io/pypi/pyversions/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd-informational)](tools/hmd/CHANGELOG.md)
 
 The Python line, published to PyPI as
-[`hyper-markdown`](https://pypi.org/project/hyper-markdown/): the `hmd` command
+[`hypermarkdown`](https://pypi.org/project/hypermarkdown/): the `hmd` command
 (`lint`, `render`, `graph`), the library under it, and a MkDocs plugin that
 builds a tree of cards into a website. **Canonical** — where two implementations
 disagree, this one defines the answer. It will also host the language server.
 
-### [`@hyper-markdown/core`](tools/hmd-ts-core/) — the TypeScript implementation
+### [`@hypermarkdown/core`](tools/hmd-ts-core/) — the TypeScript implementation
 
 [![npm](https://img.shields.io/badge/npm-not%20yet%20published-lightgrey)](tools/hmd-ts-core/README.md)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-5fa04e)](tools/hmd-ts-core/DEVELOP.md)
@@ -59,9 +59,9 @@ same [conformance corpus](examples/conformance/) the canonical tool does.
 
 ### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hyper-markdown.hmd-vsc-ext.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext)
-[![Open VSX](https://img.shields.io/open-vsx/v/hyper-markdown/hmd-vsc-ext?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext)
-[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hyper-markdown.org/tools/vscode/)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd-vsc-ext.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
+[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd-vsc-ext?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext)
+[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hypermarkdown.org/tools/vscode/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
 Live preview that keeps the embed boundary visible, backlinks, red links, and
@@ -70,12 +70,12 @@ there is nothing to install to see a card. Completion and the rest of the
 language-server features arrive with the Python server.
 
 ```
-ext install hyper-markdown.hmd-vsc-ext
+ext install hypermarkdown.hmd-vsc-ext
 ```
 
 ![The VS Code extension previewing a card: source on the left, rendered card on
 the right, with resolved links, a table, a callout, and a d2
-diagram.](https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/assets/hmd-vsc-ext-screenshot-1.png)
+diagram.](https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/assets/hmd-vsc-ext-screenshot-1.png)
 
 ## What else is in here
 
@@ -90,7 +90,7 @@ diagram.](https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/asset
 
 - **[DEVELOP.md](DEVELOP.md)** — the language and the website: how the
   documentation tree is organised, the four versions, and how
-  hyper-markdown.org is published. Read this first.
+  hypermarkdown.org is published. Read this first.
 - **A tool's own guide** for its code — [the Python
   tool](tools/hmd/DEVELOP.md), [the TypeScript
   core](tools/hmd-ts-core/DEVELOP.md), [the
@@ -113,8 +113,8 @@ Python tool ships. The sync installs that toolchain; the serve gives you a local
 preview on `127.0.0.1:8000` that rebuilds as you edit.
 
 ```bash
-git clone https://github.com/ewiger/hyper-markdown
-cd hyper-markdown
+git clone https://github.com/ewiger/hypermarkdown
+cd HyperMarkDown
 uv sync --locked      # MkDocs, the plugin, and the `hmd` command
 uv run mkdocs serve   # preview the book and the wiki as you write
 ```
@@ -134,7 +134,7 @@ npm install && npm test    # the TypeScript tools
 
 ## Feature requests, issues and PRs
 Feature requests, issues and PRs are welcome at
-[GitHub issues](https://github.com/ewiger/hyper-markdown/issues).
+[GitHub issues](https://github.com/ewiger/hypermarkdown/issues).
 Once accepted, a PR should be merged into the `main` branch, and the issue closed. Again, **Kanban board** - in `doc/issues/**`, for the contributors (or agents) to track the progress of the issue and the PR internally.
 
 ## License

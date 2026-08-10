@@ -9,7 +9,7 @@
 
 import * as vscode from "vscode";
 
-import { IR_VERSION, SUFFIX } from "@hyper-markdown/core";
+import { IR_VERSION, SUFFIX } from "@hypermarkdown/core";
 
 import { createCard } from "../commands/createCard.js";
 import {

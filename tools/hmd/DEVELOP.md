@@ -55,7 +55,7 @@ uv run hmd lint --root doc/wiki --strict            # this repo's own wiki
 uv run hmd lint --root examples/small               # exactly one warning
 uv run hmd lint --root examples/cs-alg-sorting --strict
 uv run mkdocs build --strict                        # the second consumer
-uv build --package hyper-markdown && uvx twine check --strict dist/*
+uv build --package HyperMarkDown && uvx twine check --strict dist/*
 ```
 
 The `hmd lint` calls are dogfooding gates. `examples/small` is deliberately *not*
@@ -75,7 +75,7 @@ the configuration.
 ## The library's shape
 
 ```text
-src/hyper_markdown/
+src/hypermarkdown/
   scan.py          masking, fences, offsets — text in, spans out
   parse.py         the grammar of HMD-0001; never throws on partial input
   frontmatter.py   `tags`, `use`, `import`, `nav`; HMD013 for a bad value
@@ -123,7 +123,7 @@ that installs from the lock.
 ## Packaging
 
 ```bash
-uv build --package hyper-markdown
+uv build --package HyperMarkDown
 uvx twine check --strict dist/*
 ```
 
@@ -159,7 +159,7 @@ CI is for, and any change to the package layout needs it run.
 1. Promote `Unreleased` in [`CHANGELOG.md`](CHANGELOG.md) to the new number and
    date it.
 2. Bump `__version__` in
-   [`src/hyper_markdown/__init__.py`](src/hyper_markdown/__init__.py) — the only
+   [`src/hypermarkdown/__init__.py`](src/hypermarkdown/__init__.py) — the only
    place a version literal exists. `pyproject.toml` derives its own from it, and
    `tests/test_cli.py` fails if the two disagree or if the changelog has no
    section for the number.
@@ -167,8 +167,8 @@ CI is for, and any change to the package layout needs it run.
 4. Tag `main` and push the tag; the tag is what publishes.
 
 ```bash
-git tag -a v0.1.2 -m "hyper-markdown 0.1.2"
-git push origin v0.1.2
+git tag -a v0.2.0 -m "HyperMarkDown 0.2.0"
+git push origin v0.2.0
 ```
 
 [`release.yml`](../../.github/workflows/release.yml) rebuilds from the tagged
@@ -188,7 +188,7 @@ Two things must be configured outside the repository before the first publish, a
 neither can be done from a commit:
 
 - **A PyPI trusted publisher** for the project, pointing at owner `ewiger`,
-  repository `hyper-markdown`, workflow `release.yml`, environment `pypi`.
+  repository `HyperMarkDown`, workflow `release.yml`, environment `pypi`.
   Publication authenticates by OIDC rather than with a stored API token, so there
   is no secret to leak — and no upload at all until the publisher exists. A
   missing one shows up as a `403` on an otherwise green run.

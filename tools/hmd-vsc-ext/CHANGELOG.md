@@ -1,12 +1,12 @@
-# Changelog — Hyper-Markdown for VS Code
+# Changelog — HyperMarkDown for VS Code
 
 Notable changes to the extension, newest first. This file covers **the extension
 only**; the parser, resolver, and renderer under it are
-[`@hyper-markdown/core`](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-ts-core/CHANGELOG.md),
+[`@hypermarkdown/core`](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/CHANGELOG.md),
 and the `hmd` CLI is
-[`hyper-markdown`](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/CHANGELOG.md)
+[`hypermarkdown`](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/CHANGELOG.md)
 on PyPI.
-[The repository's index](https://github.com/ewiger/hyper-markdown/blob/main/CHANGELOG.md)
+[The repository's index](https://github.com/ewiger/hypermarkdown/blob/main/CHANGELOG.md)
 lists all three.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
@@ -15,16 +15,16 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 The extension carries **its own version**, independent of the language's and of
 the `hmd` tool's, and is released on its own tag — `vsc-ext-vX.Y.Z`, where the
 Python tool uses `vX.Y.Z`. Implementation state is tracked per work point in
-[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hyper-markdown/blob/main/doc/vsc-ext/STATUS.md),
+[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hypermarkdown/blob/main/doc/vsc-ext/STATUS.md),
 against
-[HMD-0021](https://github.com/ewiger/hyper-markdown/blob/main/doc/proposals/HMD-0021/README.md).
+[HMD-0021](https://github.com/ewiger/hypermarkdown/blob/main/doc/proposals/HMD-0021/README.md).
 
 ## [Unreleased]
 
 ## [0.1.0] — 2026-08-10
 
 First public release, on the VS Marketplace and Open VSX as
-`hyper-markdown.hmd-vsc-ext`. Flagged **preview**: the preview surface is
+`hypermarkdown.hmd-vsc-ext`. Flagged **preview**: the preview surface is
 complete and gated by tests, the graph tab and the publication model are not
 built yet, and the flag comes off when they are.
 
@@ -74,8 +74,9 @@ built yet, and the flag comes off when they are.
 
 ### Changed
 
-- **Renamed from `vscode-hyper-markdown` to `hmd-vsc-ext`**, making the
-  marketplace identifier `hyper-markdown.hmd-vsc-ext`. That identifier is
+- **Renamed from `vscode-hyper-markdown` to `hmd-vsc-ext`**, published under the
+  `hypermarkdown` publisher, making the marketplace identifier
+  `hypermarkdown.hmd-vsc-ext`. That identifier is
   permanent from the first publish — renaming afterwards means a second listing
   and every install of the first one stranded on it — so the rename was taken
   while nothing was published. Only the identity moved: the displayed name, the
@@ -98,5 +99,5 @@ built yet, and the flag comes off when they are.
   card being published and never warns about a public card linking to a private
   one.
 
-[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/vsc-ext-v0.1.0...HEAD
-[0.1.0]: https://github.com/ewiger/hyper-markdown/releases/tag/vsc-ext-v0.1.0
+[Unreleased]: https://github.com/ewiger/hypermarkdown/compare/vsc-ext-v0.1.0...HEAD
+[0.1.0]: https://github.com/ewiger/hypermarkdown/releases/tag/vsc-ext-v0.1.0

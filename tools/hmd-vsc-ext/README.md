@@ -1,43 +1,43 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
+<img src="https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
 
-# Hyper-Markdown for VS Code
+# HyperMarkDown for VS Code
 
-[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hyper-markdown.hmd-vsc-ext.svg?color=ffb300&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext)
-[![Installs](https://vsmarketplacebadges.dev/installs-short/hyper-markdown.hmd-vsc-ext.svg?color=555555&label=installs)](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext)
-[![Open VSX](https://img.shields.io/open-vsx/v/hyper-markdown/hmd-vsc-ext?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext)
-[![Documentation](https://img.shields.io/badge/docs-hyper--markdown.org-ffb300)](https://hyper-markdown.org/tools/vscode/)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hypermarkdown.hmd-vsc-ext.svg?color=ffb300&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/hypermarkdown.hmd-vsc-ext.svg?color=555555&label=installs)](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext)
+[![Open VSX](https://img.shields.io/open-vsx/v/hypermarkdown/hmd-vsc-ext?color=ffb300&label=open%20vsx)](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext)
+[![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/tools/vscode/)
 
 </div>
 
-Live preview for [hyper-markdown](https://hyper-markdown.org/) (`.hmd`)
+Live preview for [HyperMarkDown](https://hypermarkdown.org/) (`.hmd`)
 knowledge bases: source on the left, the rendered card on the right, keeping up
 as you type.
 
 ![The extension previewing a card: source on the left, rendered card on the
-right, with resolved links, a table, a callout, and a d2 diagram.](https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/assets/hmd-vsc-ext-screenshot-1.png)
+right, with resolved links, a table, a callout, and a d2 diagram.](https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/assets/hmd-vsc-ext-screenshot-1.png)
 
-Hyper-markdown is ordinary markdown plus links into a knowledge graph: you write
+HyperMarkDown is ordinary markdown plus links into a knowledge graph: you write
 the *name* of a card and it is resolved for you, a card can be built out of other
 cards, and a linter checks the whole graph. Every `.md` file is already valid
 `.hmd`. The format itself — every construct, the resolution rules, the rule IDs —
-is documented at [hyper-markdown.org](https://hyper-markdown.org/). This page is
+is documented at [hypermarkdown.org](https://hypermarkdown.org/). This page is
 about the extension.
 
 ## Install
 
 ```
-ext install hyper-markdown.hmd-vsc-ext
+ext install hypermarkdown.hmd-vsc-ext
 ```
 
 - **VS Code** —
-  [the marketplace listing](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext),
-  or search *Hyper-Markdown* in the Extensions view.
+  [the marketplace listing](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext),
+  or search *HyperMarkDown* in the Extensions view.
 - **Cursor, Windsurf, VSCodium** —
-  [Open VSX](https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext).
+  [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext).
 - **From a VSIX** — every CI run attaches one, and each release carries it:
-  [releases](https://github.com/ewiger/hyper-markdown/releases?q=vsc-ext).
+  [releases](https://github.com/ewiger/hypermarkdown/releases?q=vsc-ext).
 
 Then open any `.hmd` file and click the ⚡ at the top right of the editor.
 Nothing else is required: no interpreter, no virtualenv, no configuration.
@@ -68,7 +68,7 @@ The extension is the preview and the viewer, and it carries its own
 implementation of the format for them. Nothing has to be installed to render a
 card: no interpreter to find, no virtualenv to activate, and no subprocess
 between a keystroke and the preview. The
-[`hmd` CLI](https://pypi.org/project/hyper-markdown/) remains the canonical
+[`hmd` CLI](https://pypi.org/project/hypermarkdown/) remains the canonical
 implementation and CI checks the two against a shared conformance corpus.
 
 Completion and the other language-server features are not here yet. They arrive
@@ -87,12 +87,12 @@ rendering without it.
 
 ## Commands
 
-- **Hyper-Markdown: Open Preview in This Column** — a preview tab in the editor
+- **HyperMarkDown: Open Preview in This Column** — a preview tab in the editor
 group you are in
-- **Hyper-Markdown: Open Preview to the Side** — the same, in the group beside it
-- **Hyper-Markdown: Pin Preview to This Card** — stop following the active editor
-- **Hyper-Markdown: Create Missing Card** — write the card a red link points at
-- **Hyper-Markdown: Rebuild Index** — re-scan the namespace root
+- **HyperMarkDown: Open Preview to the Side** — the same, in the group beside it
+- **HyperMarkDown: Pin Preview to This Card** — stop following the active editor
+- **HyperMarkDown: Create Missing Card** — write the card a red link points at
+- **HyperMarkDown: Rebuild Index** — re-scan the namespace root
 
 ## Where the preview appears
 
@@ -114,7 +114,7 @@ reload.
 ## Known gaps
 
 Every divergence from the canonical `hmd` CLI is ledgered with its reason in
-[`conformance-xfail.json`](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-ts-core/conformance-xfail.json),
+[`conformance-xfail.json`](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/conformance-xfail.json),
 and a ledgered entry that stops diverging fails the build. The ones worth knowing
 about while you write:
 
@@ -132,25 +132,25 @@ about while you write:
 - **The graph tab** is specified and not built yet.
 
 What has changed is in
-[CHANGELOG.md](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-vsc-ext/CHANGELOG.md);
+[CHANGELOG.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-vsc-ext/CHANGELOG.md);
 work points are tracked in
-[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hyper-markdown/blob/main/doc/vsc-ext/STATUS.md).
+[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hypermarkdown/blob/main/doc/vsc-ext/STATUS.md).
 Bugs and questions go to
-[the issue tracker](https://github.com/ewiger/hyper-markdown/issues).
+[the issue tracker](https://github.com/ewiger/hypermarkdown/issues).
 
 ## Working on it
 
 The extension is specified by
-[HMD-0021](https://github.com/ewiger/hyper-markdown/blob/main/doc/proposals/HMD-0021/README.md);
+[HMD-0021](https://github.com/ewiger/hypermarkdown/blob/main/doc/proposals/HMD-0021/README.md);
 the parser, resolver, and renderer come from
-[`@hyper-markdown/core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core),
+[`@hypermarkdown/core`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-ts-core),
 specified by
-[HMD-0020](https://github.com/ewiger/hyper-markdown/blob/main/doc/proposals/HMD-0020/README.md).
-[DEVELOP.md](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-vsc-ext/DEVELOP.md)
+[HMD-0020](https://github.com/ewiger/hypermarkdown/blob/main/doc/proposals/HMD-0020/README.md).
+[DEVELOP.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-vsc-ext/DEVELOP.md)
 is the contributor's guide: the two bundles, the Extension Development Host,
 what to walk through by hand, and how the VSIX is built and published.
 
 ## License
 
 MIT — see
-[LICENSE](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-vsc-ext/LICENSE).
+[LICENSE](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-vsc-ext/LICENSE).

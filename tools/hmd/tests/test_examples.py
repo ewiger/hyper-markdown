@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from hyper_markdown.lint import check, summarize
-from hyper_markdown.resolve import Outcome
+from hypermarkdown.lint import check, summarize
+from hypermarkdown.resolve import Outcome
 
 
 def resolve(ws, source: str, ref: str):
@@ -92,9 +92,9 @@ def test_masked_comment_produces_no_edge(example_workspace):
 
 
 def test_lint_is_deterministic_across_runs(example_workspace):
-    from hyper_markdown import config
-    from hyper_markdown.lint import format_json
-    from hyper_markdown.resolve import Workspace
+    from hypermarkdown import config
+    from hypermarkdown.lint import format_json
+    from hypermarkdown.resolve import Workspace
 
     other = Workspace(config.load(root_override=example_workspace.root))
     assert format_json(check(example_workspace)) == format_json(check(other))

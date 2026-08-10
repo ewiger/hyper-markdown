@@ -54,7 +54,7 @@
 }
 
 /* The cover's opening line is a claim, not a paragraph — "Markdown is
-   JavaScript. Hyper-markdown is TypeScript." earns the size. The cover opts in
+   JavaScript. HyperMarkDown is TypeScript." earns the size. The cover opts in
    by tagging its own heading, so no chapter picks up a hero it did not ask
    for. */
 .md-typeset h1.hmd-hero {

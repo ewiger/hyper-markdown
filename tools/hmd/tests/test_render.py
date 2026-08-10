@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from hyper_markdown.render import flat
+from hypermarkdown.render import flat
 
 
 def page(ws, rel):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from hyper_markdown import scan
+from hypermarkdown import scan
 
 
 def links(text: str) -> list[str]:

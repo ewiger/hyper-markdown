@@ -140,7 +140,7 @@ describe("which card a panel holds", () => {
 
     PreviewPanel.open(store, extensionUri, { column: vscode.ViewColumn.Active });
     const tab = openPanels()[0]?.panel as unknown as { title: string };
-    expect(tab.title).toBe("Hyper-Markdown Preview");
+    expect(tab.title).toBe("HyperMarkDown Preview");
 
     stub.window.activeTextEditor = editorFor("notes/beta.hmd");
     stub.window.activeEditorChanged.fire();
@@ -151,7 +151,7 @@ describe("which card a panel holds", () => {
     const store = fakeStore();
     const panel = new (vscode as unknown as {
       WebviewPanelStub: new (title: string) => unknown;
-    }).WebviewPanelStub("Hyper-Markdown Preview") as vscode.WebviewPanel;
+    }).WebviewPanelStub("HyperMarkDown Preview") as vscode.WebviewPanel;
 
     PreviewPanel.restore(panel, store, extensionUri, { card: "notes/gamma.hmd" });
     expect(panel.title).toBe("gamma");

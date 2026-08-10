@@ -57,5 +57,5 @@ ordinary agent context without a separate ignore list.
 
 The design layer under `doc/models/` declares *what* the system is; proposals
 record *decisions*; the Kanban board tracks the *work in flight* that moves a
-model or proposal toward code under `src/`. See [[hyper-markdown]] for the card
+model or proposal toward code under `src/`. See [[hypermarkdown]] for the card
 format this convention is written in.

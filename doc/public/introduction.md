@@ -20,7 +20,7 @@ wikilinks and frontmatter — acquire HMD semantics.
 
 **The rich layer.** Tables, footnotes, task lists, callouts, TeX mathematics,
 D2 diagrams. None of these are original Markdown, and none are
-hyper-markdown's own — they are the conventional tier the wider Markdown world
+HyperMarkDown's own — they are the conventional tier the wider Markdown world
 settled on, and the format assumes them present and renders them as
 first-class content:
 
@@ -29,7 +29,7 @@ first-class content:
     So is $e^{i\pi} + 1 = 0$ beside it. What a page can carry, shown working,
     is [Features](features.md).
 
-**The hyper layer.** What hyper-markdown itself adds, and the part that is
+**The hyper layer.** What HyperMarkDown itself adds, and the part that is
 genuinely new. It is all variations on one idea — *naming another card, or a
 part of one*:
 
@@ -42,7 +42,7 @@ part of one*:
 | `[[card#^name]]` | a link to that named block |
 | `![[…]]` | an embed — any of the above, spliced in |
 
-The surface hyper-markdown defines is small enough to specify and small enough
+The surface HyperMarkDown defines is small enough to specify and small enough
 that the resolver behind it stays checkable. The
 richness comes from everywhere else on the page, bought from the Markdown
 ecosystem rather than rebuilt, which is why the feature set keeps growing

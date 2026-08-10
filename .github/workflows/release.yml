@@ -51,7 +51,7 @@ jobs:
           tagged="${GITHUB_REF_NAME#v}"
           packaged=$(uv run --no-project python -c "
           import pathlib, re
-          source = pathlib.Path('tools/hmd/src/hyper_markdown/__init__.py').read_text()
+          source = pathlib.Path('tools/hmd/src/hypermarkdown/__init__.py').read_text()
           print(re.search(r'__version__ = \"([^\"]+)\"', source).group(1))
           ")
           echo "tag=$tagged packaged=$packaged"
@@ -67,7 +67,7 @@ jobs:
       # far as PyPI will take it, so the flag is what makes a layout mistake
       # loud instead of publishable.
       - name: Build
-        run: uv build --package hyper-markdown
+        run: uv build --package hypermarkdown
 
       # `twine check --strict` reads the metadata the way PyPI will, which is
       # the difference between finding a broken long description now and finding
@@ -87,9 +87,13 @@ jobs:
           /tmp/smoke/bin/hmd --version
           /tmp/smoke/bin/python -c "
           from importlib.metadata import entry_points
-          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
-          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
-          print('mkdocs plugin entry point resolves')
+          eps = entry_points(group='mkdocs.plugins')
+          # Both keys, because the retained 'hyper-markdown' alias is the one
+          # compatibility promise made to mkdocs.yml files we do not own. If it
+          # ever stops resolving, a stranger's site build breaks, not ours.
+          for key in ('hypermarkdown', 'hyper-markdown'):
+              assert eps[key].load().__name__ == 'HyperMarkDownPlugin', key
+          print('mkdocs plugin entry points resolve under both keys')
           "
 
       - uses: actions/upload-artifact@v7
@@ -104,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/hyper-markdown
+      url: https://test.pypi.org/p/hypermarkdown
     permissions:
       id-token: write
     steps:
@@ -126,12 +130,17 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/hyper-markdown
+      url: https://pypi.org/p/hypermarkdown
     # Trusted publishing: the job proves its identity to PyPI with a short-lived
     # OIDC token, so there is no API token in repository secrets to leak or
     # rotate. It requires a matching publisher configured on PyPI first — owner
-    # `ewiger`, repository `hyper-markdown`, workflow `release.yml`,
+    # `ewiger`, repository `hypermarkdown`, workflow `release.yml`,
     # environment `pypi` — and fails with a 403 until that exists.
+    #
+    # A publisher is pinned to all four of those and follows none of them when
+    # they change. The 2026-08-10 repository rename invalidated the original
+    # outright, which is a failure that surfaces only here, after a green build.
+    # Re-registered against the new repository and the new project name.
     permissions:
       id-token: write
     steps:

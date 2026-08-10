@@ -74,7 +74,7 @@ interface Ref {
   html: string;
 }
 
-/** A hyper-markdown renderer over one workspace. */
+/** A HyperMarkDown renderer over one workspace. */
 export class Renderer {
   private readonly md: MarkdownIt;
   private lineOffset = 1;

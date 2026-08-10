@@ -14,7 +14,7 @@
 
 ## Abstract
 
-This proposal defines the hyper-markdown MVP: a normative grammar for the six
+This proposal defines the HyperMarkDown MVP: a normative grammar for the six
 constructs the format owns (wikilinks, aliased links, heading links, block
 anchors, block references, and the three embed forms), a deterministic
 three-phase namespace resolver rooted at `doc/wiki` — an explicit import table,
@@ -88,7 +88,7 @@ every step that could otherwise depend on filesystem iteration order.
 
 ### 1. Parsing model
 
-Hyper-markdown source is scanned, not fully parsed as CommonMark. The scanner
+HyperMarkDown source is scanned, not fully parsed as CommonMark. The scanner
 extracts only the constructs the format owns and leaves everything else to the
 renderer.
 
@@ -119,7 +119,7 @@ block, or a fence opened inside a blockquote. This is accepted for the MVP
 because the construct set is small and the divergences are diagnosable; see
 Open Questions.
 
-**Status.** Implemented in `tools/hmd/src/hyper_markdown/scan.py`, with the masking rules
+**Status.** Implemented in `tools/hmd/src/hypermarkdown/scan.py`, with the masking rules
 covered by `tests/test_scan.py`.
 
 ### 2. Grammar
@@ -606,7 +606,7 @@ rather than a hard dependency, since it shells out to the `d2` binary.
 
 Nothing is released, so there is no API to break. Two content-level notes:
 
-- [`doc/wiki/hyper-markdown.hmd`](../../wiki/hyper-markdown.hmd) describes
+- [`doc/wiki/hypermarkdown.hmd`](../../wiki/hypermarkdown.hmd) describes
   resolution as "by filename alone, anywhere under `doc/wiki/`". The root sweep
   of §5.2 preserves that exactly for every uniquely-named card, so no existing
   link changes meaning. What §5 adds is a spine that gets first say — so a
@@ -662,7 +662,7 @@ they reuse M1–M2 wholesale and validate the model against a second consumer.
 ## Reference Implementation
 
 ```text
-tools/hmd/src/hyper_markdown/
+tools/hmd/src/hypermarkdown/
   model.py            Span, Document, Heading, Block, Anchor, Link, Embed
   scan.py             masking + construct extraction
   parse.py            source bytes -> Document
@@ -685,9 +685,10 @@ Packaging changes to `pyproject.toml`:
 - dependencies: `typer>=0.12`, `pyyaml>=6`, `markdown>=3.6`,
   `pymdown-extensions>=10`
 - extras: `mkdocs` → `mkdocs>=1.6`, `mkdocs-material>=9`, `mkdocs-d2-plugin`
-- `[project.scripts]`: `hmd = "hyper_markdown.cli:app"`
+- `[project.scripts]`: `hmd = "hypermarkdown.cli:app"`
 - `[project.entry-points."mkdocs.plugins"]`:
-  `hyper-markdown = "hyper_markdown.mkdocs_plugin:HyperMarkdownPlugin"`
+  `hypermarkdown = "hypermarkdown.mkdocs_plugin:HyperMarkDownPlugin"`, with the old
+  `HyperMarkDown` key retained as a compatibility alias
 
 ## Test Plan
 
@@ -801,7 +802,7 @@ excerpts versus block anchors (Q3), and the query grammar (Q6).
   name binding — resolution now probes the spine and then each imported origin
   with the same non-recursive step; precedence pinned as named import > spine >
   imported origin, giving the monotonicity property; HMD016 added
-- 2026-07-31: M1–M3 implemented under `tools/hmd/src/hyper_markdown/` with 141 tests.
+- 2026-07-31: M1–M3 implemented under `tools/hmd/src/hypermarkdown/` with 141 tests.
   Two corrections forced by the implementation: indented code blocks are no
   longer masked (§1), because `admonition` and `footnotes` overload the
   four-space indent and masking it dropped real links from the fixture; and

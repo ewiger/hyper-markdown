@@ -4,11 +4,11 @@ requires-python = ">=3.11"
 
 [manifest]
 members = [
-    "hyper-markdown",
+    "hypermarkdown",
 ]
 
 [manifest.dependency-groups]
-dev = [{ name = "hyper-markdown", extras = ["mkdocs", "dev"], editable = "tools/hmd" }]
+dev = [{ name = "hypermarkdown", extras = ["mkdocs", "dev"], editable = "tools/hmd" }]
 
 [[package]]
 name = "annotated-doc"
@@ -158,7 +158,7 @@ wheels = [
 ]
 
 [[package]]
-name = "hyper-markdown"
+name = "hypermarkdown"
 source = { editable = "tools/hmd" }
 dependencies = [
     { name = "markdown" },

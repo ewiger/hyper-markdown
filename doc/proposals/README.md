@@ -17,8 +17,9 @@ it continues at **`HMD-0100`**, leaving `0020`–`0099` to the editor line.
 | [HMD-0002](HMD-0002/README.md) | drafted | MkDocs book-mode rendering | [STATUS](HMD-0002/STATUS.md) |
 | [HMD-0003](HMD-0003/README.md) | drafted | HQL — the Hyper Query Language (stub, no syntax) | [STATUS](HMD-0003/STATUS.md) |
 | [HMD-0004](HMD-0004/README.md) | drafted | The hyper web — namespaces beyond one tree (stub, no mechanism) | [STATUS](HMD-0004/STATUS.md) |
-| [HMD-0020](HMD-0020/README.md) | drafted | `@hyper-markdown/core` — the TypeScript document model | [STATUS](../vsc-ext/STATUS.md) |
-| [HMD-0021](HMD-0021/README.md) | drafted | The VS Code extension — the hyper-markdown preview surface | [STATUS](../vsc-ext/STATUS.md) |
+| [HMD-0005](HMD-0005/README.md) | drafted | The HyperMarkDown rename — domain, repository, and registries | [STATUS](HMD-0005/STATUS.md) |
+| [HMD-0020](HMD-0020/README.md) | drafted | `@hypermarkdown/core` — the TypeScript document model | [STATUS](../vsc-ext/STATUS.md) |
+| [HMD-0021](HMD-0021/README.md) | drafted | The VS Code extension — the HyperMarkDown preview surface | [STATUS](../vsc-ext/STATUS.md) |
 | [HMD-0022](HMD-0022/README.md) | drafted | Diagrams as committed artifacts | [STATUS](../vsc-ext/STATUS.md) |
 | HMD-0023 | reserved | Searching the wiki from the preview | — |
 | [HMD-0024](HMD-0024/README.md) | drafted | The `tools/` layout, and a Python language server | [STATUS](HMD-0024/STATUS.md) |

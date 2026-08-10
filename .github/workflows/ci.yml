@@ -36,7 +36,7 @@ jobs:
       # `uv sync` with no flags is the whole install. The repository root is a
       # uv workspace root rather than a project, so it has no extras of its own
       # for `--all-extras` to act on; the `dev` dependency group in the root
-      # `pyproject.toml` names `hyper-markdown[mkdocs,dev]` and uv installs that
+      # `pyproject.toml` names `hypermarkdown[mkdocs,dev]` and uv installs that
       # group by default.
       #
       # `--locked` rather than a bare sync: it fails if `uv.lock` does not match
@@ -167,13 +167,13 @@ jobs:
       # no `[project]` table, and a bare `uv build` there does not fail — it
       # builds an empty `unknown-0.0.0` and reports success.
       - name: Build
-        run: uv build --package hyper-markdown
+        run: uv build --package hypermarkdown
 
       - name: Check the metadata
         run: uvx twine check --strict dist/*
 
       # Deliberately *not* installed from `uv.lock`. This step exists to
-      # exercise what a stranger gets from `pip install hyper-markdown[mkdocs]`,
+      # exercise what a stranger gets from `pip install hypermarkdown[mkdocs]`,
       # so it resolves fresh against the published ranges — which is the only
       # place a bad bound shows up before a user finds it.
       - name: Install the wheel and smoke-test it
@@ -184,7 +184,11 @@ jobs:
           /tmp/smoke/bin/hmd --version
           /tmp/smoke/bin/python -c "
           from importlib.metadata import entry_points
-          plugin = entry_points(group='mkdocs.plugins')['hyper-markdown']
-          assert plugin.load().__name__ == 'HyperMarkdownPlugin'
-          print('mkdocs plugin entry point resolves')
+          eps = entry_points(group='mkdocs.plugins')
+          # Both keys, because the retained 'hyper-markdown' alias is the one
+          # compatibility promise made to mkdocs.yml files we do not own. If it
+          # ever stops resolving, a stranger's site build breaks, not ours.
+          for key in ('hypermarkdown', 'hyper-markdown'):
+              assert eps[key].load().__name__ == 'HyperMarkDownPlugin', key
+          print('mkdocs plugin entry points resolve under both keys')
           "

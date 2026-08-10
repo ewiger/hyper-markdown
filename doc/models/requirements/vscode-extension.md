@@ -1,4 +1,4 @@
-# Hyper-markdown in the editor — Requirements
+# HyperMarkDown in the editor — Requirements
 
 **Status:** Draft v0.1 — design notes, nothing implemented
 **Source:** [`initial_sketch.md`](initial_sketch.md) §14 (requirements 87–97) and

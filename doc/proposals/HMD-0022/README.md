@@ -2,7 +2,7 @@
 
 **Status**: drafted
 **Created**: 2026-08-07
-**Source**: [Hyper-markdown in the editor — Requirements](../../models/requirements/vscode-extension.md) (VSX-016)
+**Source**: [HyperMarkDown in the editor — Requirements](../../models/requirements/vscode-extension.md) (VSX-016)
 
 ## Companion notes
 
@@ -140,8 +140,8 @@ in the editor for the same stated reason.
 use, which cannot complete in two seconds. That path alone takes a **20-second**
 ceiling. It is a property of the fallback, not of the format.
 
-The Python line implements these in `tools/hmd/src/hyper_markdown/diagram.py`; the
-TypeScript line exports them from `@hyper-markdown/core`. Both MUST name the
+The Python line implements these in `tools/hmd/src/hypermarkdown/diagram.py`; the
+TypeScript line exports them from `@hypermarkdown/core`. Both MUST name the
 same numbers in the same units, so a change here is a change to two files.
 
 ### 5. The boundary with the graph view
@@ -265,7 +265,7 @@ Unit tests MUST include:
 - A diagram carries a `data-line`, so it participates in scroll sync.
 
 ```bash
-npm run -w @hyper-markdown/core test
+npm run -w @hypermarkdown/core test
 npm run -w hmd-vsc-ext test
 ```
 

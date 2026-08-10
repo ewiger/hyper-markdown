@@ -2,11 +2,11 @@
 
 Every tool lives in its own directory under `tools/`:
 
-- `tools/hmd/` — the Python line, published to PyPI as `hyper-markdown`. Owns
+- `tools/hmd/` — the Python line, published to PyPI as `HyperMarkDown`. Owns
   its own `pyproject.toml`; the repository root is a uv workspace root, not a
-  distribution. Build the wheel with `uv build --package hyper-markdown` —
+  distribution. Build the wheel with `uv build --package HyperMarkDown` —
   a bare `uv build` at the root silently produces an empty `unknown-0.0.0`.
-- `tools/hmd-ts-core/` — `@hyper-markdown/core`, the TypeScript half of the
+- `tools/hmd-ts-core/` — `@hypermarkdown/core`, the TypeScript half of the
   conformance contract. A second implementation, not extension code.
 - `tools/hmd-vsc-ext/` — the VS Code extension.
 
@@ -19,7 +19,7 @@ Treat `doc/` as a modular knowledge base:
 
 - `doc/models/` declares the system through requirements, data, domain, and
   behavior lenses.
-- `doc/wiki/` contains hyper-markdown (`.hmd`) cards.
+- `doc/wiki/` contains HyperMarkDown (`.hmd`) cards.
 - `doc/issues/` is just a kanban board of work items with cards.
 - `doc/proposals/` holds numbered ADR/RFC-style technical specifications.
 - `doc/memory/` holds small real-time decisions.

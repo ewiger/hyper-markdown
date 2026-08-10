@@ -1,6 +1,6 @@
-# Hyper-markdown
+# HyperMarkDown
 
-**Hyper-markdown** (`.hmd`) is this project's most generic and most-used
+**HyperMarkDown** (`.hmd`) is this project's most generic and most-used
 knowledge format: plain Markdown extended with **wiki features**, above all
 `[[wikilinks]]` between cards. It is the default home for cross-linked, reusable
 explanations of a single idea, and every file under `doc/wiki/` is one such
@@ -54,7 +54,7 @@ document for an agent to apply.
 
 ## Where it is used
 
-Every card in `doc/wiki/` is hyper-markdown, including the [[kanban]] board
+Every card in `doc/wiki/` is HyperMarkDown, including the [[kanban]] board
 convention. It is one of the notations the project's design layer under
 `doc/models/` may be written in, alongside more formal specifications.
 

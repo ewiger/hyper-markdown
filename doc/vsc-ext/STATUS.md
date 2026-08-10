@@ -33,7 +33,7 @@ Python corpus runner are the next blocks.
 
 | # | Milestone | State | Gate |
 | --- | --- | --- | --- |
-| C1 | `@hyper-markdown/core` scaffold | **done** | `npm run -w @hyper-markdown/core typecheck` |
+| C1 | `@hypermarkdown/core` scaffold | **done** | `npm run -w @hypermarkdown/core typecheck` |
 | C2 | Scanner, grammar, slugs, frontmatter | **done** | `test/scan.test.ts`, `test/parse.test.ts` |
 | C3 | Four-phase resolver and workspace index | **done** | `test/resolve.test.ts` |
 | C4 | Lint rules HMD001–HMD016 | **done** | `test/parity.test.ts` |
@@ -51,7 +51,7 @@ Python corpus runner are the next blocks.
 
 ## Work points
 
-### C — `@hyper-markdown/core`
+### C — `@hypermarkdown/core`
 
 | ID | Work point | Spec | State |
 | --- | --- | --- | --- |
@@ -108,7 +108,7 @@ Python corpus runner are the next blocks.
 | E8.2 | README and CHANGELOG as the Details and Changelog tabs, links absolute | HMD-0024 | done |
 | E8.3 | `release-vsc-ext.yml`: one VSIX to Marketplace, Open VSX, and the release | §12 | done |
 | E8.4 | Publisher accounts, Marketplace trusted publishing, the `OVSX_PAT` secret | — | **blocked** — see below |
-| E8.5 | `hyper-markdown.org/tools/vscode/` landing page | — | done |
+| E8.5 | `hypermarkdown.org/tools/vscode/` landing page | — | done |
 
 ## Open
 
@@ -118,7 +118,7 @@ Python corpus runner are the next blocks.
     `@vscode/vsce@3.9.3-4 publish --oidc` with `id-token: write`, no stored
     credential.
   - Marketplace-side **Trusted Publishing is not publicly configurable** for the
-    `hyper-markdown` publisher. `vsce` shipped its half; the gallery has not
+    `HyperMarkDown` publisher. `vsce` shipped its half; the gallery has not
     exposed the policy UI, so the token exchange cannot complete.
   - The `marketplace` job is therefore **skipped**, gated on the repository
     variable `MARKETPLACE_TRUSTED_PUBLISHING`.
@@ -136,12 +136,12 @@ Python corpus runner are the next blocks.
 
   Open VSX is unaffected and publishes automatically; it still needs a GitHub
   login, the signed publisher agreement, and `ovsx create-namespace
-  hyper-markdown`, stored as `OVSX_PAT`. Until that secret exists a tag fails in
+  HyperMarkDown`, stored as `OVSX_PAT`. Until that secret exists a tag fails in
   the Open VSX job rather than in the build — the VSIX is still built, gated,
   and attached to the release, so a tag pushed early is recoverable.
 
   Two things worth taking at the same time and neither blocking: verifying the
-  domain `hyper-markdown.org` on the publisher, which is what puts the check
+  domain `hypermarkdown.org` on the publisher, which is what puts the check
   beside the name on the listing; and deciding whether the `preview` flag comes
   off at E6 (the graph tab) or at C4.2 (the publication model). Today it names
   both.

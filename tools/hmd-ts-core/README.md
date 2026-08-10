@@ -1,20 +1,20 @@
-# @hyper-markdown/core
+# @hypermarkdown/core
 
-Parser, resolver, and renderer for [hyper-markdown](https://github.com/ewiger/hyper-markdown),
+Parser, resolver, and renderer for [HyperMarkDown](https://github.com/ewiger/hypermarkdown),
 in TypeScript, with no Python and no editor API.
 
 Specified by [HMD-0020](../../doc/proposals/HMD-0020/README.md). The Python
 package under [`tools/hmd/`](../hmd/) is **canonical**: where the two disagree,
 Python is right and this one carries the bug.
 
-One of three tools in the [hyper-markdown monorepo](../../README.md); the format
-itself is documented at [hyper-markdown.org](https://hyper-markdown.org/). Not
+One of three tools in the [HyperMarkDown monorepo](../../README.md); the format
+itself is documented at [hypermarkdown.org](https://hypermarkdown.org/). Not
 published to npm yet — the VS Code extension resolves it from the workspace.
 
 ## Use
 
 ```ts
-import { MemoryHost, Renderer, Workspace, check } from "@hyper-markdown/core";
+import { MemoryHost, Renderer, Workspace, check } from "@hypermarkdown/core";
 
 const workspace = await Workspace.load(
   MemoryHost.from({
@@ -45,7 +45,7 @@ interface WorkspaceHost {
 
 ## The IR
 
-Ordinary GFM is an opaque HTML island; every hyper-markdown construct survives
+Ordinary GFM is an opaque HTML island; every HyperMarkDown construct survives
 as a typed node. That split is the design: the consumer needs no markdown
 knowledge, and no consumer can lose an embed boundary by treating it as text.
 

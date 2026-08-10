@@ -34,7 +34,7 @@ place as the things being read.
 1. **The side-bar view goes away entirely.** `contributes.viewsContainers`,
    `contributes.views`, and `src/preview/view.ts` are deleted. One surface
    means one code path, and it retires VSX-001 rather than answering it.
-2. **A ⚡ appears in every editor group's title bar in a hyper-markdown
+2. **A ⚡ appears in every editor group's title bar in a HyperMarkDown
    workspace**, driven by a `hyperMarkdown.hasRoot` context key rather than
    `editorLangId == hmd`. The button must not disappear the moment the column
    shows a `.ts` file, and it must not appear in unrelated projects.

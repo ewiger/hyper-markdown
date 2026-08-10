@@ -119,7 +119,7 @@ about the evaluation model rather than about grammar.
   is the card most likely to need it — and here it is solved by default rather
   than by an escape.
 - Evaluation MUST be opt-in and marked in the source. A reader looking at raw
-  hyper-markdown can tell which fences reach outside the card, without knowing
+  HyperMarkDown can tell which fences reach outside the card, without knowing
   the grammar.
 - The suffix is a **mode**, not a language. Both fences are HQL and MUST parse
   identically. Highlighting a fence that cannot parse MUST still report the
@@ -199,7 +199,7 @@ both stated so a later grammar cannot quietly violate them:
 - HQL MUST NOT require a new reserved frontmatter key. That set is closed and
   already carries one outstanding amendment; a second would make the "closed
   set" rule meaningless.
-- A card containing an unevaluated query MUST remain valid hyper-markdown, and
+- A card containing an unevaluated query MUST remain valid HyperMarkDown, and
   MUST render as something a reader can understand without the tooling.
 
 ## Security Considerations

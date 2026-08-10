@@ -30,7 +30,7 @@ implementation.
   text? Body text is the useful answer and the expensive one: the store
   reparses on every keystroke, so a body-text index is rebuilt on a clock the
   preview already shares.
-- **Where it lives.** In `@hyper-markdown/core`, where it would be
+- **Where it lives.** In `@hypermarkdown/core`, where it would be
   language-neutral and covered by the conformance corpus like every other
   semantic — or extension-only UI, on the grounds that search is a reading
   affordance and not part of the format.

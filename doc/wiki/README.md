@@ -1,7 +1,7 @@
 # Wiki
 
 `doc/wiki/` is the project's knowledge base: a graph of cross-linked
-**hyper-markdown** (`.hmd`) cards, one concept per file. Each card defines a
+**HyperMarkDown** (`.hmd`) cards, one concept per file. Each card defines a
 single thing and links to its neighbours with `[[wikilinks]]`, so understanding
 emerges from small, connected cards rather than one long document.
 
@@ -12,10 +12,10 @@ subfolders.
 
 ## The format
 
-1. [Hyper-markdown](hyper-markdown.hmd) — what a card is and why the knowledge
+1. [HyperMarkDown](hypermarkdown.hmd) — what a card is and why the knowledge
    base is a graph of them. Start here.
 2. [HMD Tutorial](hmd-tutorial.hmd) — the syntax, taught start to finish. Read
-   it once and you can write hyper-markdown.
+   it once and you can write HyperMarkDown.
 3. [HMD Language Specification](hmd-lang-spec.hmd) — the normative text behind
    the tutorial: grammar, resolution, diagnostics, and what a conforming
    implementation owes. Consult it when the answer has to be exact.
@@ -23,7 +23,7 @@ subfolders.
    row, each pointing at the text that specifies it. An index to consult, not a
    page to read through.
 5. [MD ↔ HMD interoperability](md-hmd-interop.hmd) — a sketch of converting
-   between plain Markdown and hyper-markdown in both directions. Nothing here is
+   between plain Markdown and HyperMarkDown in both directions. Nothing here is
    decided yet.
 
 ## The process

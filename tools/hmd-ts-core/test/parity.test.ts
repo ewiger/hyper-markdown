@@ -2,7 +2,7 @@
  * Conformance against the canonical implementation (HMD-0020 §10).
  *
  * This is what replaces principle P5. The Python package under
- * `tools/hmd/src/hyper_markdown/` defines the correct answer; this suite asks
+ * `tools/hmd/src/hypermarkdown/` defines the correct answer; this suite asks
  * it, on the three trees CI already gates, and requires byte-identical
  * diagnostics.
  *

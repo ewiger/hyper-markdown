@@ -1,7 +1,7 @@
 /**
  * The document IR (HMD-0020 §7).
  *
- * Ordinary GFM content is an opaque HTML island; every hyper-markdown
+ * Ordinary GFM content is an opaque HTML island; every HyperMarkDown
  * construct survives as a typed node. That split is the whole design: the
  * renderer needs no markdown knowledge, and no consumer can lose an embed
  * boundary by treating it as text.

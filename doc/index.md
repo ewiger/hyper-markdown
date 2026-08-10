@@ -1,6 +1,6 @@
-# Hyper-markdown { .hmd-hero }
+# HyperMarkDown { .hmd-hero }
 
-Hyper-markdown (`.hmd`) is ordinary Markdown plus rich visuals plus wiki links
+HyperMarkDown (`.hmd`) is ordinary Markdown plus rich visuals plus wiki links
 into a knowledge graph. Every `.md` file is already valid `.hmd`.
 
 !!! tip "Want to see it in action?"
@@ -54,7 +54,7 @@ card: "notes.hmd" {
     stroke: "#8b9199"
   }
 
-  hyper: "Hyper layer — defined by hyper-markdown\n[[card]] · [[card#Section]] · [[card#^block]] · ![[embed]] · frontmatter" {
+  hyper: "Hyper layer — defined by HyperMarkDown\n[[card]] · [[card#Section]] · [[card#^block]] · ![[embed]] · frontmatter" {
     class: defined
   }
   rich: "Rich layer — borrowed from the ecosystem, and assumed rather than optional\ntables · task lists · footnotes · callouts · TeX · D2 diagrams" {
@@ -65,7 +65,7 @@ card: "notes.hmd" {
   }
 }
 
-note: "The two upper layers are what hyper-markdown adds, and a specification is what fixes\nthem. The base is left untouched, which is why any .md file is already a valid card." {
+note: "The two upper layers are what HyperMarkDown adds, and a specification is what fixes\nthem. The base is left untouched, which is why any .md file is already a valid card." {
   near: bottom-center
   shape: text
   style.font-size: 15
@@ -107,7 +107,7 @@ ecosystem rather than invented here, and assumed present rather than optional.
 And the **hyper layer** — arguably the most innovative part, and the reason the
 format exists at all: a small set of constructs that are all variations on one
 idea, *naming another document or a part of one*. Those upper two layers are
-what hyper-markdown adds, and a specification is what fixes them, not
+what HyperMarkDown adds, and a specification is what fixes them, not
 convention.
 
 ```markdown
@@ -145,20 +145,20 @@ ordered wildcard imports resolve by declaration order and report shadowing.
 There are three of them, one directory each under `tools/` in the repository,
 each carrying its own version, README, and changelog:
 
-* **[`hmd`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd)** —
+* **[`hmd`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd)** —
   the Python line, published to PyPI as
-  [`hyper-markdown`](https://pypi.org/project/hyper-markdown/): the CLI
+  [`hypermarkdown`](https://pypi.org/project/hypermarkdown/): the CLI
   (`lint`, `render`, `graph`), the library beneath it, and the MkDocs plugin
   that builds this site. Canonical — where two implementations disagree, this
   one defines the answer — and it will host the language server.
 
-* **[`hmd-ts-core`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core)**
-  — `@hyper-markdown/core`, a second implementation of the format in
+* **[`hmd-ts-core`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-ts-core)**
+  — `@hypermarkdown/core`, a second implementation of the format in
   TypeScript rather than extension code, answering to the same
-  [conformance corpus](https://github.com/ewiger/hyper-markdown/tree/main/examples/conformance)
+  [conformance corpus](https://github.com/ewiger/hypermarkdown/tree/main/examples/conformance)
   the canonical tool does.
 
-* **[`hmd-vsc-ext`](https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext)**
+* **[`hmd-vsc-ext`](https://github.com/ewiger/hypermarkdown/tree/main/tools/hmd-vsc-ext)**
   — the VS Code extension, in development: live preview that keeps the embed
   boundary visible, plus backlinks, red links, and diagnostics.
 
@@ -211,7 +211,7 @@ the ideas here are new; what is being attempted is a coherent specification of
 them.
 
 The longer argument is that this should not stop at one repository: independently
-authored and independently served hyper-markdown, named across the gap, read from
+authored and independently served HyperMarkDown, named across the gap, read from
 the same source by humans, tools, and AI. That argument, and how much of it is
 still unbuilt, is [Vision](public/vision.md).
 

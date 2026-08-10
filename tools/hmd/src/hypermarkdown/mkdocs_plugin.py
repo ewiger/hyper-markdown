@@ -52,7 +52,7 @@ class PluginConfig(BaseConfig):
     diagrams = config_options.Type(bool, default=True)
 
 
-class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
+class HyperMarkDownPlugin(BasePlugin[PluginConfig]):
     """Collect `.hmd` pages, order them, expand them, rewrite their links."""
 
     def __init__(self) -> None:
@@ -71,7 +71,7 @@ class HyperMarkdownPlugin(BasePlugin[PluginConfig]):
     def on_files(self, files: Files, /, *, config) -> Files:
         if not config.use_directory_urls:
             raise PluginError(
-                "hyper-markdown requires use_directory_urls: true — a card and its "
+                "HyperMarkDown requires use_directory_urls: true — a card and its "
                 "folder note share one URL, which page.html cannot express"
             )
 

@@ -9,7 +9,7 @@
 
 import * as vscode from "vscode";
 
-import type { Diagnostic as HmdDiagnostic } from "@hyper-markdown/core";
+import type { Diagnostic as HmdDiagnostic } from "@hypermarkdown/core";
 
 import { debounce, type Store } from "./store.js";
 
@@ -17,7 +17,7 @@ import { debounce, type Store } from "./store.js";
 export const DIAGNOSTIC_DEBOUNCE_MS = 500;
 
 export class DiagnosticPublisher implements vscode.Disposable {
-  private readonly collection = vscode.languages.createDiagnosticCollection("hyper-markdown");
+  private readonly collection = vscode.languages.createDiagnosticCollection("HyperMarkDown");
   private readonly disposables: vscode.Disposable[] = [];
   private readonly schedule = debounce(DIAGNOSTIC_DEBOUNCE_MS, () => this.publish());
 
@@ -93,7 +93,7 @@ export function toVsCode(diagnostic: HmdDiagnostic): vscode.Diagnostic {
       : vscode.DiagnosticSeverity.Warning,
   );
   out.code = diagnostic.rule;
-  out.source = "hyper-markdown";
+  out.source = "HyperMarkDown";
   return out;
 }
 

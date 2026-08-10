@@ -11,7 +11,7 @@ the same commit that changes the code.
 
 **Snapshot** (2026-08-08) — M5 done, live, and branded. `doc/` builds as a
 book with the wiki as a section of its nav, green under `mkdocs build --strict`,
-and serving at <https://ewiger.github.io/hyper-markdown/> from a workflow
+and serving at <https://ewiger.github.io/hypermarkdown/> from a workflow
 artifact, carrying the project's own mark rather than stock Material. Builds are
 reproducible from `uv.lock`. The top bar now leads with the language: a
 `Tutorial` tab and a `Language Specification` tab — the latter a normative text

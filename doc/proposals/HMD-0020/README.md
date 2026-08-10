@@ -1,8 +1,8 @@
-# HMD-0020: `@hyper-markdown/core` — the TypeScript document model
+# HMD-0020: `@hypermarkdown/core` — the TypeScript document model
 
 **Status**: drafted
 **Created**: 2026-08-06
-**Source**: [Hyper-markdown in the editor — Requirements](../../models/requirements/vscode-extension.md)
+**Source**: [HyperMarkDown in the editor — Requirements](../../models/requirements/vscode-extension.md)
 
 ## Companion notes
 
@@ -12,12 +12,12 @@
 
 ## Abstract
 
-This proposal defines `@hyper-markdown/core`, a TypeScript implementation of
-the hyper-markdown parser, resolver, and renderer that runs with no Python
+This proposal defines `@hypermarkdown/core`, a TypeScript implementation of
+the HyperMarkDown parser, resolver, and renderer that runs with no Python
 present. It pins a three-stage pipeline — a markdown-it front end extended with
 rules for the six constructs HMD-0001 owns, a port of the HMD-0001 §5 resolver
 behind an injectable filesystem port, and a renderer emitting a **document IR**
-in which ordinary GFM content is opaque HTML and every hyper-markdown construct
+in which ordinary GFM content is opaque HTML and every HyperMarkDown construct
 survives as a typed node carrying its source span. It retires principle P5
 (*one implementation*) and replaces it with a language-neutral conformance
 corpus at `examples/conformance/`, a canonical-implementation rule naming
@@ -54,7 +54,7 @@ second implementation ships anything a user can depend on.
 
 ## Goals
 
-- One TypeScript package that parses, resolves, and renders hyper-markdown with
+- One TypeScript package that parses, resolves, and renders HyperMarkDown with
   no Python, no network, and no VS Code API.
 - A document IR precise enough that a renderer can draw embeds as embeds and a
   graph view can consume the same data.
@@ -84,7 +84,7 @@ The repository gains a JavaScript half that never touches the Python half.
 
 ```text
 package.json                 npm workspaces root, private
-tools/hmd-ts-core/           @hyper-markdown/core
+tools/hmd-ts-core/           @hypermarkdown/core
 tools/hmd-vsc-ext/           the extension (HMD-0021)
 doc/vsc-ext/STATUS.md        implementation status, JS side
 examples/conformance/cases/  the shared corpus (§10)
@@ -95,7 +95,7 @@ examples/conformance/cases/  the shared corpus (§10)
   through the `WorkspaceHost` port of §6. This is what makes the package usable
   from a browser playground, from a web extension, and from an in-memory test
   without a temporary directory.
-- The published package name is `@hyper-markdown/core`. It targets **ES2022**,
+- The published package name is `@hypermarkdown/core`. It targets **ES2022**,
   ships ESM with type declarations, and declares `"sideEffects": false`.
 - Toolchain is pinned: **TypeScript 5.x**, **esbuild** for bundling, **vitest**
   for unit and corpus tests, **Node 20 or later** for development. `strict` is
@@ -362,7 +362,7 @@ ambiguous   <a class="hmd-link hmd-ambiguous" data-hmd-target="tokens"
 ```
 
 - Class names and `data-hmd-*` attributes are a stable interface. Renaming one
-  is a breaking change to `@hyper-markdown/core`.
+  is a breaking change to `@hypermarkdown/core`.
 
 ### 8. Embed expansion
 
@@ -398,7 +398,7 @@ Expansion follows HMD-0001 §6 and shares its constants.
 
 This section replaces principle P5.
 
-**Canonicity.** The Python implementation under `tools/hmd/src/hyper_markdown/` is
+**Canonicity.** The Python implementation under `tools/hmd/src/hypermarkdown/` is
 canonical. Where the two disagree on a case the corpus covers, Python defines
 the correct answer and TypeScript carries the bug. Canonicity is about
 arbitration, not quality: it exists so that "which one is right?" is never a
@@ -504,7 +504,7 @@ and its output is injected into a webview.
    prevent.
 4. Land the resolver port (§6) against the corpus, ledger entries and all.
 5. Land expansion (§8) and the IR builder (§7).
-6. Publish `@hyper-markdown/core` at `0.1.0` only once the ledger is empty of
+6. Publish `@hypermarkdown/core` at `0.1.0` only once the ledger is empty of
    entries that are not deliberate design divergences.
 
 Steps 2 and 4 are the ones that can be usefully parallelised with the Python
@@ -575,8 +575,8 @@ Integration tests MUST include:
 
 ```bash
 npm ci
-npm run -w @hyper-markdown/core test
-npm run -w @hyper-markdown/core lint
+npm run -w @hypermarkdown/core test
+npm run -w @hypermarkdown/core lint
 ```
 
 ## Open Questions
@@ -597,7 +597,7 @@ npm run -w @hyper-markdown/core lint
   shared directory.
 - When a Rust implementation appears, does canonicity (§10) move to it, and
   what is the procedure for moving it?
-- Is `@hyper-markdown` an available npm scope, and who owns it?
+- Is `@HyperMarkDown` an available npm scope, and who owns it?
 
 ## Changelog
 

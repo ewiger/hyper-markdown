@@ -1,7 +1,7 @@
 # Hypermarkdown — Requirements
 
 **Status:** Draft v0.1 — design notes, nothing implemented
-**Project:** hyper-markdown — https://github.com/ewiger/hyper-markdown
+**Project:** HyperMarkDown — https://github.com/ewiger/hypermarkdown
 **File extension:** `.hmd`
 **Reference implementation:** `hmd` (Python, Typer), scaffolded by grem
 **Date:** 2026-07-31
@@ -10,14 +10,14 @@
 
 ## 0. Naming — decided
 
-**The project is `hyper-markdown`.** Repository:
-https://github.com/ewiger/hyper-markdown
+**The project is `HyperMarkDown`.** Repository:
+https://github.com/ewiger/hypermarkdown
 
 Background for the choice. `HyperMD` is a pre-existing project: a WYSIWYG
 markdown editor for browsers built as CodeMirror add-ons (`laobubu/HyperMD`). The
 npm package `hypermd` exists, last published ~7 years ago at 0.3.11. It is
 dormant, so this was a search-collision concern rather than a legal one, but it
-occupies the same domain (markdown editing). The hyphenated `hyper-markdown`
+occupies the same domain (markdown editing). The hyphenated `HyperMarkDown`
 separates the two cleanly in search and in package namespaces.
 
 The `hmd` abbreviation is retained for the CLI binary and the `.hmd` file

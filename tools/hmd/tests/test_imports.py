@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from hyper_markdown.imports import ImportError_, parse_statement
+from hypermarkdown.imports import ImportError_, parse_statement
 
 
 def test_named_import():

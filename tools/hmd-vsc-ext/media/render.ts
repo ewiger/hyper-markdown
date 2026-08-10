@@ -12,7 +12,7 @@ import type {
   DiagramBlock,
   DocumentIR,
   EmbedBlock,
-} from "@hyper-markdown/core";
+} from "@hypermarkdown/core";
 
 export interface RenderSettings {
   embeds: "expanded" | "collapsed";

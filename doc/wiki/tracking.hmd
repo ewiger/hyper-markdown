@@ -83,5 +83,5 @@ that card tracks what the *format* has, a tracker tracks what one proposal's
 
 The models under `doc/models/` declare what the system is; proposals record
 decisions; the board carries work in flight; trackers say how far each decision
-has been implemented. See [[hyper-markdown]] for the card format this convention
+has been implemented. See [[hypermarkdown]] for the card format this convention
 is written in.

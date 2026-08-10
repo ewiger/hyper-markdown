@@ -1,4 +1,4 @@
-"""hyper-markdown — a strict, machine-checkable markdown dialect.
+"""HyperMarkDown — a strict, machine-checkable markdown dialect.
 
 The **canonical** implementation of the format: where this and any other
 implementation disagree about a case the conformance corpus covers, this one
@@ -15,7 +15,7 @@ from .config import Config, ConfigError
 from .model import Diagnostic, Document, Link, Span
 from .resolve import Outcome, Resolution, Workspace
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 __all__ = [
     "Config",

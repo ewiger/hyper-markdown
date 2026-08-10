@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from hyper_markdown.embed import expand
+from hypermarkdown.embed import expand
 
 
 def page(ws, rel):

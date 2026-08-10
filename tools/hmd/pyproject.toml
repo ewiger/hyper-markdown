@@ -3,13 +3,22 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# The folder is `tools/hmd`; the distribution is `hyper-markdown` and stays
-# that way. 0.1.1 is published, and a rename on PyPI is a new project with a
-# new install line, not a move. The user-facing names were never the folder
-# anyway — they are the `hmd` script and the `mkdocs.plugins` entry point
-# below, and neither changes.
-name = "hyper-markdown"
-# One source of truth: `src/hyper_markdown/__init__.py`. A version in two files
+# The folder is `tools/hmd`; the distribution is `hypermarkdown`, renamed from
+# `hyper-markdown` on 2026-08-10 along with the project's domain, repository,
+# and galleries (HMD-0005).
+#
+# PyPI has no rename, so this is a new project rather than a move: `0.1.1` stays
+# installable as `hyper-markdown` forever, receives no further release, and is
+# pruned deliberately later. Do NOT delete that project while its install line
+# is still reachable from any published page — a freed name can be registered by
+# anyone and served to a stale pin.
+#
+# The new project needs its own trusted publisher, since a publisher is pinned
+# to an owner, a repository name, a workflow file, and an environment, and none
+# of those follows a rename. Configured as `ewiger` / `hypermarkdown` /
+# `release.yml` / `pypi`, with the TestPyPI twin on `testpypi`.
+name = "hypermarkdown"
+# One source of truth: `src/hypermarkdown/__init__.py`. A version in two files
 # is a version that disagrees with itself on release day, and `hmd --version`
 # reads the module rather than the installed metadata so it is honest when run
 # from a checkout.
@@ -110,20 +119,29 @@ mkdocs = [
 dev = ["pytest>=8,<10"]
 
 [project.urls]
-Homepage = "https://ewiger.github.io/hyper-markdown/"
-Documentation = "https://ewiger.github.io/hyper-markdown/"
-Repository = "https://github.com/ewiger/hyper-markdown"
-Changelog = "https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/CHANGELOG.md"
-Issues = "https://github.com/ewiger/hyper-markdown/issues"
+Homepage = "https://hypermarkdown.org/"
+Documentation = "https://hypermarkdown.org/"
+Repository = "https://github.com/ewiger/hypermarkdown"
+Changelog = "https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/CHANGELOG.md"
+Issues = "https://github.com/ewiger/hypermarkdown/issues"
 
 [project.scripts]
-hmd = "hyper_markdown.cli:main"
+hmd = "hypermarkdown.cli:main"
 
+# Two keys, one class, on purpose. `hypermarkdown` is the supported spelling and
+# the one this repository's own `mkdocs.yml` uses. `hyper-markdown` is retained
+# as a compatibility alias because this key is the single renamed identifier
+# that appears inside files the project does not own — every site built against
+# the plugin names it verbatim in its own `mkdocs.yml`, where dropping it is a
+# hard build failure reported as an unrecognised plugin, with a cause the site's
+# author never saw. When the alias is withdrawn is an open question, not a
+# silence; it is not the supported spelling in the meantime.
 [project.entry-points."mkdocs.plugins"]
-hyper-markdown = "hyper_markdown.mkdocs_plugin:HyperMarkdownPlugin"
+hypermarkdown = "hypermarkdown.mkdocs_plugin:HyperMarkDownPlugin"
+hyper-markdown = "hypermarkdown.mkdocs_plugin:HyperMarkDownPlugin"
 
 [tool.setuptools.dynamic]
-version = { attr = "hyper_markdown.__version__" }
+version = { attr = "hypermarkdown.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

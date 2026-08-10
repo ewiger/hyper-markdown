@@ -1,4 +1,4 @@
-"""Flat markdown: erasure of the hyper-markdown layer (HMD-0002 §5).
+"""Flat markdown: erasure of the HyperMarkDown layer (HMD-0002 §5).
 
 Every embed is inlined and every resolved link becomes an ordinary relative
 markdown link, leaving output that GitHub or a plain renderer reads without

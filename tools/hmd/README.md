@@ -1,20 +1,20 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ewiger/hyper-markdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
+<img src="https://raw.githubusercontent.com/ewiger/hypermarkdown/main/doc/wiki/assets/logo.png" width="76" height="76" alt="">
 
-# hyper-markdown
+# HyperMarkDown
 
 **The Python implementation, and the `hmd` command**
 
-[![PyPI](https://img.shields.io/pypi/v/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
-[![Python versions](https://img.shields.io/pypi/pyversions/hyper-markdown.svg)](https://pypi.org/project/hyper-markdown/)
-[![CI](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hyper-markdown/actions/workflows/ci.yml)
-[![Documentation](https://img.shields.io/badge/docs-hyper--markdown.org-ffb300)](https://hyper-markdown.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
+[![Python versions](https://img.shields.io/pypi/pyversions/hypermarkdown.svg)](https://pypi.org/project/hypermarkdown/)
+[![CI](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml/badge.svg)](https://github.com/ewiger/hypermarkdown/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/LICENSE)
 
 </div>
 
-Hyper-markdown (`.hmd`) is ordinary GitHub-flavored markdown plus the part HTML
+HyperMarkDown (`.hmd`) is ordinary GitHub-flavored markdown plus the part HTML
 had on its first day: a link that means something, a page that can be made out
 of other pages, a document that is part of a web rather than a file in a folder.
 Every `.md` file is already valid `.hmd`, so a tree is adopted one rename at a
@@ -26,7 +26,7 @@ three things:
 - **`hmd`**, a command line tool — lint a tree of cards, render one, dump the
   link graph.
 - **the library under it** — scanner, resolver, embed expander, and renderer,
-  importable as `hyper_markdown`.
+  importable as `hypermarkdown`.
 - **a MkDocs plugin**, installed with the `mkdocs` extra, which builds a tree of
   cards into a website.
 
@@ -35,14 +35,14 @@ disagree about a case the shared conformance corpus covers, **this one defines
 the answer**.
 
 The format itself — every construct, the resolution algorithm, the rule IDs — is
-documented at **[hyper-markdown.org](https://hyper-markdown.org/)**. This page
+documented at **[hypermarkdown.org](https://hypermarkdown.org/)**. This page
 is about the tool.
 
 ## Install
 
 ```bash
-pip install hyper-markdown            # or: uv pip install hyper-markdown
-pip install "hyper-markdown[mkdocs]"  # with the site builder
+pip install HyperMarkDown            # or: uv pip install HyperMarkDown
+pip install "HyperMarkDown[mkdocs]"  # with the site builder
 ```
 
 Python 3.11 through 3.14.
@@ -65,7 +65,7 @@ Exit codes are pinned for CI: `0` clean, `1` diagnostics, `2` usage error. Add
 `--strict` to fail on warnings, `--format json` for machine-readable output.
 
 That output is
-[`examples/small/`](https://github.com/ewiger/hyper-markdown/tree/main/examples/small),
+[`examples/small/`](https://github.com/ewiger/hypermarkdown/tree/main/examples/small),
 a runnable wiki that exercises the spine walk, both import forms, `use`
 inheritance, folder notes, and most of the syntax. It lints with zero errors and
 exactly one deliberate warning — the red link above, showing what an unwritten
@@ -73,8 +73,8 @@ page looks like. The fixture travels in the repository rather than in the
 distribution, so try it from a clone:
 
 ```bash
-git clone https://github.com/ewiger/hyper-markdown
-hmd lint --root hyper-markdown/examples/small
+git clone https://github.com/ewiger/hypermarkdown
+hmd lint --root hypermarkdown/examples/small
 ```
 
 ## The card it is reading
@@ -156,7 +156,7 @@ expands embeds, and rewrites every wikilink to a source-relative link that
 MkDocs resolves and validates itself:
 
 ```bash
-pip install "hyper-markdown[mkdocs]"
+pip install "HyperMarkDown[mkdocs]"
 mkdocs build --strict     # or: mkdocs serve
 ```
 
@@ -170,7 +170,7 @@ generated section belongs in your nav.
 # mkdocs.yml
 docs_dir: doc
 plugins:
-  - hyper-markdown:
+  - HyperMarkDown:
       root: doc/wiki        # only this subtree is a namespace
 exclude_docs: |
   *.hmd
@@ -194,13 +194,13 @@ Publication is opt-in: `nav: {visibility: public}` is what puts a card on the
 site, it inherits down a subtree from a folder note, and the default is private.
 The failure mode is a missing page, never an unintended one.
 
-[hyper-markdown.org](https://hyper-markdown.org/) is that build, from this
+[hypermarkdown.org](https://hypermarkdown.org/) is that build, from this
 repository's own `doc/` tree.
 
 ## Math, diagrams, callouts
 
 TeX mathematics, D2 diagrams, callouts, tables, task lists, footnotes,
-strikethrough. None of these are hyper-markdown's own — they are the tier the
+strikethrough. None of these are HyperMarkDown's own — they are the tier the
 wider markdown world settled on, and both `hmd render --to html` and the site
 build assume them present.
 
@@ -213,8 +213,8 @@ source rather than failing the build.
 ```python
 from pathlib import Path
 
-from hyper_markdown import Workspace, config
-from hyper_markdown.lint import check
+from hypermarkdown import Workspace, config
+from hypermarkdown.lint import check
 
 workspace = Workspace(config.load(root_override=Path("doc/wiki")))
 for diagnostic in check(workspace):
@@ -234,32 +234,32 @@ Semantic, with the usual `0.x` caveat made explicit: **the format itself may
 change between minor versions.** Until `1.0`, treat a minor bump as potentially
 breaking for `.hmd` sources, not only for the Python API. What each release
 changed, and what is deliberately not implemented, is in
-[CHANGELOG.md](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/CHANGELOG.md).
+[CHANGELOG.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/CHANGELOG.md).
 
 ## Development
 
 This tool is `tools/hmd/` in the
-[hyper-markdown monorepo](https://github.com/ewiger/hyper-markdown), whose root
+[HyperMarkDown monorepo](https://github.com/ewiger/hypermarkdown), whose root
 is a uv workspace:
 
 ```bash
-git clone https://github.com/ewiger/hyper-markdown
-cd hyper-markdown
+git clone https://github.com/ewiger/hypermarkdown
+cd HyperMarkDown
 uv sync --locked
 uv run python -m pytest
 ```
 
-Build the wheel with `uv build --package hyper-markdown` — the `--package` flag
+Build the wheel with `uv build --package HyperMarkDown` — the `--package` flag
 is load-bearing, since a bare `uv build` at a workspace root produces an empty
 `unknown-0.0.0` and exits zero.
 
-- **[tools/hmd/DEVELOP.md](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/DEVELOP.md)**
+- **[tools/hmd/DEVELOP.md](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/DEVELOP.md)**
   — this tool's own guide: the test loop, the gates, dependency policy,
   packaging, and how a release is cut.
-- **[DEVELOP.md](https://github.com/ewiger/hyper-markdown/blob/main/DEVELOP.md)**
+- **[DEVELOP.md](https://github.com/ewiger/hypermarkdown/blob/main/DEVELOP.md)**
   — the repository's: the layout, how the documentation tree is organised, where
   progress is tracked, and how the site is published.
 
 ## License
 
-MIT — see [LICENSE](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/LICENSE).
+MIT — see [LICENSE](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd/LICENSE).

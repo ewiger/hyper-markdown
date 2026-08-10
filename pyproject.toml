@@ -1,7 +1,7 @@
 # The repository root, which is deliberately *not* a distribution.
 #
 # Every tool lives under `tools/`, and the Python one — `tools/hmd` — owns the
-# `hyper-markdown` package and its own `pyproject.toml`. This file exists for
+# `hypermarkdown` package and its own `pyproject.toml`. This file exists for
 # the two things that are genuinely repository-wide: the uv workspace, so a
 # single `.venv` and a single `uv.lock` serve the whole checkout, and the
 # pytest configuration, because the suite spans a tool's own tests and the
@@ -11,7 +11,7 @@
 members = ["tools/hmd"]
 
 [tool.uv.sources]
-hyper-markdown = { workspace = true }
+hypermarkdown = { workspace = true }
 
 # `uv sync` installs this group by default, which is what makes `uv run hmd`,
 # `uv run mkdocs`, and `uv run python -m pytest` work from the repository root
@@ -19,9 +19,9 @@ hyper-markdown = { workspace = true }
 # `uv sync --all-extras`, which has nothing to act on: extras belong to a
 # project, and this root is not one.
 [dependency-groups]
-dev = ["hyper-markdown[mkdocs,dev]"]
+dev = ["hypermarkdown[mkdocs,dev]"]
 
-# Building the wheel is `uv build --package hyper-markdown`, never a bare
+# Building the wheel is `uv build --package hypermarkdown`, never a bare
 # `uv build`. A bare `uv build` at a workspace root with no `[project]` table
 # does not fail — it builds an empty `unknown-0.0.0` distribution and reports
 # success. On the release path that is a wrong artifact travelling as far as

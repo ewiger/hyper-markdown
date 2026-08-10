@@ -180,7 +180,7 @@ rewrites a relative link against the *repository root* and ignores
 `…/blob/HEAD/../../doc/…` and 404s on the listing. Nothing catches this locally
 except reading the packaged file, which is what the check below does.
 
-**The identifier is `hyper-markdown.hmd-vsc-ext` and is permanent.** Renaming
+**The identifier is `hypermarkdown.hmd-vsc-ext` and is permanent.** Renaming
 means a second listing and every install of the first one stranded on it, so do
 not change `name` or `publisher`.
 
@@ -219,7 +219,7 @@ gh release download vsc-ext-v0.1.0 --pattern '*.vsix'
 ```
 
 Upload that file on
-[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hyper-markdown).
+[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hypermarkdown).
 Download rather than repackage: the file on the release is the one every gate ran
 against, and a fresh `vsce package` is bytes nobody verified.
 
@@ -242,7 +242,7 @@ side.
 - `vsce publish --oidc` has shipped, and the workflow uses it.
 - The exchange requires a **trusted publishing policy** on the publisher, naming
   this repository and `release-vsc-ext.yml`. The Marketplace does not currently
-  expose that configuration for `hyper-markdown`.
+  expose that configuration for `HyperMarkDown`.
 - So the job is gated on the repository variable
   `MARKETPLACE_TRUSTED_PUBLISHING` and does not run.
 - **To re-enable, once the policy can be configured:** set that variable to
@@ -266,8 +266,8 @@ created by CI:
 
 | Registry | Set up | Secret |
 | --- | --- | --- |
-| [VS Marketplace](https://marketplace.visualstudio.com/manage) | A publisher with ID `hyper-markdown` — done. Then a **trusted publishing** policy on it naming this repository and `release-vsc-ext.yml` — *not yet offered by the gallery*, which is why uploads are manual. | none |
-| [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hyper-markdown -p <token>`. | `OVSX_PAT` |
+| [VS Marketplace](https://marketplace.visualstudio.com/manage) | A publisher with ID `hypermarkdown` — **not yet created**. The old `HyperMarkDown` publisher exists and is retained unused, because a publisher name released back into the pool is one an impostor can register under. Then a **trusted publishing** policy on the new one naming this repository and `release-vsc-ext.yml` — *not yet offered by the gallery*, which is why uploads are manual. | none |
+| [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hypermarkdown -p <token>`. The `hypermarkdown` namespace already exists, empty and unverified; `HyperMarkDown` never did. | `OVSX_PAT` |
 
 **The Marketplace holds no secret of ours, and that is the point.** `vsce
 publish --oidc` exchanges a GitHub-issued identity token for a credential that
@@ -292,7 +292,7 @@ a stable release yet, and the workflow names an exact version rather than
 stable `@vscode/vsce` carries the flag, drop the pin.
 
 **Optional, and it is what puts the blue check on the listing:** verify the
-publisher's domain. Marketplace → publisher settings → verify `hyper-markdown.org`
+publisher's domain. Marketplace → publisher settings → verify `hypermarkdown.org`
 with the TXT record it gives you.
 
 ### Reading the listing before it is public
@@ -370,5 +370,5 @@ this is unparked it belongs in CI under `xvfb-run`, not on a laptop. The harness
 also downloads ~305 MB (~912 MB unpacked) on first run, which is why it is not
 part of `npm test`.
 
-That branch's own README still names the package `packages/vscode-hyper-markdown`
+That branch's own README still names the package `packages/vscode-HyperMarkDown`
 — it predates the `tools/` layout and will need the rename when it is unparked.

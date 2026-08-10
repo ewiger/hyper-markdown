@@ -5,11 +5,11 @@ on the right, keeping up as you type. It is the one place where a card looks
 like a card while you are writing it — embeds stay embeds, links resolve as you
 type, and a link to nothing is red.
 
-[Install from the VS Marketplace](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext){ .md-button .md-button--primary }
-[Open VSX](https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext){ .md-button }
+[Install from the VS Marketplace](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext){ .md-button .md-button--primary }
+[Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd-vsc-ext){ .md-button }
 
 ```
-ext install hyper-markdown.hmd-vsc-ext
+ext install hypermarkdown.hmd-vsc-ext
 ```
 
 Cursor, Windsurf, and VSCodium install from Open VSX; stock VS Code from the
@@ -42,7 +42,7 @@ resolver, and the renderer are TypeScript, running in the editor. Nothing has to
 be installed to see a card rendered: no interpreter to find, no virtualenv to
 activate, and no subprocess between a keystroke and the preview.
 
-The [`hmd` CLI](https://pypi.org/project/hyper-markdown/) stays canonical. Where
+The [`hmd` CLI](https://pypi.org/project/hypermarkdown/) stays canonical. Where
 the two could disagree they are checked against a shared conformance corpus on
 every push, so the preview and the published site are the same reading of the
 same file. Completion and the rest of the language-server features are not in
@@ -62,8 +62,8 @@ a *preview* flag until both land.
 
 The full list of divergences from the CLI, each with its reason, is in the
 extension's
-[README](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-vsc-ext/README.md#known-gaps),
+[README](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-vsc-ext/README.md#known-gaps),
 what changed is in its
-[changelog](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-vsc-ext/CHANGELOG.md),
+[changelog](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-vsc-ext/CHANGELOG.md),
 and bugs go to [the issue
-tracker](https://github.com/ewiger/hyper-markdown/issues).
+tracker](https://github.com/ewiger/hypermarkdown/issues).

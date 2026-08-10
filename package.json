@@ -1,8 +1,8 @@
 {
-  "name": "hyper-markdown-workspace",
+  "name": "hypermarkdown-workspace",
   "private": true,
   "version": "0.0.0",
-  "description": "npm workspaces root for the hyper-markdown TypeScript line (HMD-0020, HMD-0021).",
+  "description": "npm workspaces root for the HyperMarkDown TypeScript line (HMD-0020, HMD-0021).",
   "license": "MIT",
   "engines": {
     "node": ">=20"

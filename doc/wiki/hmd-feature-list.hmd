@@ -149,7 +149,7 @@ file and `mkdocs.yml`, not a re-specification.
 
 The sibling line: a TypeScript document model and a VS Code webview that renders
 a card as you edit it. It is specified on the `feat/vsc-ext` branch by HMD-0020
-(`@hyper-markdown/core`, the document model), HMD-0021 (the extension and its
+(`@hypermarkdown/core`, the document model), HMD-0021 (the extension and its
 preview surface), and HMD-0022 (D2 in the webview, under its content security
 policy). Those proposals are not on this branch yet — the branch merges soon,
 and the links belong here once it does.

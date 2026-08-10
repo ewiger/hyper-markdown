@@ -1,4 +1,4 @@
-# Served at https://hyper-markdown.org/robots.txt. MkDocs copies any non-page
+# Served at https://hypermarkdown.org/robots.txt. MkDocs copies any non-page
 # file in `docs_dir` to the site root untouched, so this file is the whole
 # mechanism — there is no plugin and no build step behind it.
 #
@@ -19,4 +19,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hyper-markdown.org/sitemap.xml
+Sitemap: https://hypermarkdown.org/sitemap.xml

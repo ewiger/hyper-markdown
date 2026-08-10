@@ -6,7 +6,7 @@
 
 ## What
 
-A hyper-markdown site should be a *book* with a *wiki* section in it, not a wiki
+A HyperMarkDown site should be a *book* with a *wiki* section in it, not a wiki
 alone. Two pieces are missing:
 
 1. **A restricted namespace.** `docs_dir` covers the whole `doc/` tree while the

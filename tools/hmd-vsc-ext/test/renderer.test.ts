@@ -2,7 +2,7 @@
  * The webview renderer, under jsdom (HMD-0021 Test Plan).
  */
 
-import { MemoryHost, Renderer, Workspace, type DocumentIR } from "@hyper-markdown/core";
+import { MemoryHost, Renderer, Workspace, type DocumentIR } from "@hypermarkdown/core";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {

@@ -6,7 +6,7 @@
  * the extension's own code, but the message boundary is still a trust boundary.
  */
 
-import type { BacklinkEntry, DocumentIR } from "@hyper-markdown/core";
+import type { BacklinkEntry, DocumentIR } from "@hypermarkdown/core";
 
 export type PreviewMode = "rendered" | "backlinks";
 

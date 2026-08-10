@@ -7,9 +7,9 @@ nav:
 
 # MD ↔ HMD interoperability
 
-**Markdown is JavaScript. Hyper-markdown is TypeScript.**
+**Markdown is JavaScript. HyperMarkDown is TypeScript.**
 
-That analogy is the shortest way to say what hyper-markdown is for, and it
+That analogy is the shortest way to say what HyperMarkDown is for, and it
 carries further than a slogan should. This card sketches how far. Nothing here
 is decided — no proposal owns it yet.
 
@@ -19,7 +19,7 @@ TypeScript is a superset of JavaScript that adds structure a machine can check,
 compiles away to the thing it extends, and can be adopted one file at a time.
 `.hmd` stands in the same relation to `.md`:
 
-| TypeScript | Hyper-markdown |
+| TypeScript | HyperMarkDown |
 | --- | --- |
 | every `.js` is valid `.ts` | every `.md` is valid `.hmd` |
 | types, interfaces, imports | wikilinks, embeds, frontmatter `import` |
@@ -58,7 +58,7 @@ converter cannot be certain it leaves the relative link alone — the mixed stat
 is valid, which is the whole point of a superset.
 
 Conversion is not only a migration path. It is the fastest way to *write*
-hyper-markdown: draft in plain markdown at speed, with ordinary relative links
+HyperMarkDown: draft in plain markdown at speed, with ordinary relative links
 and no namespace in your head, then convert and let the resolver tell you what
 it could not place. Authoring stops requiring you to know the tree.
 

@@ -1,4 +1,4 @@
-# Changelog — the hyper-markdown language
+# Changelog — the HyperMarkDown language
 
 The history of the **format and its design**: what the language gained, what it
 deliberately does not have, and which decisions were reversed. The root of this
@@ -9,21 +9,21 @@ each package keeps its own history:
 
 | Package | Changelog | Released as |
 | --- | --- | --- |
-| [`tools/hmd/`](tools/hmd/) | [CHANGELOG.md](tools/hmd/CHANGELOG.md) | [`hyper-markdown`](https://pypi.org/project/hyper-markdown/) on PyPI, tagged `vX.Y.Z` |
-| [`tools/hmd-ts-core/`](tools/hmd-ts-core/) | [CHANGELOG.md](tools/hmd-ts-core/CHANGELOG.md) | `@hyper-markdown/core` — not published yet |
-| [`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/) | [CHANGELOG.md](tools/hmd-vsc-ext/CHANGELOG.md) | [`hyper-markdown.hmd-vsc-ext`](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext) on the VS Marketplace and Open VSX, tagged `vsc-ext-vX.Y.Z` |
+| [`tools/hmd/`](tools/hmd/) | [CHANGELOG.md](tools/hmd/CHANGELOG.md) | [`hypermarkdown`](https://pypi.org/project/hypermarkdown/) on PyPI, tagged `vX.Y.Z` |
+| [`tools/hmd-ts-core/`](tools/hmd-ts-core/) | [CHANGELOG.md](tools/hmd-ts-core/CHANGELOG.md) | `@hypermarkdown/core` — not published yet |
+| [`tools/hmd-vsc-ext/`](tools/hmd-vsc-ext/) | [CHANGELOG.md](tools/hmd-vsc-ext/CHANGELOG.md) | [`hypermarkdown.hmd-vsc-ext`](https://marketplace.visualstudio.com/items?itemName=hypermarkdown.hmd-vsc-ext) on the VS Marketplace and Open VSX, tagged `vsc-ext-vX.Y.Z` |
 
 The dependency runs one way. A tool depends on the specification; the
 specification does not depend on a tool, and a decision recorded here is never
 "whatever the implementation happens to do". The exception is deliberate and is
 the project walking its own talk: this repository's documentation *is* a
-hyper-markdown wiki, published by the MkDocs plugin the Python tool ships, so a
+HyperMarkDown wiki, published by the MkDocs plugin the Python tool ships, so a
 specification that made the site unbuildable would be caught by its own
 publication.
 
 **The language's version is declared by the specification itself** — the opening
 sentence of [`doc/wiki/hmd-lang-spec.hmd`](doc/wiki/hmd-lang-spec.hmd), which
-currently specifies hyper-markdown **0.1** against CommonMark 0.31.2. A version
+currently specifies HyperMarkDown **0.1** against CommonMark 0.31.2. A version
 section here is that number; the dated entries inside it record when each decision
 landed, because a language is worked on continuously and released rarely.
 `tests/test_docs.py` fails if the card names a version this file has no section
@@ -131,7 +131,7 @@ construct may still change before `1.0`.
   is not.
 - **A flat-markdown intermediate was rejected** as the transport between the
   implementation and a preview. Flattening destroys the embed boundary before the
-  UI ever sees it, and a hyper-markdown preview whose embeds render as anonymous
+  UI ever sees it, and a HyperMarkDown preview whose embeds render as anonymous
   prose has given up the only thing it does that a markdown previewer cannot.
   Erasure stays a *shipping* format: one-way, on purpose.
 

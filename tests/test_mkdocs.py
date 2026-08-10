@@ -9,7 +9,7 @@ import yaml
 
 import pytest
 
-from hyper_markdown import urls
+from hypermarkdown import urls
 
 mkdocs_build = pytest.importorskip("mkdocs.commands.build")
 mkdocs_config = pytest.importorskip("mkdocs.config")
@@ -72,7 +72,7 @@ def _build_config(tmp_path: Path, docs_dir: Path, **extra):
         "site_name": "test",
         "docs_dir": str(docs_dir),
         "site_dir": str(site_dir),
-        "plugins": ["hyper-markdown"],
+        "plugins": ["hypermarkdown"],
         "exclude_docs": "*.hmd",
         **extra,
     }
@@ -294,7 +294,7 @@ def test_serving_watches_the_namespace_root(tmp_path):
     config = _build_config(tmp_path, FIXTURE)
     mkdocs_build.build(config)
     server = StubServer()
-    config.plugins["hyper-markdown"].on_serve(server, config=config, builder=None)
+    config.plugins["hypermarkdown"].on_serve(server, config=config, builder=None)
     assert server.watched == [str(FIXTURE)]
 
 
@@ -316,7 +316,7 @@ def _book_and_wiki(tmp_path: Path) -> Path:
 def test_the_namespace_may_be_a_subtree_of_the_site(tmp_path):
     """`docs_dir` covers the book; `root` restricts what `[[…]]` can reach."""
     docs = _book_and_wiki(tmp_path)
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
 
     assert (site / "index.html").is_file()  # the book page, not a card
     assert (site / "wiki" / "one" / "index.html").is_file()
@@ -329,7 +329,7 @@ def test_a_book_page_is_not_a_link_target(tmp_path):
     docs = _book_and_wiki(tmp_path)
     (docs / "wiki" / "one.hmd").write_text(
         PUBLIC + "# One\n\n[[index]]\n", encoding="utf-8")
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
     assert 'class="hmd-redlink"' in (site / "wiki" / "one" / "index.html").read_text()
 
 
@@ -338,7 +338,7 @@ def test_the_placeholder_splices_the_wiki_into_an_authored_nav(tmp_path):
     site = build(
         tmp_path,
         docs,
-        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}],
         nav=[{"Home": "index.md"}, {"Wiki": ["hmd://wiki"]}],
     )
     html = (site / "index.html").read_text()
@@ -354,7 +354,7 @@ def test_a_card_the_book_places_is_not_derived_again(tmp_path):
     site = build(
         tmp_path,
         docs,
-        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}],
         nav=[{"Home": "index.md"}, {"One": "wiki/one.md"}, {"Wiki": ["hmd://wiki"]}],
     )
     html = (site / "wiki" / "two" / "index.html").read_text()
@@ -373,7 +373,7 @@ def test_an_authored_nav_without_the_placeholder_is_left_alone(tmp_path):
     site = build(
         tmp_path,
         docs,
-        plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}],
+        plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}],
         nav=[{"Home": "index.md"}],
     )
     html = (site / "index.html").read_text()
@@ -394,7 +394,7 @@ def test_a_markdown_link_to_a_card_reaches_its_page(tmp_path):
     (docs / "wiki" / "one.hmd").write_text(
         PUBLIC + "# One\n", encoding="utf-8")
 
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
     html = (site / "index.html").read_text()
     assert 'href="wiki/one/"' in html
     assert ".hmd" not in html
@@ -409,7 +409,7 @@ def test_a_card_path_inside_a_fence_is_left_alone(tmp_path):
     (docs / "wiki" / "one.hmd").write_text(
         PUBLIC + "# One\n", encoding="utf-8")
 
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
     assert "wiki/one.hmd" in (site / "index.html").read_text()
 
 
@@ -420,7 +420,7 @@ def test_a_link_to_a_missing_hmd_file_is_untouched(tmp_path):
     (docs / "wiki" / "one.hmd").write_text(
         PUBLIC + "# One\n", encoding="utf-8")
 
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
     assert "wiki/nope.hmd" in (site / "index.html").read_text()
 
 
@@ -434,7 +434,7 @@ def test_a_card_can_also_link_to_a_card_by_path(tmp_path):
     (docs / "wiki" / "two.hmd").write_text(
         PUBLIC + "# Two\n", encoding="utf-8")
 
-    site = build(tmp_path, docs, plugins=[{"hyper-markdown": {"root": str(docs / "wiki")}}])
+    site = build(tmp_path, docs, plugins=[{"hypermarkdown": {"root": str(docs / "wiki")}}])
     assert 'href="../two/"' in (site / "wiki" / "one" / "index.html").read_text()
 
 
@@ -537,7 +537,7 @@ def test_diagrams_can_be_switched_off(tmp_path):
     site = build(
         tmp_path,
         _rich_docs(tmp_path),
-        plugins=[{"hyper-markdown": {"diagrams": False}}],
+        plugins=[{"hypermarkdown": {"diagrams": False}}],
         markdown_extensions=_rich_extensions(),
     )
     assert "hmd-diagram" not in (site / "index.html").read_text()

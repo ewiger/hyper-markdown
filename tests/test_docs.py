@@ -111,7 +111,7 @@ def test_the_guard_catches_the_original_defect_and_nothing_else():
 #: The sentence the language specification opens with, which is the only place the
 #: language's version is declared. A second literal in a config file or a `VERSION`
 #: would be a number free to disagree with the document that defines the format.
-SPEC_VERSION = re.compile(r"specifies hyper-markdown (\d+(?:\.\d+)*)")
+SPEC_VERSION = re.compile(r"specifies HyperMarkDown (\d+(?:\.\d+)*)")
 
 
 def test_the_language_version_has_a_changelog_section():
@@ -134,7 +134,7 @@ def test_the_language_version_has_a_changelog_section():
 
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     assert re.search(rf"^## \[{re.escape(version)}\]", changelog, re.M), (
-        f"the spec card specifies hyper-markdown {version}, and CHANGELOG.md has"
+        f"the spec card specifies HyperMarkDown {version}, and CHANGELOG.md has"
         f" no `## [{version}]` section. A language version is the specification"
         " plus the record of what it changed."
     )
@@ -143,7 +143,7 @@ def test_the_language_version_has_a_changelog_section():
     # and a shields.io URL is exactly the kind of literal nobody thinks to bump.
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert f"/badge/spec-{version}-" in readme, (
-        f"the spec card specifies hyper-markdown {version}, and README.md's `spec`"
+        f"the spec card specifies HyperMarkDown {version}, and README.md's `spec`"
         " badge says something else. Either bump the badge or drop it — the card's"
         " opening sentence is the declaration, the badge only repeats it."
     )
@@ -256,7 +256,7 @@ def test_the_cover_renders_its_hero(built_home):
 
 
 def test_the_site_names_its_repository(built_home):
-    assert "ewiger/hyper-markdown" in built_home
+    assert "ewiger/hypermarkdown" in built_home
     # `extra.generator: false` leaves the project's own copyright alone in the
     # footer.
     assert "Made with" not in built_home
@@ -325,4 +325,92 @@ def test_robots_txt_hands_a_crawler_the_sitemap(built_site: Path):
     # A stray `Disallow: /` here would deindex the entire site, silently.
     assert not re.search(r"^\s*Disallow:\s*/\s*$", text, re.M), (
         "robots.txt disallows the whole site"
+    )
+
+
+# -- one name ------------------------------------------------------------
+
+#: Files permitted to still contain the retired spelling, each for a stated
+#: reason. Anything else is a leftover from the 2026-08-10 rename (HMD-0005).
+RETIRED_NAME_ALLOWED = {
+    # The compatibility alias itself, and the prose explaining why it exists.
+    "tools/hmd/pyproject.toml",
+    # The two wheel smoke tests, which assert that alias still resolves.
+    ".github/workflows/ci.yml",
+    ".github/workflows/release.yml",
+    # Records of what happened, which re-spelling would make false: release
+    # entries naming the install line a release actually shipped with, the
+    # decision memos, and the rename proposal, which necessarily names both.
+    "CHANGELOG.md",
+    "tools/hmd/CHANGELOG.md",
+    "tools/hmd-vsc-ext/CHANGELOG.md",
+    ".github/workflows/release-vsc-ext.yml",
+    "doc/memory/decisions.md",
+    "doc/memory/2026-08-06-typescript-editor-line.md",
+    "doc/proposals/HMD-0005/README.md",
+    "doc/proposals/HMD-0005/STATUS.md",
+    # This guard names the thing it forbids.
+    "tests/test_docs.py",
+}
+
+#: Both retired spellings: the hyphenated display name and the old import
+#: package. Case-insensitive, so `Hyper-Markdown` is caught too.
+RETIRED_NAME = re.compile(r"hyper[-_]markdown", re.I)
+
+#: Where the name could hide. Prose is the bulk of it, but a badge URL lives in
+#: JSON, an install line in TOML or YAML, and a provenance comment in
+#: TypeScript — and those are the ones no reader re-reads.
+NAMED_SUFFIXES = {".md", ".hmd", ".toml", ".json", ".yml", ".yaml", ".py", ".ts", ".txt"}
+
+
+def _named_sources() -> list[Path]:
+    """Every tracked text file the name could be written into.
+
+    Built the same way `_prose_sources` is, and for the same reason: the index
+    alone is blind to the file currently being written, and names paths whose
+    bytes have already moved.
+    """
+    out = subprocess.run(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    paths = {
+        ROOT / p
+        for p in out
+        # .grem/ is dormant control data the project does not maintain, and the
+        # npm lockfile is generated.
+        if not p.startswith(".grem/") and p != "package-lock.json"
+        and Path(p).suffix in NAMED_SUFFIXES
+    }
+    return sorted(p for p in paths if p.is_file())
+
+
+def test_the_retired_name_is_gone():
+    """The project is `hypermarkdown` / HyperMarkDown everywhere it is not a
+    quotation.
+
+    A rename leaves survivors in exactly the places nobody re-reads — a badge
+    URL, a doc comment, a keyword list — and each one is a dead link or a wrong
+    install line rather than a cosmetic blemish. The allowlist above is the
+    complete set of places the old name is still *true*, so a new occurrence
+    anywhere else fails here rather than being found by a reader.
+    """
+    offenders = []
+    for path in _named_sources():
+        rel = path.relative_to(ROOT).as_posix()
+        if rel in RETIRED_NAME_ALLOWED:
+            continue
+        for number, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), start=1
+        ):
+            if RETIRED_NAME.search(line):
+                offenders.append(f"{rel}:{number}: {line.strip()}")
+
+    assert not offenders, (
+        f"{len(offenders)} occurrences of the retired name survive the rename"
+        " (HMD-0005). Either fix them, or add the file to"
+        " `RETIRED_NAME_ALLOWED` with a reason:\n  " + "\n  ".join(offenders[:20])
     )

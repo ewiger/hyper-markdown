@@ -6,7 +6,7 @@ nav:
 
 # Small world
 
-A minimal hyper-markdown tree that exercises most of HMD-0001. Every link here
+A minimal HyperMarkDown tree that exercises most of HMD-0001. Every link here
 is a bare name resolved by the spine walk, because this file sits at the
 namespace root and the folder notes it points at are one level down.
 

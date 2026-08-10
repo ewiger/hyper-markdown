@@ -24,7 +24,7 @@ from .resolve import SUFFIX, Workspace
 
 app = typer.Typer(
     add_completion=False,
-    help="Lint, query, and inspect a hyper-markdown knowledge base.",
+    help="Lint, query, and inspect a HyperMarkDown knowledge base.",
     no_args_is_help=True,
 )
 
@@ -58,7 +58,7 @@ def cli(
         help="Show the version and exit.",
     ),
 ) -> None:
-    """Lint, query, and inspect a hyper-markdown knowledge base."""
+    """Lint, query, and inspect a HyperMarkDown knowledge base."""
 
 
 def _workspace(root: Optional[Path], start: Path | None = None) -> Workspace:

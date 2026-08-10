@@ -264,12 +264,12 @@ job, and its rows are read one at a time rather than as prose. The rule binds
 
 ## The repository is a monorepo of tools, named after the tools
 
-`tools/hmd` (Python), `tools/hmd-ts-core` (`@hyper-markdown/core`), and
+`tools/hmd` (Python), `tools/hmd-ts-core` (`@hypermarkdown/core`), and
 `tools/hmd-vsc-ext` (the VS Code extension), each with its own project file.
 The previous layout — `src/`, `tests/`, `packages/` — named languages instead of
 products, and a language server is not a language.
 
-The part that needed deciding rather than moving: `@hyper-markdown/core` is its
+The part that needed deciding rather than moving: `@hypermarkdown/core` is its
 own tool, not extension code. It is the second implementation the conformance
 corpus arbitrates against, and filing it inside its only consumer would make it
 read as a detail of how the editor is built. Everything used by more than one

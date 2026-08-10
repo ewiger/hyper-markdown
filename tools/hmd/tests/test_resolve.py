@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from hyper_markdown.resolve import Outcome
+from hypermarkdown.resolve import Outcome
 
 # A tree mirroring the HMD-0001 worked example.
 TREE = {
@@ -167,8 +167,8 @@ def test_wildcard_import_is_not_eagerly_bound(build_workspace, tmp_path):
     build_workspace(tree)
     (tmp_path / "shared" / "late.hmd").write_text("# Late\n", encoding="utf-8")
 
-    from hyper_markdown import config
-    from hyper_markdown.resolve import Workspace
+    from hypermarkdown import config
+    from hypermarkdown.resolve import Workspace
 
     ws = Workspace(config.load(root_override=tmp_path))
     assert rel(ws, resolve(ws, "specs/billing/invoices.hmd", "late")) == "shared/late.hmd"
@@ -240,8 +240,8 @@ def test_recursive_mode_confines_the_sweep_to_the_subtree(build_workspace):
 
 
 def test_resolution_is_stable_across_workspaces(build_workspace, tmp_path):
-    from hyper_markdown import config
-    from hyper_markdown.resolve import Workspace
+    from hypermarkdown import config
+    from hypermarkdown.resolve import Workspace
 
     ws1 = build_workspace(TREE)
     ws2 = Workspace(config.load(root_override=tmp_path))

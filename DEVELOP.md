@@ -1,7 +1,7 @@
-# Developing the hyper-markdown language and its website
+# Developing the HyperMarkDown language and its website
 
 This repository's root is the **language**: the numbered records that specify it,
-the models beside them, and [hyper-markdown.org](https://hyper-markdown.org/),
+the models beside them, and [hypermarkdown.org](https://hypermarkdown.org/),
 which is what those records are published as. The software that implements the
 language lives under `tools/`, one directory per package, and each carries its own
 development guide.
@@ -25,13 +25,13 @@ Four things version independently, and each has exactly one literal:
 | What | Where the version is declared | Its history |
 | --- | --- | --- |
 | **the language** | [`doc/wiki/hmd-lang-spec.hmd`](doc/wiki/hmd-lang-spec.hmd) — currently **0.1**, against CommonMark 0.31.2 | [`CHANGELOG.md`](CHANGELOG.md) |
-| `hyper-markdown` (PyPI) | `__version__` in [`tools/hmd/src/hyper_markdown/__init__.py`](tools/hmd/src/hyper_markdown/__init__.py) | [`tools/hmd/CHANGELOG.md`](tools/hmd/CHANGELOG.md) |
-| `@hyper-markdown/core` | `version` in [`tools/hmd-ts-core/package.json`](tools/hmd-ts-core/package.json) | [its changelog](tools/hmd-ts-core/CHANGELOG.md) |
+| `hypermarkdown` (PyPI) | `__version__` in [`tools/hmd/src/hypermarkdown/__init__.py`](tools/hmd/src/hypermarkdown/__init__.py) | [`tools/hmd/CHANGELOG.md`](tools/hmd/CHANGELOG.md) |
+| `@hypermarkdown/core` | `version` in [`tools/hmd-ts-core/package.json`](tools/hmd-ts-core/package.json) | [its changelog](tools/hmd-ts-core/CHANGELOG.md) |
 | `hmd-vsc-ext` | `version` in [`tools/hmd-vsc-ext/package.json`](tools/hmd-vsc-ext/package.json) | [its changelog](tools/hmd-vsc-ext/CHANGELOG.md) |
 
 **A tool release never implies a language version, and a language version never
 waits for one.** The language number moves when a construct changes and nothing
-else moves it; a `hyper-markdown` release on PyPI is an implementation shipping.
+else moves it; a `HyperMarkDown` release on PyPI is an implementation shipping.
 
 The `0.x` caveat in the Python tool's changelog is easy to misread as a second
 format version. It is not. It says a *minor* release of that tool may be the one
@@ -90,7 +90,7 @@ statement — a numbered record. It is not finished until the canonical
 implementation and the conformance corpus agree with it; that part is
 [the Python tool's guide](tools/hmd/DEVELOP.md).
 
-## Publishing hyper-markdown.org
+## Publishing hypermarkdown.org
 
 The site is this repository's documentation tree built by the plugin the Python
 tool ships, which is the project walking its own talk: a specification that made
@@ -141,7 +141,7 @@ upload.
 
 One dependency pin is worth knowing about here, because it is the site's
 existence rather than its polish: the MkDocs name is being reused for a
-ground-up rewrite with no plugin system. A hyper-markdown site *is* a MkDocs
+ground-up rewrite with no plugin system. A HyperMarkDown site *is* a MkDocs
 plugin, so that release would not degrade the site — it would remove the wiki
 from it. The dependency is held at `mkdocs>=1.6,<2` for that reason; the full
 reasoning and every other bound live in
@@ -153,12 +153,12 @@ Every tool lives in its own directory under `tools/`, and the repository root
 carries only what is shared between them.
 
 ```text
-tools/hmd/                the Python tool, published as `hyper-markdown`
+tools/hmd/                the Python tool, published as `HyperMarkDown`
   pyproject.toml          the distribution; also where dependency bounds live
-  src/hyper_markdown/     the library — parse, resolve, embed, urls, lint, render
+  src/hypermarkdown/     the library — parse, resolve, embed, urls, lint, render
     mkdocs_plugin.py      the only file that imports MkDocs
   tests/                  the tool's own suite
-tools/hmd-ts-core/        @hyper-markdown/core — the TypeScript implementation
+tools/hmd-ts-core/        @hypermarkdown/core — the TypeScript implementation
 tools/hmd-vsc-ext/        the VS Code extension
 tests/                    repository guards: this repo's prose and its built site
 examples/small/           a runnable fixture wiki, exercised by both lines

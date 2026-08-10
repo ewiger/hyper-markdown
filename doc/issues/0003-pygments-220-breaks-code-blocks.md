@@ -63,7 +63,7 @@ makes `superfences` match fences again. Re-bisected against `pygments 2.20.0`:
 So the ceiling came off and the constraint became `pymdown-extensions>=10.21.2`.
 Two things changed with it. It moved to the **base** dependencies: the extra was
 the wrong home, because `pymdownx.superfences` is loaded by `render/flat.py` for
-`hmd render --to html`, so a plain `pip install hyper-markdown` had no
+`hmd render --to html`, so a plain `pip install HyperMarkDown` had no
 protection at all — 0.1.0 could render fences as running text with no site in
 sight. And the versions the project actually builds with are now in `uv.lock`
 rather than left to a resolver, which is what would have made this land as a

@@ -1,4 +1,4 @@
-# Developing `@hyper-markdown/core`
+# Developing `@hypermarkdown/core`
 
 The TypeScript implementation of the format: scanner, parser, resolver, IR,
 expansion, renderer, and graph. This file is the loop for *this* package.
@@ -23,9 +23,9 @@ uv sync --locked       # only for parity; puts `hmd` on `uv run`'s path
 ## The loop
 
 ```bash
-npm run -w @hyper-markdown/core build      # tsc -> dist/
-npm run -w @hyper-markdown/core typecheck  # no emit
-npm run -w @hyper-markdown/core test       # vitest: scanner, resolver, IR, corpus, parity
+npm run -w @hypermarkdown/core build      # tsc -> dist/
+npm run -w @hypermarkdown/core typecheck  # no emit
+npm run -w @hypermarkdown/core test       # vitest: scanner, resolver, IR, corpus, parity
 ```
 
 `dist/` is gitignored and is what the extension imports.
@@ -52,8 +52,8 @@ normal state of a document being written, not an error case.
 ## Conformance is the point
 
 ```bash
-npm run -w @hyper-markdown/core test              # includes corpus and parity
-HMD_REQUIRE_PARITY=1 npm run -w @hyper-markdown/core test
+npm run -w @hypermarkdown/core test              # includes corpus and parity
+HMD_REQUIRE_PARITY=1 npm run -w @hypermarkdown/core test
 ```
 
 - **`test/corpus.test.ts`** runs every case in

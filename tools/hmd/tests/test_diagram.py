@@ -6,7 +6,7 @@ import base64
 
 import pytest
 
-from hyper_markdown import diagram, scan
+from hypermarkdown import diagram, scan
 
 
 class FakeEngine(diagram.D2Engine):

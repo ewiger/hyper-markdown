@@ -1,8 +1,8 @@
 /**
- * `@hyper-markdown/core` — parser, resolver, and renderer for hyper-markdown.
+ * `@hypermarkdown/core` — parser, resolver, and renderer for HyperMarkDown.
  *
  * Specified by HMD-0020. The canonical implementation is the Python package
- * under `tools/hmd/src/hyper_markdown/`; where the two disagree, Python is right and this
+ * under `tools/hmd/src/hypermarkdown/`; where the two disagree, Python is right and this
  * one carries the bug (HMD-0020 §10).
  */
 

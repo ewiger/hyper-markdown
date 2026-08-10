@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-* **Markdown compatible** — standard Markdown remains valid Hyper-Markdown, including commonly used GitHub-flavoured features such as fenced code, tables, task lists, and strikethrough.
+* **Markdown compatible** — standard Markdown remains valid HyperMarkDown, including commonly used GitHub-flavoured features such as fenced code, tables, task lists, and strikethrough.
 
 * **Wiki links** — link to documents, headings, and individual blocks: `[[page]]`, `[[page#Section]]`, `[[page#^block]]`, with optional aliases such as `[[page|display text]]`.
 
@@ -16,7 +16,7 @@
 
 * **Validation and tooling** — `hmd` lints a document tree, renders a card to markdown or HTML, and dumps the resolved link graph. A reference to a document that does not exist yet is a warning; malformed references and ambiguous autodiscovery are errors, while ordered import paths use declaration precedence. MkDocs integration ships today; VS Code tooling is in development.
 
-* **HQL — Hyper Query Language** *(experimental)* — a proposed query layer for deriving content and views from the document graph: backlinks, tags, relationships, collections, and other structured queries over Hyper-Markdown knowledge.
+* **HQL — Hyper Query Language** *(experimental)* — a proposed query layer for deriving content and views from the document graph: backlinks, tags, relationships, collections, and other structured queries over HyperMarkDown knowledge.
 
 
 ## A superset of CommonMark
@@ -26,11 +26,11 @@ you typed by hand and now maintain by hand. No diagrams. No mathematics. No way
 to say a thing once and use it in ten places. No way to be wrong about a link
 and find out before your reader does.
 
-Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. Hyper-markdown is a specification instead, built as a syntactic extension of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. Every CommonMark document remains syntactically valid, while text that CommonMark treats as literal can gain hyper-markdown semantics such as wikilinks or frontmatter.
+Markdown has no shortage of dialects — each one adding whatever its own tool needed, and almost none of them written down. HyperMarkDown is a specification instead, built as a syntactic extension of [CommonMark](https://commonmark.org/), which is the most widely implemented markdown and the most carefully specified. Every CommonMark document remains syntactically valid, while text that CommonMark treats as literal can gain HyperMarkDown semantics such as wikilinks or frontmatter.
 
 > CommonMark specification: https://commonmark.org/
 
-Hyper-markdown starts exactly there and keeps going. Everything on this page was
+HyperMarkDown starts exactly there and keeps going. Everything on this page was
 typed as plain text into a file you can open in any editor — and most of it is
 rendering on this page right now.
 
@@ -174,14 +174,14 @@ multiple autodiscovery matches are errors. Ordered wildcard imports use
 declaration precedence and report shadowing as a warning. Everything else about
 your prose is left entirely alone.
 
-## Markdown is JavaScript. Hyper-markdown is TypeScript.
+## Markdown is JavaScript. HyperMarkDown is TypeScript.
 
 That is the shortest way to say what this is. A superset that adds structure a
 machine can check, erases back down to the thing it extends, and is adopted one
 file at a time.
 
 ```markdown
-<!-- notes.md — valid markdown, and already valid hyper-markdown -->
+<!-- notes.md — valid markdown, and already valid HyperMarkDown -->
 Tokens rotate hourly. See [the token format](../shared/tokens.md).
 ```
 
@@ -217,6 +217,6 @@ full is [MD ↔ HMD interoperability](../wiki/md-hmd-interop.hmd).
     this page, taught in order, in one sitting.
 
 [^1]: Like this one. Footnotes, callouts, and everything else on this page come
-    from the wider markdown world rather than from hyper-markdown itself — the
+    from the wider markdown world rather than from HyperMarkDown itself — the
     format assumes them and renders them as first-class content instead of
     reinventing them.

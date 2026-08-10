@@ -15,7 +15,7 @@ import {
   type DirEntry,
   type ProjectConfig,
   type WorkspaceHost,
-} from "@hyper-markdown/core";
+} from "@hypermarkdown/core";
 
 const decoder = new TextDecoder("utf-8");
 
@@ -80,7 +80,7 @@ export async function discoverRoot(folder: vscode.Uri): Promise<DiscoveredRoot> 
       );
     } catch (exc) {
       void vscode.window.showWarningMessage(
-        `Hyper-Markdown: ${exc instanceof Error ? exc.message : String(exc)}`,
+        `HyperMarkDown: ${exc instanceof Error ? exc.message : String(exc)}`,
       );
     }
   }
