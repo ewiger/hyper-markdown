@@ -1,5 +1,10 @@
 # @hypermarkdown/core
 
+[![npm](https://img.shields.io/npm/v/%40hypermarkdown%2Fcore.svg?color=cb3837&label=npm)](https://www.npmjs.com/package/@hypermarkdown/core)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-5fa04e)](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/DEVELOP.md)
+[![Documentation](https://img.shields.io/badge/docs-hypermarkdown.org-ffb300)](https://hypermarkdown.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ewiger/hypermarkdown/blob/main/tools/hmd-ts-core/LICENSE)
+
 Parser, resolver, and renderer for [HyperMarkDown](https://github.com/ewiger/hypermarkdown),
 in TypeScript, with no Python and no editor API.
 
@@ -8,8 +13,11 @@ package under [`tools/hmd/`](https://github.com/ewiger/hypermarkdown/tree/main/t
 Python is right and this one carries the bug.
 
 One of three tools in the [HyperMarkDown monorepo](https://github.com/ewiger/hypermarkdown); the format
-itself is documented at [hypermarkdown.org](https://hypermarkdown.org/). Not
-published to npm yet — the VS Code extension resolves it from the workspace.
+itself is documented at [hypermarkdown.org](https://hypermarkdown.org/).
+
+```
+npm install @hypermarkdown/core
+```
 
 ## Use
 

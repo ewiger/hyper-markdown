@@ -24,14 +24,17 @@ carries only the four Pages addresses, and `www` redirects to it; `hypermarkdown
 0.2.0 is on PyPI and `@hypermarkdown/core` 0.1.1 on npm, both through trusted
 publishers and both verified by installing from the registry.
 
+All three packages are now published. `hypermarkdown.hmd` 0.1.0 went to Open VSX
+on 2026-08-10 under the freshly verified namespace, and the bytes the gallery
+serves hash identically to the artifact the build gated. The VS Marketplace is
+deliberately not part of that: its job stays skipped until the gallery offers
+trusted publishing, so that upload is manual and has not happened.
+
 Two things are outstanding, and neither is the new name. **W3** is the last piece
 of external configuration nobody can commit: `hyper-markdown.org` still answers
 404 on both schemes rather than redirecting, so every link published under the
-old host is dead (B4). And the extension is unpublished — no `vsc-ext-v*` tag
-exists, and neither gallery serves `hypermarkdown.hmd` — which is a
-release that has not happened rather than a rename that has not finished. Only
-Open VSX is in scope when it does: the Marketplace job stays skipped until the
-gallery offers trusted publishing, so that upload is manual.
+old host is dead (B4). And every Marketplace link this project publishes now
+points at a listing that does not exist (B5).
 
 ## Done
 
@@ -68,6 +71,7 @@ D1–D7 are the record; everything from D8 on is implemented and gated.
 | D23 | `origin` repointed to the renamed repository. One worktree exists, so there is no second clone to follow | The repository and the URLs that point at it |
 | D28 | Open VSX namespace `hypermarkdown` claimed and now `verified: true`, granted through [open-vsx.org#12443](https://github.com/EclipseFdn/open-vsx.org/issues/12443) on a DNS TXT record — the same domain control D25 established. The extension will therefore list without the unverified-publisher warning on its first publish. The mechanical half matters more than the badge: a verified namespace admits only its members, so the account holding `OVSX_PAT` has to be the one that filed the claim, where before the grant any account could have published into it | The extension's identity on both galleries |
 | D29 | Extension ID is `hypermarkdown.hmd`, superseding D6's `hypermarkdown.hmd-vsc-ext` with hours to spare before the first publish made it permanent. `-vsc-ext` is redundant in a gallery where everything is a VS Code extension, and it named a repository directory rather than a product. The cost is a coupling invisible from the manifest: `name` is at once the ID's second half and the npm workspace name, so `hmd` would have made `npm run -w hmd` mean the extension while `tools/hmd/` is the Python tool whose console script is also `hmd`. Mitigated rather than accepted — npm takes a *path* for `-w`, so all thirteen call sites now read `-w tools/hmd-vsc-ext` and nobody types `hmd` to mean the extension. The directory keeps its name because it cannot take the tool's: `tools/hmd/` is occupied | The extension's identity on both galleries |
+| D31 | `hypermarkdown.hmd` 0.1.0 published to Open VSX through `release-vsc-ext.yml`, the third and last package to ship under the new name. Verified from the registry rather than from the build, and more strictly than the other two were: the VSIX downloaded from the gallery hashes to the same SHA-256 as the asset on the GitHub release, which is the artifact the build gated — so no unreviewed bytes entered the distribution path. The listing carries the verified namespace and the `preview` flag. One operational note for the next release: `ovsx` reported `Published` while `GET /api/hypermarkdown/hmd` still answered 404, and it stayed 404 for over a minute — a post-publish check that runs immediately will fail against a publish that worked | The extension's identity on both galleries |
 | D30 | Open VSX publish step made deterministic. `npx ovsx` became `npx --no ovsx`, which runs the lockfile's 1.1.1 and fails rather than silently fetching a registry version should the devDependency ever be dropped — this is the one job past every gate, where a failure burns a version no registry will reissue. Verified locally both ways: `npx --no ovsx` runs the local binary, and `npx --no` on an uninstalled package errors instead of installing. The job also moves to Node 24, matching `release-ts-core.yml`'s split of build-on-CI's-version, publish-on-current | The extension's identity on both galleries |
 
 ## TODO
@@ -88,6 +92,7 @@ D1–D7 are the record; everything from D8 on is implemented and gated.
 | ~~B1~~ | ~~The extension release is dead on arrival: it publishes to an Open VSX namespace that does not exist.~~ **Fixed** 2026-08-10 by D8. The manifest now names `hypermarkdown`, which is the namespace that exists | fixed |
 | ~~B2~~ | ~~The Python release is dead on arrival: the PyPI trusted publisher names a repository that no longer exists under that name.~~ **Fixed** 2026-08-10 by D9 and D11 together — a publisher was registered against the new repository, and the wheel is now built under the project name that publisher authorises. Either half alone would still have failed | fixed |
 | ~~B3~~ | ~~`https://hypermarkdown.org/` fails TLS: two non-GitHub A records sit alongside the four Pages ones.~~ **Fixed** 2026-08-10 by D25. The apex carries only the Pages addresses and all four serve 200 | fixed |
+| B5 | Every VS Marketplace link this project publishes is dead. The site's landing page leads with an **Install from the VS Marketplace** primary button, the extension README and the root README carry marketplace badges and a listing link, and `ext install hypermarkdown.hmd` resolves to nothing in VS Code proper — because only Open VSX was published. This was latent while nothing was released and became visible the moment something was; it clears on the manual upload, not on a code change | 2026-08-10, D31 |
 | B4 | `hyper-markdown.org` answers 404. It no longer resolves to GitHub Pages — its records now point at a forwarding service, so the registrar side is half-configured — but neither address redirects, so the forwarding *rule* is absent or has not taken effect. Every link published under the old host is still dead | the Pages custom domain moved |
 
 ### Limitations
@@ -166,6 +171,12 @@ either tag is pushed, since W4 and W5 fail only at publish time.
   Pages addresses under the new name. An earlier reading of the apex showed two
   stray records still present and was wrong — that was a cached resolver, not
   the zone, and the authoritative answer had already been correct.
+- 2026-08-10: D31. The extension is published and all three packages are out.
+  What the release surfaced rather than fixed is B5: the install surfaces were
+  written for two galleries and only one exists, so the site's primary install
+  button now leads somewhere that 404s. Worth separating from a defect — the
+  Marketplace half was always going to be manual, and nobody had reason to
+  notice the asymmetry while there was nothing to install anywhere.
 - 2026-08-10: D29 and D30, both in the release commit itself. The ID changed
   one step before it became permanent, which is the right time and an
   uncomfortable one: Q4 had been open since the record was drafted precisely

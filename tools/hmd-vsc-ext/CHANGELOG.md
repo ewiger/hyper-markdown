@@ -23,8 +23,11 @@ against
 
 ## [0.1.0] — 2026-08-10
 
-First public release, on the VS Marketplace and Open VSX as
-`hypermarkdown.hmd`. Flagged **preview**: the preview surface is
+First public release, on [Open VSX](https://open-vsx.org/extension/hypermarkdown/hmd)
+as `hypermarkdown.hmd` — so Cursor, Windsurf and VSCodium install it directly,
+and VS Code proper takes the VSIX from
+[the release](https://github.com/ewiger/hypermarkdown/releases/tag/vsc-ext-v0.1.0)
+until the VS Marketplace upload happens by hand. Flagged **preview**: the preview surface is
 complete and gated by tests, the graph tab and the publication model are not
 built yet, and the flag comes off when they are.
 

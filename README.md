@@ -50,7 +50,7 @@ disagree, this one defines the answer. It will also host the language server.
 
 ### [`@hypermarkdown/core`](tools/hmd-ts-core/) — the TypeScript implementation
 
-[![npm](https://img.shields.io/badge/npm-not%20yet%20published-lightgrey)](tools/hmd-ts-core/README.md)
+[![npm](https://img.shields.io/npm/v/%40hypermarkdown%2Fcore.svg?color=cb3837&label=npm)](https://www.npmjs.com/package/@hypermarkdown/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-5fa04e)](tools/hmd-ts-core/DEVELOP.md)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--ts--core-informational)](tools/hmd-ts-core/CHANGELOG.md)
 
