@@ -125,11 +125,17 @@ nav:
   # READMEs, next to the code they describe, and a copy in the book would be a
   # second thing to keep true. Keep this list in step with `tools/` — the site
   # cannot check it, because MkDocs treats an external nav URL as opaque.
+  #
+  # The extension is the one exception, and deliberately: it is the only tool a
+  # reader *installs* rather than reads, and an install page on GitHub is a page
+  # nobody arrives at. `tools/vscode.md` is that landing page and nothing more —
+  # what it is, the two install buttons, and links out. Everything that could go
+  # stale stays in the extension's own README.
   - Tools:
       - All tools: https://github.com/ewiger/hyper-markdown/tree/main/tools
       - hmd — Python: https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd
       - hmd-ts-core — TypeScript core: https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-ts-core
-      - hmd-vsc-ext — VS Code extension: https://github.com/ewiger/hyper-markdown/tree/main/tools/hmd-vsc-ext
+      - hmd-vsc-ext — VS Code extension: tools/vscode.md
 
 # The numbered proposals are *internal* specifications: how the tools around the
 # format are built, not what the language is. They used to occupy a

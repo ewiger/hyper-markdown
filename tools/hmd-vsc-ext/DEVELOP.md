@@ -162,12 +162,159 @@ is ~440 KB, mostly KaTeX's fonts, and carries no `node_modules`:
 [`.vscodeignore`](.vscodeignore) keeps it to the two bundles and the static
 assets they need. `README.md`, `CHANGELOG.md`, and `LICENSE` travel too — the
 marketplace renders the first two as its Details and Changelog tabs, which is why
-this tool has its own rather than borrowing the repository's.
+this tool has its own rather than borrowing the repository's. `DEVELOP.md` does
+not travel: a build guide in front of someone who installed a preview is noise.
 
-**The identifier is `hyper-markdown.hmd-vsc-ext` and is permanent from the first
-publish.** Renaming afterwards means a second listing and every install of the
-first one stranded on it. Nothing is published yet, so nothing needs a rename —
-but do not change `name` or `publisher` casually now that they are settled.
+**Version and install badges come from `vsmarketplacebadges.dev`, not from
+shields.io.** shields.io retired its whole `visual-studio-marketplace/*` family
+— those URLs now render a grey *retired badge* rather than failing — so a badge
+that looks broken on the listing is the provider, not the extension. Any
+replacement has to be on the trusted-host list `vsce` carries in
+`out/package.js`, or `vsce package` refuses the SVG outright. VS Code's own
+manifest linter flags these URLs anyway; its list is older than `vsce`'s, and
+packaging is the check that decides.
+
+**Every link in `README.md` and `CHANGELOG.md` MUST be absolute.** `vsce`
+rewrites a relative link against the *repository root* and ignores
+`repository.directory`, so `../../doc/…` ships as
+`…/blob/HEAD/../../doc/…` and 404s on the listing. Nothing catches this locally
+except reading the packaged file, which is what the check below does.
+
+**The identifier is `hyper-markdown.hmd-vsc-ext` and is permanent.** Renaming
+means a second listing and every install of the first one stranded on it, so do
+not change `name` or `publisher`.
+
+## Release it
+
+The extension carries **its own version**. It is not the language's and not the
+`hmd` tool's: a release here never implies either, and neither waits for it. The
+tags say so — `vsc-ext-v0.1.0` here, `v0.1.0` for PyPI, and
+[`release.yml`](../../.github/workflows/release.yml) filters on `v[0-9]*` so the
+two never trigger each other.
+
+Publication runs in
+[`release-vsc-ext.yml`](../../.github/workflows/release-vsc-ext.yml): it packages
+one VSIX, checks the tag against `package.json`, and uploads *that file* to Open
+VSX and to the GitHub release. Packaging twice would publish a build nobody
+verified.
+
+**The Marketplace step is currently skipped, and the last step of a release is
+manual.** See [below](#the-marketplace-job-is-temporarily-skipped) — the job is
+written and correct, but the gallery has not yet exposed the configuration it
+needs. Tag, let the workflow run, then upload the VSIX from the GitHub release
+by hand.
+
+```bash
+# 1. version, changelog, and a green tree
+#    - bump "version" in package.json
+#    - move the [Unreleased] entries into a new [X.Y.Z] section with today's date
+#    - add the two link references at the bottom of CHANGELOG.md
+npm run typecheck && HMD_REQUIRE_PARITY=1 npm test && npm run -w hmd-vsc-ext package
+
+# 2. tag and push — Open VSX and the GitHub release are automatic
+git tag vsc-ext-v0.1.0 && git push origin vsc-ext-v0.1.0
+
+# 3. the Marketplace, by hand, from the release the workflow just cut
+gh release download vsc-ext-v0.1.0 --pattern '*.vsix'
+```
+
+Upload that file on
+[the publisher page](https://marketplace.visualstudio.com/manage/publishers/hyper-markdown).
+Download rather than repackage: the file on the release is the one every gate ran
+against, and a fresh `vsce package` is bytes nobody verified.
+
+A dry run without minting a tag: **Actions → Release (VS Code extension) →
+Run workflow**. That path packages and verifies and publishes nowhere.
+
+If Open VSX has to be reached by hand — a publish job to redo, or a workflow that
+never got the chance to run — it takes a token from anywhere:
+
+```bash
+npx ovsx publish --packagePath hmd-vsc-ext-0.1.0.vsix -p "$OVSX_PAT"
+```
+
+### The Marketplace job is temporarily skipped
+
+**This is a limitation of the gallery, not of this repository.** The `marketplace`
+job is written, reviewed, and believed correct; what is missing is on Microsoft's
+side.
+
+- `vsce publish --oidc` has shipped, and the workflow uses it.
+- The exchange requires a **trusted publishing policy** on the publisher, naming
+  this repository and `release-vsc-ext.yml`. The Marketplace does not currently
+  expose that configuration for `hyper-markdown`.
+- So the job is gated on the repository variable
+  `MARKETPLACE_TRUSTED_PUBLISHING` and does not run.
+- **To re-enable, once the policy can be configured:** set that variable to
+  `true` in the repository settings. No code change and no release — the job
+  underneath the gate is already the one that should run.
+
+Because a skipped job would otherwise take its dependents with it, the
+`github-release` job runs on `always()` and tolerates `marketplace` being
+skipped, refusing only when it actually failed. That release is where the manual
+upload gets its VSIX, so it is the one job that has to survive.
+
+**Do not route around this** with a `VSCE_PAT`, an Azure DevOps organisation, an
+Azure subscription, or a service principal. Waiting costs one upload per release.
+The alternatives cost a credential that is retired on **2026-12-01** and would
+have to be unwound again — see below.
+
+### What has to exist first, once
+
+Both registries are accounts, not repository settings, and neither can be
+created by CI:
+
+| Registry | Set up | Secret |
+| --- | --- | --- |
+| [VS Marketplace](https://marketplace.visualstudio.com/manage) | A publisher with ID `hyper-markdown` — done. Then a **trusted publishing** policy on it naming this repository and `release-vsc-ext.yml` — *not yet offered by the gallery*, which is why uploads are manual. | none |
+| [Open VSX](https://open-vsx.org/) | Log in with GitHub, sign the publisher agreement, then `npx ovsx create-namespace hyper-markdown -p <token>`. | `OVSX_PAT` |
+
+**The Marketplace holds no secret of ours, and that is the point.** `vsce
+publish --oidc` exchanges a GitHub-issued identity token for a credential that
+lives for minutes, so there is nothing to leak and nothing to rotate. What
+replaces the token is configuration on the publisher: the policy must name the
+workflow *file*, so renaming `release-vsc-ext.yml` breaks publication until the
+policy is updated. There is no PAT fallback — a policy that does not match fails
+the release rather than reaching for a stored token.
+
+This project never had a `VSCE_PAT`, and should not acquire one. Azure DevOps
+retires global PATs on **2026-12-01**, which is the whole reason the older
+recipe — an Azure DevOps organisation, a token scoped to all accessible
+organisations with **Marketplace → Manage** — is not written here. It works
+until it abruptly does not. Microsoft's own
+[publishing docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
+still document that route and an Entra ID managed-identity one, and both drag in
+an Azure DevOps organisation this repository has no other use for.
+
+**`--oidc` is pinned to a prerelease of `vsce`, on purpose.** The flag is not in
+a stable release yet, and the workflow names an exact version rather than
+`@next`, which is a tag that moves. Bumping it is a deliberate edit; when a
+stable `@vscode/vsce` carries the flag, drop the pin.
+
+**Optional, and it is what puts the blue check on the listing:** verify the
+publisher's domain. Marketplace → publisher settings → verify `hyper-markdown.org`
+with the TXT record it gives you.
+
+### Reading the listing before it is public
+
+The gallery page is built from `package.json` and the two markdown files, so most
+of it can be checked from the VSIX:
+
+```bash
+npm run -w hmd-vsc-ext package
+cd tools/hmd-vsc-ext && unzip -o -d /tmp/vsix hmd-vsc-ext-*.vsix >/dev/null
+grep -c 'blob/HEAD/\.\.' /tmp/vsix/extension/readme.md   # MUST be 0
+```
+
+| On the listing | From |
+| --- | --- |
+| Title, blurb, icon, banner | `displayName`, `description`, `icon`, `galleryBanner` |
+| Body and the Changelog tab | `README.md`, `CHANGELOG.md` |
+| Badges under the title | `badges[]` — from a host on `vsce`'s trusted list, or packaging fails |
+| Categories, tags | `categories`, `keywords` |
+| Resources: Repository, Issues, Homepage, License, Q&A | `repository`, `bugs`, `homepage`, `license`, `qna` |
+| "Preview" flag | `preview` — drop it when the graph tab lands |
+| Feature Contributions tab | `contributes` — settings and commands, rendered by VS Code itself |
 
 ## Regenerating the gallery icon
 

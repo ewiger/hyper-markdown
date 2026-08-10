@@ -2,20 +2,31 @@
 
 Notable changes to the extension, newest first. This file covers **the extension
 only**; the parser, resolver, and renderer under it are
-[`@hyper-markdown/core`](../hmd-ts-core/CHANGELOG.md), and the `hmd` CLI is
-[`hyper-markdown`](../hmd/CHANGELOG.md) on PyPI.
-[The repository's index](../../CHANGELOG.md) lists all three.
+[`@hyper-markdown/core`](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd-ts-core/CHANGELOG.md),
+and the `hmd` CLI is
+[`hyper-markdown`](https://github.com/ewiger/hyper-markdown/blob/main/tools/hmd/CHANGELOG.md)
+on PyPI.
+[The repository's index](https://github.com/ewiger/hyper-markdown/blob/main/CHANGELOG.md)
+lists all three.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-**Not published to the marketplace yet.** `0.1.0` is what a local
-`npm run -w hmd-vsc-ext package` builds, so everything so far is unreleased.
-Implementation state is tracked per work point in
-[`doc/vsc-ext/STATUS.md`](../../doc/vsc-ext/STATUS.md), against
-[HMD-0021](../../doc/proposals/HMD-0021/README.md).
+The extension carries **its own version**, independent of the language's and of
+the `hmd` tool's, and is released on its own tag — `vsc-ext-vX.Y.Z`, where the
+Python tool uses `vX.Y.Z`. Implementation state is tracked per work point in
+[`doc/vsc-ext/STATUS.md`](https://github.com/ewiger/hyper-markdown/blob/main/doc/vsc-ext/STATUS.md),
+against
+[HMD-0021](https://github.com/ewiger/hyper-markdown/blob/main/doc/proposals/HMD-0021/README.md).
 
 ## [Unreleased]
+
+## [0.1.0] — 2026-08-10
+
+First public release, on the VS Marketplace and Open VSX as
+`hyper-markdown.hmd-vsc-ext`. Flagged **preview**: the preview surface is
+complete and gated by tests, the graph tab and the publication model are not
+built yet, and the flag comes off when they are.
 
 ### Added
 
@@ -87,4 +98,5 @@ Implementation state is tracked per work point in
   card being published and never warns about a public card linking to a private
   one.
 
-[Unreleased]: https://github.com/ewiger/hyper-markdown/commits/main/tools/hmd-vsc-ext
+[Unreleased]: https://github.com/ewiger/hyper-markdown/compare/vsc-ext-v0.1.0...HEAD
+[0.1.0]: https://github.com/ewiger/hyper-markdown/releases/tag/vsc-ext-v0.1.0

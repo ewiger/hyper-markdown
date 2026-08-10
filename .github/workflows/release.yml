@@ -4,9 +4,14 @@ name: Release
 # path — build, metadata check, install, smoke test — can be exercised without
 # minting a tag, and so a dry run can be pointed at TestPyPI first. A tag is the
 # only thing that reaches PyPI proper.
+#
+# `v[0-9]*`, not `v*`: each tool carries its own version and its own tag, and the
+# extension's is `vsc-ext-vX.Y.Z`. That also begins with a `v`, so the looser
+# glob would fire this workflow on an extension release — building a Python
+# distribution nobody asked for and failing the tag check on the way.
 on:
   push:
-    tags: ["v*"]
+    tags: ["v[0-9]*"]
   workflow_dispatch:
     inputs:
       publish:

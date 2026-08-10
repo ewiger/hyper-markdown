@@ -59,14 +59,19 @@ same [conformance corpus](examples/conformance/) the canonical tool does.
 
 ### [VS Code extension](tools/hmd-vsc-ext/) — live preview for `.hmd`
 
-[![VS Marketplace](https://img.shields.io/badge/marketplace-not%20yet%20published-lightgrey)](tools/hmd-vsc-ext/README.md#install)
-[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](tools/hmd-vsc-ext/README.md#install)
+[![VS Marketplace](https://vsmarketplacebadges.dev/version-short/hyper-markdown.hmd-vsc-ext.svg?color=007acc&label=marketplace)](https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext)
+[![Open VSX](https://img.shields.io/open-vsx/v/hyper-markdown/hmd-vsc-ext?color=c160ef&label=open%20vsx)](https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext)
+[![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.90-007acc)](https://hyper-markdown.org/tools/vscode/)
 [![Changelog](https://img.shields.io/badge/changelog-tools%2Fhmd--vsc--ext-informational)](tools/hmd-vsc-ext/CHANGELOG.md)
 
 Live preview that keeps the embed boundary visible, backlinks, red links, and
 diagnostics. Today it is the preview and the viewer, rendered in TypeScript, so
 there is nothing to install to see a card. Completion and the rest of the
 language-server features arrive with the Python server.
+
+```
+ext install hyper-markdown.hmd-vsc-ext
+```
 
 ![The VS Code extension previewing a card: source on the left, rendered card on
 the right, with resolved links, a table, a callout, and a d2
@@ -116,9 +121,9 @@ uv run mkdocs serve   # preview the book and the wiki as you write
 
 Writing `.hmd` in a tree of your own needs none of that today — the [VS Code
 extension](tools/hmd-vsc-ext/) previews a card beside the file you are typing
-in, and the preview is TypeScript end to end. It is not on the marketplace yet,
-so it is built from a clone — three commands, in
-[its README](tools/hmd-vsc-ext/README.md#install).
+in, and the preview is TypeScript end to end. Install it from the marketplace,
+or build the VSIX from this clone: [its
+README](tools/hmd-vsc-ext/README.md#install).
 
 Before opening a PR, run whichever half you touched:
 

@@ -1,0 +1,235 @@
+name: Release (VS Code extension)
+
+# Publication of `hyper-markdown.hmd-vsc-ext` to the VS Marketplace and to Open
+# VSX, driven by a tag. The extension carries its own version, so it carries its
+# own tag prefix: `vsc-ext-vX.Y.Z` here, `vX.Y.Z` for the Python tool in
+# `release.yml`. Neither triggers the other.
+#
+# Open VSX publishes automatically. The Marketplace job is written and skipped —
+# see the block above `marketplace:` — so a tag today ships to Open VSX and the
+# GitHub release, and the Marketplace upload is done by hand from that release.
+#
+# `workflow_dispatch` runs the whole build — gates, tag-free — and publishes
+# nowhere, so the packaging path can be exercised without minting a tag.
+on:
+  push:
+    tags: ["vsc-ext-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never cancel a publication in flight. Both registries refuse to overwrite a
+# version they have already accepted, so a half-finished release is worse than a
+# queued one.
+concurrency:
+  group: release-vsc-ext-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # Python is here for the same reason it is in CI's `js` job: the parity
+      # suite asks the canonical implementation what the right answer is, and a
+      # release is the last place to skip the only cross-implementation gate the
+      # project has.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install
+        run: |
+          npm ci
+          uv sync --locked
+
+      # The tag is a promise about the contents of the VSIX. Checking it here
+      # turns a mistyped tag into a red build instead of a wrong version on a
+      # listing — the marketplace will not let a version be republished.
+      - name: Check the tag matches the packaged version
+        if: startsWith(github.ref, 'refs/tags/vsc-ext-v')
+        run: |
+          tagged="${GITHUB_REF_NAME#vsc-ext-v}"
+          packaged=$(node -p "require('./tools/hmd-vsc-ext/package.json').version")
+          echo "tag=$tagged packaged=$packaged"
+          if [ "$tagged" != "$packaged" ]; then
+            echo "::error::tag vsc-ext-v$tagged does not match version $packaged" >&2
+            exit 1
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+        env:
+          HMD_REQUIRE_PARITY: "1"
+
+      - name: Package
+        run: npm run -w hmd-vsc-ext package
+
+      # `vsce` rewrites relative links in the packaged README against the
+      # repository root and ignores `repository.directory`, so a `../../doc/…`
+      # link ships as a 404 on the listing. Nothing else catches it: the file
+      # renders correctly on GitHub and wrongly in the gallery.
+      - name: Check the packaged README has no rewritten links
+        run: |
+          unzip -o -d /tmp/vsix tools/hmd-vsc-ext/*.vsix >/dev/null
+          if grep -q 'blob/HEAD/\.\.' /tmp/vsix/extension/readme.md; then
+            echo "::error::README.md has relative links that vsce rewrote into 404s" >&2
+            grep -n 'blob/HEAD/\.\.' /tmp/vsix/extension/readme.md >&2
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: tools/hmd-vsc-ext/*.vsix
+          if-no-files-found: error
+
+  # TEMPORARILY SKIPPED — waiting on Microsoft, not on us.
+  #
+  # This job is complete and believed correct. `--oidc` asks GitHub for a token
+  # scoped to the `marketplace.visualstudio.com` audience and trades it for a
+  # short-lived publishing credential, which is why `id-token: write` is here —
+  # job-level permissions replace the workflow's block outright, so
+  # `contents: read` has to be restated. No credential is stored anywhere.
+  #
+  # What it cannot do yet is authenticate end to end: the exchange requires a
+  # trusted publishing policy on the publisher naming this repository *and this
+  # workflow file*, and the Marketplace does not currently expose that
+  # configuration for `hyper-markdown`. `vsce` has shipped its half; the gallery
+  # has not shipped the other. There is deliberately no PAT fallback, so this
+  # would fail the release rather than quietly publishing.
+  #
+  # Until then the Marketplace is released to by hand — upload the VSIX this
+  # workflow attaches to the GitHub release. Do NOT reintroduce a `VSCE_PAT`, an
+  # Azure DevOps organisation, or a service principal to route around this: those
+  # credentials are retired on 2026-12-01 and would have to be unwound again.
+  #
+  # TO RE-ENABLE, once the policy can be configured: set the repository variable
+  # `MARKETPLACE_TRUSTED_PUBLISHING` to `true`. No code change, no release.
+  marketplace:
+    name: publish to the VS Marketplace
+    needs: build
+    if: >-
+      startsWith(github.ref, 'refs/tags/vsc-ext-v')
+      && vars.MARKETPLACE_TRUSTED_PUBLISHING == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: vscode-marketplace
+      url: https://marketplace.visualstudio.com/items?itemName=hyper-markdown.hmd-vsc-ext
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: vsix
+          path: vsix/
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Pinned, not `@next`. `--oidc` ships only in a prerelease today, and
+      # `next` is a tag that moves — resolving it at release time would let an
+      # untested vsce decide whether a version reaches the gallery. Bump this
+      # deliberately, and drop the range once a stable carries the flag.
+      #
+      # The artifact from `build`, not a fresh package: publishing a second
+      # build would ship bytes no gate ran against. `--no-dependencies` and
+      # `--packagePath` make this a pure upload, so the repository itself is not
+      # needed here — no checkout, no `npm ci`.
+      - name: Publish
+        run: npx @vscode/vsce@3.9.3-4 publish --oidc --no-dependencies --packagePath vsix/*.vsix
+
+  openvsx:
+    name: publish to Open VSX
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/vsc-ext-v')
+    runs-on: ubuntu-latest
+    # Where Cursor, Windsurf, and VSCodium install from. The `hyper-markdown`
+    # namespace has to exist first — `ovsx create-namespace`, once, by hand.
+    environment:
+      name: open-vsx
+      url: https://open-vsx.org/extension/hyper-markdown/hmd-vsc-ext
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: vsix
+          path: vsix/
+
+      - name: Publish
+        run: npx ovsx publish --packagePath vsix/*.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+  github-release:
+    name: github release
+    needs: [marketplace, openvsx]
+    # A skipped `needs` skips its dependents too, so a bare `startsWith` would
+    # silently take the release down with the Marketplace job — and the release
+    # is where the VSIX for the manual upload comes from, which makes it the one
+    # job that must survive. `always()` re-enables evaluation; the two result
+    # checks then keep the old meaning: Open VSX must have published, and the
+    # Marketplace job must not have *failed* — skipped is fine, broken is not.
+    if: >-
+      always()
+      && startsWith(github.ref, 'refs/tags/vsc-ext-v')
+      && needs.openvsx.result == 'success'
+      && needs.marketplace.result != 'failure'
+    runs-on: ubuntu-latest
+    # The one job that writes to the repository, and it writes only the release.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: vsix
+          path: vsix/
+
+      # Notes come from the extension's changelog rather than from generated
+      # commit titles: the changelog is the edited account. `tools/hmd-vsc-ext/`,
+      # not the root one — the root file is the language's.
+      - name: Cut the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#vsc-ext-v}"
+          python3 -c "
+          import pathlib, re
+          text = pathlib.Path('tools/hmd-vsc-ext/CHANGELOG.md').read_text()
+          section = re.search(
+              r'^## \[$version\][^\n]*\n(.*?)(?=^## |\Z)', text, re.S | re.M
+          )
+          pathlib.Path('notes.md').write_text((section.group(1) if section else '').strip())
+          " || true
+          [ -s notes.md ] || echo "See tools/hmd-vsc-ext/CHANGELOG.md for what changed." > notes.md
+          gh release create "$GITHUB_REF_NAME" vsix/*.vsix \
+            --title "VS Code extension $version" \
+            --notes-file notes.md
